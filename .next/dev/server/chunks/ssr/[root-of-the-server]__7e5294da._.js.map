@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///home/farooq-ashiru/Desktop/Main_Projects/LearnAnything/src/app/courses/%5Bcourse_slug%5D/lessons/%5Blessons_slug%5D/page.tsx"],"sourcesContent":["import ScoopedFrame from \"@/components/lessons/ScoopedFrame\";\nimport LessonContent from \"@/components/lessons/LessonContent\";\n\nexport default function LessonPage() {\n  return (\n    <main\n      className=\"min-h-screen flex items-center justify-center\"\n      style={{ backgroundColor: \"#F0F4F2\" }}\n    >\n      <ScoopedFrame>\n        <LessonContent\n          title=\"Title\"\n          moduleNum={1}\n          chapterNum={3}\n          totalPages={3}\n        />\n      </ScoopedFrame>\n    </main>\n  );\n}\n"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;AAGe,SAAS;IACtB,qBACE,0ZAAC;QACC,WAAU;QACV,OAAO;YAAE,iBAAiB;QAAU;kBAEpC,cAAA,0ZAAC;sBACC,cAAA,0ZAAC;gBACC,OAAM;gBACN,WAAW;gBACX,YAAY;gBACZ,YAAY;;;;;;;;;;;;;;;;AAKtB"}}]
+}

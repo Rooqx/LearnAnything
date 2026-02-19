@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":["file:///home/farooq-ashiru/Desktop/Main_Projects/LearnAnything/src/app/provider.tsx"],"sourcesContent":["\"use client\";\n/*\n//import { getQueryClient } from \"@/src/lib/react_query\";\nimport { QueryClientProvider } from \"@tanstack/react-query\";\n\nimport { ReactNode } from \"react\";\nimport { getQueryClient } from \"../lib/react_query\";\n\nexport default function Providers({ children }: { children: ReactNode }) {\n  const queryClient = getQueryClient();\n  return (\n    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>\n  );\n}\n*/\n"],"names":[],"mappings":"AAAA,CACA;;;;;;;;;;;;;AAaA"}},
+    {"offset": {"line": 16, "column": 3}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

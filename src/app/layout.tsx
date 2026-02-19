@@ -26,9 +26,9 @@ export default function RootLayout({
         {/* The 'children' prop will contain all nested routes and pages (like /signup)
           We ensure the entire body takes up the full minimum screen height.
         */}
-        <Providers>
-          <main className="min-h-screen">{children}</main>
-        </Providers>
+        {/*<Providers>*/}
+        <main className="min-h-screen">{children}</main>
+        {/*</Providers>*/}
       </body>
     </html>
   );

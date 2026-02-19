@@ -41,37 +41,37 @@ const mod = __turbopack_context__.x("next/dist/compiled/next-server/app-page-tur
 
 module.exports = mod;
 }),
-"[project]/Desktop/Main_Projects/LearnAnything/src/lib/config.ts [middleware] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
+"[project]/Desktop/Main_Projects/LearnAnything/src/lib/config.ts [middleware] (ecmascript)", ((__turbopack_context__, module, exports) => {
 
-__turbopack_context__.s([
-    "env",
-    ()=>env
-]);
 /**
  * THIS FILE IS JUS FOR TYPE SAFETY AND PREVENT APP FROM BREAKING LATER IF WE FOROT TO ADD ENV SHA
  * ALSO REMEMBERR TO ADD NEW ENV VARIABLES HERE THO
- */ var __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$Main_Projects$2f$LearnAnything$2f$node_modules$2f2e$pnpm$2f$zod$40$4$2e$3$2e$4$2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__ = __turbopack_context__.i("[project]/Desktop/Main_Projects/LearnAnything/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/classic/external.js [middleware] (ecmascript) <export * as z>");
-;
-const envSchema = __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$Main_Projects$2f$LearnAnything$2f$node_modules$2f2e$pnpm$2f$zod$40$4$2e$3$2e$4$2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].object({
-    // Server-side variables (Secret)
-    JWT_SECRET: __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$Main_Projects$2f$LearnAnything$2f$node_modules$2f2e$pnpm$2f$zod$40$4$2e$3$2e$4$2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(32, "SESSION_SECRET must be at least 32 chars"),
-    BACKEND_API_URL: __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$Main_Projects$2f$LearnAnything$2f$node_modules$2f2e$pnpm$2f$zod$40$4$2e$3$2e$4$2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().url(),
-    NODE_ENV: __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$Main_Projects$2f$LearnAnything$2f$node_modules$2f2e$pnpm$2f$zod$40$4$2e$3$2e$4$2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$middleware$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].enum([
-        "development",
-        "test",
-        "production"
-    ]).default("development")
+ */ /*
+import { z } from "zod";
+
+const envSchema = z.object({
+  // Server-side variables (Secret)
+  JWT_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 chars"),
+  BACKEND_API_URL: z.string().url(),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  // Client-side variables (Public  start with NEXT_PUBLIC_)
+  // NEXT_PUBLIC_BACKEND_API_URL: z.string().optional(),
 });
+
 //console.log(process.env);
 // Validate process.env
 const _env = envSchema.safeParse(process.env);
+
 if (!_env.success) {
-    console.error("❌ Invalid environment variables:", _env.error.format());
-    throw new Error("Invalid environment variables");
+  console.error("❌ Invalid environment variables:", _env.error.format());
+  throw new Error("Invalid environment variables");
 }
-const env = _env.data;
-}),
+
+export const env = _env.data;
+ */ }),
 "[project]/Desktop/Main_Projects/LearnAnything/src/server/utils/session.ts [middleware] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 

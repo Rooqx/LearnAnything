@@ -1,1 +1,286 @@
-[00:00:04.596] Server  LOG     ✓ Ready in 4.1s
+[00:00:02.193] Server  LOG     ✓ Ready in 1674ms
+[00:00:09.455] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:07:22.914] Server  LOG     ✓ Compiled in 1242ms
+[00:29:58.054] Server  LOG     ✓ Compiled in 432ms
+[00:30:50.388] Server  LOG     ✓ Compiled in 573ms
+[00:31:09.188] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
+Module not found: Can't resolve '@/components/lessons/LessonContent'
+  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+> 2 | import LessonContent from "@/components/lessons/LessonContent";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 |
+  4 | export default function LessonPage() {
+  5 |   return (
+
+Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.277] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
+Module not found: Can't resolve '@/components/lessons/LessonContent'
+  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+> 2 | import LessonContent from "@/components/lessons/LessonContent";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 |
+  4 | export default function LessonPage() {
+  5 |   return (
+
+Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.288] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
+Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
+> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | import LessonContent from "@/components/lessons/LessonContent";
+  3 |
+  4 | export default function LessonPage() {
+
+Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.302] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
+Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
+> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | import LessonContent from "@/components/lessons/LessonContent";
+  3 |
+  4 | export default function LessonPage() {
+
+Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.352] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
+Module not found: Can't resolve '@/components/lessons/LessonContent'
+  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+> 2 | import LessonContent from "@/components/lessons/LessonContent";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 |
+  4 | export default function LessonPage() {
+  5 |   return (
+
+Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.387] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
+Module not found: Can't resolve '@/components/lessons/LessonContent'
+  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+> 2 | import LessonContent from "@/components/lessons/LessonContent";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 |
+  4 | export default function LessonPage() {
+  5 |   return (
+
+Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.390] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
+Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
+> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | import LessonContent from "@/components/lessons/LessonContent";
+  3 |
+  4 | export default function LessonPage() {
+
+Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:09.392] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
+Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
+> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | import LessonContent from "@/components/lessons/LessonContent";
+  3 |
+  4 | export default function LessonPage() {
+
+Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:31:10.254] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
+Module not found: Can't resolve '@/components/lessons/LessonContent'
+  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+> 2 | import LessonContent from "@/components/lessons/LessonContent";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  3 |
+  4 | export default function LessonPage() {
+  5 |   return (
+
+Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+https://nextjs.org/docs/messages/module-not-found
+[00:31:10.254] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
+Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
+> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | import LessonContent from "@/components/lessons/LessonContent";
+  3 |
+  4 | export default function LessonPage() {
+
+Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
+
+https://nextjs.org/docs/messages/module-not-found
+[00:32:20.152] Server  LOG     ✓ Compiled in 6.6s
+[00:38:27.248] Server  LOG     ✓ Compiled in 549ms
+[00:38:53.988] Server  LOG     ✓ Compiled in 102ms
+[00:39:08.422] Server  LOG     ✓ Compiled in 188ms
+[00:40:12.811] Server  LOG     ✓ Compiled in 196ms
+[00:41:11.207] Server  LOG     ✓ Compiled in 82ms
+[00:41:19.720] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:43:24.250] Server  LOG     ✓ Compiled in 1309ms
+[00:45:08.310] Server  LOG     ✓ Compiled in 371ms
+[00:45:14.412] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:45:32.622] Server  LOG     ✓ Compiled in 1819ms
+[00:47:41.347] Server  LOG     ✓ Compiled in 197ms
+[00:47:45.912] Server  LOG     ✓ Compiled in 85ms
+[00:47:56.007] Server  LOG     ✓ Compiled in 693ms
+[00:48:26.558] Server  LOG     ✓ Compiled in 269ms
+[00:48:42.831] Server  LOG     ✓ Compiled in 146ms
+[00:48:43.343] Server  LOG     ✓ Compiled in 127ms
+[00:49:00.064] Server  LOG     ✓ Compiled in 85ms
+[00:49:01.070] Server  LOG     ✓ Compiled in 114ms
+[00:49:35.980] Server  LOG     ✓ Compiled in 514ms
+[00:49:40.378] Server  LOG     ✓ Compiled in 193ms
+[00:50:01.193] Server  LOG     ✓ Compiled in 211ms
+[00:51:37.100] Server  LOG     ✓ Compiled in 850ms
+[00:51:46.354] Server  LOG     ✓ Compiled in 164ms
+[00:52:44.434] Server  LOG     ✓ Compiled in 145ms
+[00:52:54.214] Server  LOG     ✓ Compiled in 108ms
+[00:53:00.645] Server  LOG     ✓ Compiled in 151ms
+[00:53:02.217] Server  LOG     ✓ Compiled in 112ms
+[00:53:10.316] Server  LOG     ✓ Compiled in 113ms
+[00:53:15.960] Server  LOG     ✓ Compiled in 96ms
+[00:53:23.460] Server  LOG     ✓ Compiled in 113ms
+[00:55:23.181] Server  LOG     ✓ Compiled in 203ms
+[00:55:37.462] Server  LOG     ✓ Compiled in 241ms
+[00:55:37.614] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:293:16
+Parsing ecmascript source code failed
+  291 |         >
+  292 |             Title
+> 293 |         </span>}
+      |                ^
+  294 |
+  295 |         {/* Module / Chapter indicator */}
+  296 |         <div className="text-right leading-tight">
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
+    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
+[00:55:45.980] Server  LOG     ✓ Compiled in 819ms
+[00:55:46.146] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
+Parsing ecmascript source code failed
+  311 |           >
+  312 |             Module {moduleNum}
+> 313 |           </p>
+      |               ^
+> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
+      | ^^^^^^^^^^^
+  315 |             Chapter {chapterNum}
+  316 |           </p>
+  317 |         </div>
+
+Expected '</', got 'jsx text (
+          )'
+
+Import trace:
+  Server Component:
+    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
+    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
+[00:55:49.422] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
+Parsing ecmascript source code failed
+  311 |           >
+  312 |             Module {moduleNum}
+> 313 |           </p>
+      |               ^
+> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
+      | ^^^^^^^^^^^
+  315 |             Chapter {chapterNum}
+  316 |           </p>
+  317 |         </div>
+
+Expected '</', got 'jsx text (
+          )'
+
+Import trace:
+  Server Component:
+    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
+    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
+[00:55:50.255] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
+Parsing ecmascript source code failed
+  311 |           >
+  312 |             Module {moduleNum}
+> 313 |           </p>
+      |               ^
+> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
+      | ^^^^^^^^^^^
+  315 |             Chapter {chapterNum}
+  316 |           </p>
+  317 |         </div>
+
+Expected '</', got 'jsx text (
+          )'
+
+Import trace:
+  Server Component:
+    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
+    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
+[00:55:50.545] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
+Parsing ecmascript source code failed
+  311 |           >
+  312 |             Module {moduleNum}
+> 313 |           </p>
+      |               ^
+> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
+      | ^^^^^^^^^^^
+  315 |             Chapter {chapterNum}
+  316 |           </p>
+  317 |         </div>
+
+Expected '</', got 'jsx text (
+          )'
+
+Import trace:
+  Server Component:
+    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
+    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
+[00:56:01.449] Server  LOG     ✓ Compiled in 404ms
+[00:56:27.697] Server  LOG     ✓ Compiled in 281ms
+[00:56:39.062] Server  LOG     ✓ Compiled in 174ms
+[00:56:45.844] Server  LOG     ✓ Compiled in 326ms
+[00:56:52.448] Server  LOG     ✓ Compiled in 226ms
+[00:57:36.860] Server  LOG     ✓ Compiled in 234ms
+[00:57:48.357] Server  LOG     ✓ Compiled in 825ms
+[00:58:00.427] Server  LOG     ✓ Compiled in 478ms
+[00:58:20.581] Server  LOG     ✓ Compiled in 82ms
+[00:58:29.091] Server  LOG     ✓ Compiled in 236ms
+[00:58:59.035] Server  LOG     ✓ Compiled in 426ms
+[00:59:22.169] Server  LOG     ✓ Compiled in 273ms
+[00:59:42.684] Server  LOG     ✓ Compiled in 106ms
+[01:00:01.738] Server  LOG     ✓ Compiled in 114ms
+[01:00:14.522] Server  LOG     ✓ Compiled in 105ms
+[01:01:16.356] Server  LOG     ✓ Compiled in 864ms
