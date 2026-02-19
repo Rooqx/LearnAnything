@@ -6,3 +6,56 @@ node_modules
 /src/generated/prisma
 
 /generated/prisma
+
+# =====================
+# Node / Next.js
+# =====================
+node_modules/
+.next/
+out/
+dist/
+build/
+*.log
+*.lock
+
+# PNPM
+.pnpm-store/
+.pnpm-debug.log
+pnpm-lock.yaml
+
+# TypeScript
+*.tsbuildinfo
+
+# =====================
+# Go
+# =====================
+/apps/backend/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# =====================
+# IDEs / Editors
+# =====================
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# macOS
+.DS_Store
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Docker
+docker-compose.override.yml
+docker-compose.override.env
+*.dockerignore
