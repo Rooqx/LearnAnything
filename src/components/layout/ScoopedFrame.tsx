@@ -43,10 +43,13 @@ interface ScoopedFrameProps {
  * "top scoop" SVG transition, and a flexible light content area
  * that accepts any page content as children.
  */
-export default function ScoopedFrame({ children, className = "" }: ScoopedFrameProps) {
+export default function ScoopedFrame({
+  children,
+  className = "",
+}: ScoopedFrameProps) {
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-3xl min-h-screen ${className}`}
+      className={`relative flex flex-col overflow-hidden h-screen px-4 ${className}`}
       style={{ backgroundColor: FRAME_BG }}
     >
       {/* ── TOP HEADER ──────────────────────────────────────────────────────
@@ -58,7 +61,10 @@ export default function ScoopedFrame({ children, className = "" }: ScoopedFrameP
         style={{ backgroundColor: FRAME_BG }}
       >
         {/* Brand */}
-        <span className="text-lg font-bold tracking-tight" style={{ color: CONTENT_BG }}>
+        <span
+          className="text-lg font-bold tracking-tight"
+          style={{ color: CONTENT_BG }}
+        >
           LearnAnything
         </span>
 
@@ -67,7 +73,7 @@ export default function ScoopedFrame({ children, className = "" }: ScoopedFrameP
           {/* "Learning Plan" — only item with a visible text label */}
           <button className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity duration-200">
             <GraduationCap size={17} color={CONTENT_BG} strokeWidth={1.6} />
-            <span className="text-sm font-medium" style={{ color: CONTENT_BG }}>
+            <span className="text-xs font-medium" style={{ color: CONTENT_BG }}>
               Learning Plan
             </span>
           </button>
@@ -96,56 +102,71 @@ export default function ScoopedFrame({ children, className = "" }: ScoopedFrameP
 
           {/* Name + email stacked */}
           <div className="flex flex-col leading-tight">
-            <span className="text-[12px] font-semibold" style={{ color: CONTENT_BG }}>
+            <span
+              className="text-[12px] font-semibold"
+              style={{ color: CONTENT_BG }}
+            >
               Ellington Thom
             </span>
-            <span className="text-[10px] opacity-50" style={{ color: CONTENT_BG }}>
+            <span
+              className="text-[10px] opacity-50"
+              style={{ color: CONTENT_BG }}
+            >
               annetteg.gmail.com
             </span>
           </div>
 
           {/* Dropdown indicator */}
-          <ChevronDown size={14} color={CONTENT_BG} strokeWidth={2} className="opacity-70" />
+          <ChevronDown
+            size={14}
+            color={CONTENT_BG}
+            strokeWidth={2}
+            className="opacity-70"
+          />
+        </div>
+
+        {/* ── TOP SCOOP ───────────────────────────────────────────────────────
+                  Full-width SVG strip that sits directly beneath the header.
+                  The rect fills the entire strip with the content background colour,
+                  then the cubic-bezier path draws the dark dome shape emerging from
+                  the header centre — giving the illusion that the frame extends
+                  downward in a smooth sweep before the light content area begins.
+              ─────────────────────────────────────────────────────────────────────── */}
+        <div
+          className="absolute w-full bottom-0 z-30"
+          style={{ marginTop: "-1px", right: "100px" }}
+        >
+          <svg
+            viewBox="0 0 1200 48"
+            width="100%"
+            height="88"
+            preserveAspectRatio="none"
+            display="block"
+          >
+            {/* Base: content colour fills the whole strip    <rect width="1200" height="48" fill={CONTENT_BG} /> */}
+
+            {/*
+                    Dome: centred at x=600.
+                    Two cubic bezier arcs form a smooth bell shape.
+                    Left arc:  (480,0) → (530,0) → (570,48) → (600,48)
+                    Right arc: (600,48) → (630,48) → (670,0) → (720,0)
+                  */}
+            <path
+              d="M588,48
+                       C593,48 597,43.2 600,43.2
+                       C603,43.2 607,48 612,48 Z"
+              fill="white"
+            />
+          </svg>
         </div>
       </header>
-
-      {/* ── TOP SCOOP ───────────────────────────────────────────────────────
-          Full-width SVG strip that sits directly beneath the header.
-          The rect fills the entire strip with the content background colour,
-          then the cubic-bezier path draws the dark dome shape emerging from
-          the header centre — giving the illusion that the frame extends
-          downward in a smooth sweep before the light content area begins.
-      ─────────────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 w-full" style={{ marginTop: "-1px" }}>
-        <svg
-          viewBox="0 0 1200 48"
-          width="100%"
-          height="48"
-          preserveAspectRatio="none"
-          display="block"
-        >
-          {/* Base: content colour fills the whole strip */}
-          <rect width="1200" height="48" fill={CONTENT_BG} />
-
-          {/*
-            Dome: centred at x=600.
-            Two cubic bezier arcs form a smooth bell shape.
-            Left arc:  (480,0) → (530,0) → (570,48) → (600,48)
-            Right arc: (600,48) → (630,48) → (670,0) → (720,0)
-          */}
-          <path
-            d="M480,0 C530,0 570,48 600,48 C630,48 670,0 720,0 Z"
-            fill={FRAME_BG}
-          />
-        </svg>
-      </div>
 
       {/* ── CONTENT AREA ────────────────────────────────────────────────────
           Flexible region that grows to fill remaining viewport height.
           All page-specific layout is injected here via children.
       ─────────────────────────────────────────────────────────────────────── */}
       <main
-        className="relative z-0 flex-1 overflow-hidden"
+        className="relative flex-1 overflow-hidden rounded-3xl"
         style={{ backgroundColor: CONTENT_BG }}
       >
         {children}

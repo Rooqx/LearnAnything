@@ -76,19 +76,22 @@ const COURSES: Course[] = [
 function CourseCard({ course }: { course: Course }) {
   return (
     <div
-      className="rounded-2xl p-4 mb-4 flex flex-col gap-3"
+      className="rounded-2xl  mb-4 flex flex-col gap-3 w-[90%] p-10 shadow-[2px_3px_10px_rgba(0,0,0,0.1)]"
       style={{ backgroundColor: course.bgColor }}
     >
       {/* Title */}
       <h3
-        className="text-[15px] font-bold leading-snug"
+        className="text-[16px] md:text-[18px] font-bold leading-snug"
         style={{ color: TEXT_PRIMARY }}
       >
         {course.title}
       </h3>
 
       {/* Description */}
-      <p className="text-[12px] leading-relaxed" style={{ color: MUTED }}>
+      <p
+        className="text-[12px] md:text-[14px] leading-relaxed"
+        style={{ color: MUTED }}
+      >
         {course.description}
       </p>
 
@@ -145,7 +148,7 @@ function CourseCard({ course }: { course: Course }) {
  */
 function FloatingNavRail() {
   return (
-    <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-4">
+    <div className="flex flex-col justify-between items-center gap-4 h-4/5 ">
       {/* Top pill — primary nav icons */}
       <div
         className="flex flex-col items-center gap-3 px-2 py-3 rounded-2xl"
@@ -177,29 +180,28 @@ function FloatingNavRail() {
         </button>
       </div>
 
-      {/* Bell with green notification badge */}
-      <div className="relative">
-        <button
-          title="Notifications"
-          className="w-8 h-8 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity duration-200"
-        >
-          <Bell size={20} color={TEXT_PRIMARY} strokeWidth={1.8} />
-        </button>
-
-        {/* Badge */}
-        <span
-          className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold"
-          style={{ backgroundColor: ACCENT, color: TEXT_PRIMARY }}
-        >
-          25
-        </span>
-      </div>
-
       {/* Bottom pill — zoom controls */}
       <div
         className="flex flex-col items-center px-2 py-2 rounded-2xl gap-1"
         style={{ backgroundColor: TEXT_PRIMARY }}
       >
+        {/* Bell with green notification badge */}
+        <div className="relative">
+          <button
+            title="Notifications"
+            className="w-8 h-8 flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity duration-200"
+          >
+            <Bell size={20} color={"white"} strokeWidth={1.8} />
+          </button>
+
+          {/* Badge */}
+          <span
+            className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold"
+            style={{ backgroundColor: ACCENT, color: TEXT_PRIMARY }}
+          >
+            25
+          </span>
+        </div>
         <button
           title="Zoom In"
           className="w-8 h-8 flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-200"
@@ -293,23 +295,25 @@ export default function CreateCourse() {
   };
 
   return (
-    <div className="relative flex h-full min-h-[calc(100vh-100px)]">
+    <div className="relative  flex justify-between h-screen gap-10 max-h-screen">
       {/* ── FLOATING NAV RAIL ─────────────────────────────────────────────
           Absolute-positioned on the left edge, vertically centred.
           Floats above both panes via z-index.
       ──────────────────────────────────────────────────────────────────── */}
-      <FloatingNavRail />
+      <div className="pl-5 h-full mt-5">
+        <FloatingNavRail />
+      </div>
 
       {/* ── LEFT PANE — Courses ───────────────────────────────────────────
           Scrollable list of course cards.
           Left padding accounts for the floating nav rail width (~60px).
       ──────────────────────────────────────────────────────────────────── */}
       <div
-        className="w-[40%] h-full overflow-y-auto pl-16 pr-6 pt-6 pb-6"
+        className="w-[30%] flex flex-col items-center h-full overflow-y-auto pb-30 mt-5"
         style={{ backgroundColor: LEFT_BG, scrollbarWidth: "none" }}
       >
         <h2
-          className="text-[22px] font-bold mb-5"
+          className="text-[22px] font-bold mb-5 flex justify-start w-full ml-8"
           style={{ color: TEXT_PRIMARY }}
         >
           Courses
@@ -320,18 +324,11 @@ export default function CreateCourse() {
         ))}
       </div>
 
-      {/* ── WAVE DIVIDER ──────────────────────────────────────────────────
-          Organic SVG swoosh at the top of the column boundary.
-          Rendered between the two panes so it appears to blend the
-          straight vertical divider into the curved header scoop above.
-      ──────────────────────────────────────────────────────────────────── */}
-      <WaveDivider leftColor={LEFT_BG} rightColor={RIGHT_BG} />
-
       {/* ── RIGHT PANE — Create New Course ────────────────────────────────
           Centred prompt input for generating a new course via AI.
       ──────────────────────────────────────────────────────────────────── */}
       <div
-        className="flex-1 flex flex-col px-10 pt-6 pb-6"
+        className=" flex-1 flex flex-col px-0 pt-5 px-5 pb-6 h-full rounded-tl-3xl"
         style={{ backgroundColor: RIGHT_BG }}
       >
         <h2

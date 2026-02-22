@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Mic, Search } from "lucide-react";
 import { useState } from "react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -65,9 +65,9 @@ export default function PillInput({
       className={`flex items-center gap-3 rounded-full px-5 py-3 bg-white shadow-sm border border-[#E8EDE9] ${className}`}
     >
       {/* Left icon — falls back to a muted search/magnifying glass */}
-      <span className="shrink-0 flex items-center">
-        {icon ?? <Search size={18} color="#9CA3AF" strokeWidth={1.8} />}
-      </span>
+      <button className="shrink-0 flex items-center p-3 rounded-full bg-slate-100 cursor-pointer">
+        {icon ?? <Mic size={18} color="#9CA3AF" strokeWidth={1.8} />}
+      </button>
 
       {/* Centre text input — grows to fill available space */}
       <input
@@ -82,8 +82,8 @@ export default function PillInput({
       {/* Right CTA button */}
       <button
         onClick={handleSubmit}
-        className="shrink-0 px-6 py-2 rounded-full text-sm font-bold tracking-widest transition-opacity duration-200 hover:opacity-90 active:opacity-75"
-        style={{ backgroundColor: buttonColor, color: buttonTextColor }}
+        className="shrink-0 px-6 py-2 rounded-full text-sm font-bold cursor-pointer tracking-widest transition-opacity duration-200 hover:opacity-90 active:opacity-75"
+        style={{ backgroundColor: "black", color: buttonTextColor }}
       >
         {buttonLabel}
       </button>
