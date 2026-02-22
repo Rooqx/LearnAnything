@@ -1,286 +1,365 @@
-[00:00:02.193] Server  LOG     ✓ Ready in 1674ms
-[00:00:09.455] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:07:22.914] Server  LOG     ✓ Compiled in 1242ms
-[00:29:58.054] Server  LOG     ✓ Compiled in 432ms
-[00:30:50.388] Server  LOG     ✓ Compiled in 573ms
-[00:31:09.188] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
-Module not found: Can't resolve '@/components/lessons/LessonContent'
-  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-> 2 | import LessonContent from "@/components/lessons/LessonContent";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  3 |
-  4 | export default function LessonPage() {
-  5 |   return (
-
-Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.277] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
-Module not found: Can't resolve '@/components/lessons/LessonContent'
-  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-> 2 | import LessonContent from "@/components/lessons/LessonContent";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  3 |
-  4 | export default function LessonPage() {
-  5 |   return (
-
-Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.288] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
-Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
-> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  2 | import LessonContent from "@/components/lessons/LessonContent";
-  3 |
-  4 | export default function LessonPage() {
-
-Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.302] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
-Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
-> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  2 | import LessonContent from "@/components/lessons/LessonContent";
-  3 |
-  4 | export default function LessonPage() {
-
-Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.352] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
-Module not found: Can't resolve '@/components/lessons/LessonContent'
-  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-> 2 | import LessonContent from "@/components/lessons/LessonContent";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  3 |
-  4 | export default function LessonPage() {
-  5 |   return (
-
-Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.387] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
-Module not found: Can't resolve '@/components/lessons/LessonContent'
-  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-> 2 | import LessonContent from "@/components/lessons/LessonContent";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  3 |
-  4 | export default function LessonPage() {
-  5 |   return (
-
-Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.390] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
-Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
-> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  2 | import LessonContent from "@/components/lessons/LessonContent";
-  3 |
-  4 | export default function LessonPage() {
-
-Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:09.392] Server  ERROR   ⨯ ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
-Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
-> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  2 | import LessonContent from "@/components/lessons/LessonContent";
-  3 |
-  4 | export default function LessonPage() {
-
-Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-[00:31:10.254] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:2:1
-Module not found: Can't resolve '@/components/lessons/LessonContent'
-  1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-> 2 | import LessonContent from "@/components/lessons/LessonContent";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  3 |
-  4 | export default function LessonPage() {
-  5 |   return (
-
-Import map: aliased to relative './components/lessons/LessonContent' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-https://nextjs.org/docs/messages/module-not-found
-[00:31:10.254] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx:1:1
-Module not found: Can't resolve '@/components/lessons/ScoopedFrame'
-> 1 | import ScoopedFrame from "@/components/lessons/ScoopedFrame";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  2 | import LessonContent from "@/components/lessons/LessonContent";
-  3 |
-  4 | export default function LessonPage() {
-
-Import map: aliased to relative './components/lessons/ScoopedFrame' inside of [project]/Desktop/Main_Projects/LearnAnything
-
-https://nextjs.org/docs/messages/module-not-found
-[00:32:20.152] Server  LOG     ✓ Compiled in 6.6s
-[00:38:27.248] Server  LOG     ✓ Compiled in 549ms
-[00:38:53.988] Server  LOG     ✓ Compiled in 102ms
-[00:39:08.422] Server  LOG     ✓ Compiled in 188ms
-[00:40:12.811] Server  LOG     ✓ Compiled in 196ms
-[00:41:11.207] Server  LOG     ✓ Compiled in 82ms
-[00:41:19.720] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:43:24.250] Server  LOG     ✓ Compiled in 1309ms
-[00:45:08.310] Server  LOG     ✓ Compiled in 371ms
-[00:45:14.412] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:45:32.622] Server  LOG     ✓ Compiled in 1819ms
-[00:47:41.347] Server  LOG     ✓ Compiled in 197ms
-[00:47:45.912] Server  LOG     ✓ Compiled in 85ms
-[00:47:56.007] Server  LOG     ✓ Compiled in 693ms
-[00:48:26.558] Server  LOG     ✓ Compiled in 269ms
-[00:48:42.831] Server  LOG     ✓ Compiled in 146ms
-[00:48:43.343] Server  LOG     ✓ Compiled in 127ms
-[00:49:00.064] Server  LOG     ✓ Compiled in 85ms
-[00:49:01.070] Server  LOG     ✓ Compiled in 114ms
-[00:49:35.980] Server  LOG     ✓ Compiled in 514ms
-[00:49:40.378] Server  LOG     ✓ Compiled in 193ms
-[00:50:01.193] Server  LOG     ✓ Compiled in 211ms
-[00:51:37.100] Server  LOG     ✓ Compiled in 850ms
-[00:51:46.354] Server  LOG     ✓ Compiled in 164ms
-[00:52:44.434] Server  LOG     ✓ Compiled in 145ms
-[00:52:54.214] Server  LOG     ✓ Compiled in 108ms
-[00:53:00.645] Server  LOG     ✓ Compiled in 151ms
-[00:53:02.217] Server  LOG     ✓ Compiled in 112ms
-[00:53:10.316] Server  LOG     ✓ Compiled in 113ms
-[00:53:15.960] Server  LOG     ✓ Compiled in 96ms
-[00:53:23.460] Server  LOG     ✓ Compiled in 113ms
-[00:55:23.181] Server  LOG     ✓ Compiled in 203ms
-[00:55:37.462] Server  LOG     ✓ Compiled in 241ms
-[00:55:37.614] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:293:16
-Parsing ecmascript source code failed
-  291 |         >
-  292 |             Title
-> 293 |         </span>}
-      |                ^
-  294 |
-  295 |         {/* Module / Chapter indicator */}
-  296 |         <div className="text-right leading-tight">
-
-Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
-
-Import trace:
-  Server Component:
-    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
-    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
-[00:55:45.980] Server  LOG     ✓ Compiled in 819ms
-[00:55:46.146] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
-Parsing ecmascript source code failed
-  311 |           >
-  312 |             Module {moduleNum}
-> 313 |           </p>
-      |               ^
-> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
-      | ^^^^^^^^^^^
-  315 |             Chapter {chapterNum}
-  316 |           </p>
-  317 |         </div>
-
-Expected '</', got 'jsx text (
-          )'
-
-Import trace:
-  Server Component:
-    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
-    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
-[00:55:49.422] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
-Parsing ecmascript source code failed
-  311 |           >
-  312 |             Module {moduleNum}
-> 313 |           </p>
-      |               ^
-> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
-      | ^^^^^^^^^^^
-  315 |             Chapter {chapterNum}
-  316 |           </p>
-  317 |         </div>
-
-Expected '</', got 'jsx text (
-          )'
-
-Import trace:
-  Server Component:
-    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
-    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
-[00:55:50.255] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
-Parsing ecmascript source code failed
-  311 |           >
-  312 |             Module {moduleNum}
-> 313 |           </p>
-      |               ^
-> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
-      | ^^^^^^^^^^^
-  315 |             Chapter {chapterNum}
-  316 |           </p>
-  317 |         </div>
-
-Expected '</', got 'jsx text (
-          )'
-
-Import trace:
-  Server Component:
-    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
-    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
-[00:55:50.545] Browser ERROR   ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx:313:15
-Parsing ecmascript source code failed
-  311 |           >
-  312 |             Module {moduleNum}
-> 313 |           </p>
-      |               ^
-> 314 |           <p className="text-[11px]" style={{ color: MUTED }}>
-      | ^^^^^^^^^^^
-  315 |             Chapter {chapterNum}
-  316 |           </p>
-  317 |         </div>
-
-Expected '</', got 'jsx text (
-          )'
-
-Import trace:
-  Server Component:
-    ./Desktop/Main_Projects/LearnAnything/src/components/lessons/LessonContent.tsx
-    ./Desktop/Main_Projects/LearnAnything/src/app/courses/[course_slug]/lessons/[lessons_slug]/page.tsx
-[00:56:01.449] Server  LOG     ✓ Compiled in 404ms
-[00:56:27.697] Server  LOG     ✓ Compiled in 281ms
-[00:56:39.062] Server  LOG     ✓ Compiled in 174ms
-[00:56:45.844] Server  LOG     ✓ Compiled in 326ms
-[00:56:52.448] Server  LOG     ✓ Compiled in 226ms
-[00:57:36.860] Server  LOG     ✓ Compiled in 234ms
-[00:57:48.357] Server  LOG     ✓ Compiled in 825ms
-[00:58:00.427] Server  LOG     ✓ Compiled in 478ms
-[00:58:20.581] Server  LOG     ✓ Compiled in 82ms
-[00:58:29.091] Server  LOG     ✓ Compiled in 236ms
-[00:58:59.035] Server  LOG     ✓ Compiled in 426ms
-[00:59:22.169] Server  LOG     ✓ Compiled in 273ms
-[00:59:42.684] Server  LOG     ✓ Compiled in 106ms
-[01:00:01.738] Server  LOG     ✓ Compiled in 114ms
-[01:00:14.522] Server  LOG     ✓ Compiled in 105ms
-[01:01:16.356] Server  LOG     ✓ Compiled in 864ms
+[00:00:34.465] Server  LOG     ✓ Ready in 25.7s
+[00:00:37.618] Server  LOG     ○ Compiling /courses/[course_slug]/lessons/[lessons_slug] ...
+[00:00:53.192] Server  LOG     isActive: 1
+[00:00:53.195] Server  LOG     isActive: 2
+[00:00:53.196] Server  LOG     isActive: 3
+[00:00:54.920] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:55.822] Browser LOG     isActive: 1
+[00:00:55.822] Browser LOG     isActive: 2
+[00:00:55.822] Browser LOG     isActive: 3
+[00:00:55.822] Browser LOG     isActive: 1
+[00:00:55.822] Browser LOG     isActive: 2
+[00:00:55.822] Browser LOG     isActive: 3
+[00:02:12.934] Server  LOG     ✓ Compiled in 7s
+[00:02:51.161] Server  LOG     ✓ Compiled in 643ms
+[00:02:59.740] Server  LOG     ✓ Compiled in 185ms
+[00:03:02.872] Server  LOG     ✓ Compiled in 389ms
+[00:03:06.693] Server  LOG     isActive: 1
+[00:03:06.695] Server  LOG     isActive: 2
+[00:03:06.696] Server  LOG     isActive: 3
+[00:03:08.818] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:09.641] Browser LOG     isActive: 1
+[00:03:09.642] Browser LOG     isActive: 2
+[00:03:09.642] Browser LOG     isActive: 3
+[00:03:09.642] Browser LOG     isActive: 1
+[00:03:09.642] Browser LOG     isActive: 2
+[00:03:09.642] Browser LOG     isActive: 3
+[00:03:39.913] Server  LOG     ✓ Compiled in 443ms
+[00:03:57.590] Server  LOG     ✓ Compiled in 115ms
+[00:04:05.403] Server  LOG     ✓ Compiled in 142ms
+[00:04:44.048] Server  LOG     ✓ Compiled in 188ms
+[00:04:44.497] Browser LOG     isActive: 1
+[00:04:44.497] Browser LOG     isActive: 2
+[00:04:44.497] Browser LOG     isActive: 3
+[00:04:44.497] Browser LOG     isActive: 1
+[00:04:44.497] Browser LOG     isActive: 2
+[00:04:44.497] Browser LOG     isActive: 3
+[00:05:08.498] Server  LOG     ✓ Compiled in 254ms
+[00:05:08.826] Browser LOG     isActive: 1
+[00:05:08.826] Browser LOG     isActive: 2
+[00:05:08.826] Browser LOG     isActive: 3
+[00:05:08.826] Browser LOG     isActive: 1
+[00:05:08.826] Browser LOG     isActive: 2
+[00:05:08.826] Browser LOG     isActive: 3
+[00:05:37.230] Server  LOG     ✓ Compiled in 379ms
+[00:05:37.528] Browser LOG     isActive: 1
+[00:05:37.529] Browser LOG     isActive: 2
+[00:05:37.529] Browser LOG     isActive: 3
+[00:05:37.529] Browser LOG     isActive: 1
+[00:05:37.529] Browser LOG     isActive: 2
+[00:05:37.529] Browser LOG     isActive: 3
+[00:05:43.684] Server  LOG     ✓ Compiled in 213ms
+[00:05:43.799] Browser LOG     isActive: 1
+[00:05:43.799] Browser LOG     isActive: 2
+[00:05:43.799] Browser LOG     isActive: 3
+[00:05:43.799] Browser LOG     isActive: 1
+[00:05:43.799] Browser LOG     isActive: 2
+[00:05:43.799] Browser LOG     isActive: 3
+[00:05:48.699] Server  LOG     ✓ Compiled in 232ms
+[00:05:48.937] Browser LOG     isActive: 1
+[00:05:48.938] Browser LOG     isActive: 2
+[00:05:48.938] Browser LOG     isActive: 3
+[00:05:48.938] Browser LOG     isActive: 1
+[00:05:48.938] Browser LOG     isActive: 2
+[00:05:48.938] Browser LOG     isActive: 3
+[00:06:10.262] Server  LOG     ✓ Compiled in 82ms
+[00:06:10.397] Browser LOG     isActive: 1
+[00:06:10.397] Browser LOG     isActive: 2
+[00:06:10.397] Browser LOG     isActive: 3
+[00:06:10.397] Browser LOG     isActive: 1
+[00:06:10.397] Browser LOG     isActive: 2
+[00:06:10.397] Browser LOG     isActive: 3
+[00:06:17.239] Server  LOG     ✓ Compiled in 116ms
+[00:06:17.370] Browser LOG     isActive: 1
+[00:06:17.370] Browser LOG     isActive: 2
+[00:06:17.370] Browser LOG     isActive: 3
+[00:06:17.370] Browser LOG     isActive: 1
+[00:06:17.371] Browser LOG     isActive: 2
+[00:06:17.371] Browser LOG     isActive: 3
+[00:06:34.044] Server  LOG     ✓ Compiled in 150ms
+[00:06:34.307] Browser LOG     isActive: 1
+[00:06:34.307] Browser LOG     isActive: 2
+[00:06:34.307] Browser LOG     isActive: 3
+[00:06:34.307] Browser LOG     isActive: 1
+[00:06:34.307] Browser LOG     isActive: 2
+[00:06:34.307] Browser LOG     isActive: 3
+[00:06:43.622] Server  LOG     ✓ Compiled in 93ms
+[00:06:43.841] Browser LOG     isActive: 1
+[00:06:43.841] Browser LOG     isActive: 2
+[00:06:43.841] Browser LOG     isActive: 3
+[00:06:43.841] Browser LOG     isActive: 1
+[00:06:43.841] Browser LOG     isActive: 2
+[00:06:43.841] Browser LOG     isActive: 3
+[00:06:49.253] Server  LOG     ✓ Compiled in 114ms
+[00:06:49.474] Browser LOG     isActive: 1
+[00:06:49.474] Browser LOG     isActive: 2
+[00:06:49.474] Browser LOG     isActive: 3
+[00:06:49.474] Browser LOG     isActive: 1
+[00:06:49.474] Browser LOG     isActive: 2
+[00:06:49.474] Browser LOG     isActive: 3
+[00:08:17.654] Server  LOG     ✓ Compiled in 343ms
+[00:08:17.838] Browser LOG     isActive: 1
+[00:08:17.838] Browser LOG     isActive: 2
+[00:08:17.838] Browser LOG     isActive: 3
+[00:08:17.838] Browser LOG     isActive: 1
+[00:08:17.838] Browser LOG     isActive: 2
+[00:08:17.838] Browser LOG     isActive: 3
+[00:08:34.935] Server  LOG     ✓ Compiled in 163ms
+[00:08:35.153] Browser LOG     isActive: 1
+[00:08:35.153] Browser LOG     isActive: 2
+[00:08:35.153] Browser LOG     isActive: 3
+[00:08:35.153] Browser LOG     isActive: 1
+[00:08:35.153] Browser LOG     isActive: 2
+[00:08:35.153] Browser LOG     isActive: 3
+[00:08:46.959] Server  LOG     ✓ Compiled in 202ms
+[00:08:47.231] Browser LOG     isActive: 1
+[00:08:47.231] Browser LOG     isActive: 2
+[00:08:47.231] Browser LOG     isActive: 3
+[00:08:47.231] Browser LOG     isActive: 1
+[00:08:47.231] Browser LOG     isActive: 2
+[00:08:47.231] Browser LOG     isActive: 3
+[00:09:03.407] Server  LOG     ✓ Compiled in 100ms
+[00:09:03.672] Browser LOG     isActive: 1
+[00:09:03.672] Browser LOG     isActive: 2
+[00:09:03.672] Browser LOG     isActive: 3
+[00:09:03.672] Browser LOG     isActive: 1
+[00:09:03.672] Browser LOG     isActive: 2
+[00:09:03.673] Browser LOG     isActive: 3
+[00:09:21.824] Server  LOG     ✓ Compiled in 95ms
+[00:09:21.946] Browser LOG     isActive: 1
+[00:09:21.946] Browser LOG     isActive: 2
+[00:09:21.946] Browser LOG     isActive: 3
+[00:09:21.946] Browser LOG     isActive: 1
+[00:09:21.946] Browser LOG     isActive: 2
+[00:09:21.946] Browser LOG     isActive: 3
+[00:10:00.308] Server  LOG     ✓ Compiled in 239ms
+[00:10:00.405] Browser LOG     isActive: 1
+[00:10:00.405] Browser LOG     isActive: 2
+[00:10:00.405] Browser LOG     isActive: 3
+[00:10:00.405] Browser LOG     isActive: 1
+[00:10:00.405] Browser LOG     isActive: 2
+[00:10:00.405] Browser LOG     isActive: 3
+[00:10:17.533] Server  LOG     ✓ Compiled in 317ms
+[00:10:17.641] Browser LOG     isActive: 1
+[00:10:17.641] Browser LOG     isActive: 2
+[00:10:17.641] Browser LOG     isActive: 3
+[00:10:17.641] Browser LOG     isActive: 1
+[00:10:17.641] Browser LOG     isActive: 2
+[00:10:17.641] Browser LOG     isActive: 3
+[00:10:29.051] Server  LOG     ✓ Compiled in 97ms
+[00:10:29.155] Browser LOG     isActive: 1
+[00:10:29.155] Browser LOG     isActive: 2
+[00:10:29.155] Browser LOG     isActive: 3
+[00:10:29.155] Browser LOG     isActive: 1
+[00:10:29.155] Browser LOG     isActive: 2
+[00:10:29.155] Browser LOG     isActive: 3
+[00:10:40.950] Server  LOG     ✓ Compiled in 412ms
+[00:10:41.053] Browser LOG     isActive: 1
+[00:10:41.053] Browser LOG     isActive: 2
+[00:10:41.053] Browser LOG     isActive: 3
+[00:10:41.053] Browser LOG     isActive: 1
+[00:10:41.053] Browser LOG     isActive: 2
+[00:10:41.053] Browser LOG     isActive: 3
+[00:10:50.101] Server  LOG     ✓ Compiled in 191ms
+[00:10:50.209] Browser LOG     isActive: 1
+[00:10:50.209] Browser LOG     isActive: 2
+[00:10:50.211] Browser LOG     isActive: 3
+[00:10:50.211] Browser LOG     isActive: 1
+[00:10:50.211] Browser LOG     isActive: 2
+[00:10:50.211] Browser LOG     isActive: 3
+[00:11:20.669] Server  LOG     ✓ Compiled in 156ms
+[00:11:20.848] Browser LOG     isActive: 1
+[00:11:20.848] Browser LOG     isActive: 2
+[00:11:20.848] Browser LOG     isActive: 3
+[00:11:20.848] Browser LOG     isActive: 1
+[00:11:20.848] Browser LOG     isActive: 2
+[00:11:20.848] Browser LOG     isActive: 3
+[00:11:37.291] Server  LOG     ✓ Compiled in 72ms
+[00:11:37.433] Browser LOG     isActive: 1
+[00:11:37.433] Browser LOG     isActive: 2
+[00:11:37.433] Browser LOG     isActive: 3
+[00:11:37.433] Browser LOG     isActive: 1
+[00:11:37.433] Browser LOG     isActive: 2
+[00:11:37.433] Browser LOG     isActive: 3
+[00:12:02.716] Server  LOG     ✓ Compiled in 143ms
+[00:12:02.869] Browser LOG     isActive: 1
+[00:12:02.869] Browser LOG     isActive: 2
+[00:12:02.869] Browser LOG     isActive: 3
+[00:12:02.869] Browser LOG     isActive: 1
+[00:12:02.869] Browser LOG     isActive: 2
+[00:12:02.869] Browser LOG     isActive: 3
+[00:12:04.640] Server  LOG     ✓ Compiled in 236ms
+[00:12:04.831] Browser LOG     isActive: 1
+[00:12:04.831] Browser LOG     isActive: 2
+[00:12:04.831] Browser LOG     isActive: 3
+[00:12:04.831] Browser LOG     isActive: 1
+[00:12:04.831] Browser LOG     isActive: 2
+[00:12:04.831] Browser LOG     isActive: 3
+[00:12:17.589] Server  LOG     ✓ Compiled in 127ms
+[00:12:17.788] Browser LOG     isActive: 1
+[00:12:17.788] Browser LOG     isActive: 2
+[00:12:17.788] Browser LOG     isActive: 3
+[00:12:17.788] Browser LOG     isActive: 1
+[00:12:17.788] Browser LOG     isActive: 2
+[00:12:17.788] Browser LOG     isActive: 3
+[00:12:33.500] Server  LOG     ✓ Compiled in 124ms
+[00:12:33.620] Browser LOG     isActive: 1
+[00:12:33.620] Browser LOG     isActive: 2
+[00:12:33.620] Browser LOG     isActive: 3
+[00:12:33.620] Browser LOG     isActive: 1
+[00:12:33.620] Browser LOG     isActive: 2
+[00:12:33.620] Browser LOG     isActive: 3
+[00:12:39.217] Server  LOG     ✓ Compiled in 319ms
+[00:12:39.373] Browser LOG     isActive: 1
+[00:12:39.373] Browser LOG     isActive: 2
+[00:12:39.373] Browser LOG     isActive: 3
+[00:12:39.373] Browser LOG     isActive: 1
+[00:12:39.373] Browser LOG     isActive: 2
+[00:12:39.373] Browser LOG     isActive: 3
+[00:12:53.772] Server  LOG     ✓ Compiled in 266ms
+[00:12:53.889] Browser LOG     isActive: 1
+[00:12:53.889] Browser LOG     isActive: 2
+[00:12:53.889] Browser LOG     isActive: 3
+[00:12:53.889] Browser LOG     isActive: 1
+[00:12:53.889] Browser LOG     isActive: 2
+[00:12:53.889] Browser LOG     isActive: 3
+[00:13:06.159] Server  LOG     ✓ Compiled in 291ms
+[00:13:06.336] Browser LOG     isActive: 1
+[00:13:06.336] Browser LOG     isActive: 2
+[00:13:06.336] Browser LOG     isActive: 3
+[00:13:06.336] Browser LOG     isActive: 1
+[00:13:06.336] Browser LOG     isActive: 2
+[00:13:06.336] Browser LOG     isActive: 3
+[00:13:16.769] Server  LOG     ✓ Compiled in 235ms
+[00:13:16.911] Browser LOG     isActive: 1
+[00:13:16.911] Browser LOG     isActive: 2
+[00:13:16.911] Browser LOG     isActive: 3
+[00:13:16.911] Browser LOG     isActive: 1
+[00:13:16.911] Browser LOG     isActive: 2
+[00:13:16.911] Browser LOG     isActive: 3
+[00:13:23.816] Server  LOG     ✓ Compiled in 210ms
+[00:13:24.040] Browser LOG     isActive: 1
+[00:13:24.040] Browser LOG     isActive: 2
+[00:13:24.040] Browser LOG     isActive: 3
+[00:13:24.040] Browser LOG     isActive: 1
+[00:13:24.040] Browser LOG     isActive: 2
+[00:13:24.040] Browser LOG     isActive: 3
+[00:13:29.750] Server  LOG     ✓ Compiled in 264ms
+[00:13:29.852] Browser LOG     isActive: 1
+[00:13:29.852] Browser LOG     isActive: 2
+[00:13:29.852] Browser LOG     isActive: 3
+[00:13:29.853] Browser LOG     isActive: 1
+[00:13:29.853] Browser LOG     isActive: 2
+[00:13:29.853] Browser LOG     isActive: 3
+[00:13:44.091] Server  LOG     ✓ Compiled in 394ms
+[00:13:44.425] Browser LOG     isActive: 1
+[00:13:44.425] Browser LOG     isActive: 2
+[00:13:44.425] Browser LOG     isActive: 3
+[00:13:44.425] Browser LOG     isActive: 1
+[00:13:44.425] Browser LOG     isActive: 2
+[00:13:44.425] Browser LOG     isActive: 3
+[00:13:52.171] Server  LOG     ✓ Compiled in 265ms
+[00:13:52.382] Browser LOG     isActive: 1
+[00:13:52.383] Browser LOG     isActive: 2
+[00:13:52.383] Browser LOG     isActive: 3
+[00:13:52.383] Browser LOG     isActive: 1
+[00:13:52.383] Browser LOG     isActive: 2
+[00:13:52.383] Browser LOG     isActive: 3
+[00:13:59.567] Server  LOG     ✓ Compiled in 218ms
+[00:13:59.797] Browser LOG     isActive: 1
+[00:13:59.797] Browser LOG     isActive: 2
+[00:13:59.797] Browser LOG     isActive: 3
+[00:13:59.797] Browser LOG     isActive: 1
+[00:13:59.797] Browser LOG     isActive: 2
+[00:13:59.797] Browser LOG     isActive: 3
+[00:14:08.380] Server  LOG     ✓ Compiled in 191ms
+[00:14:08.517] Browser LOG     isActive: 1
+[00:14:08.517] Browser LOG     isActive: 2
+[00:14:08.517] Browser LOG     isActive: 3
+[00:14:08.517] Browser LOG     isActive: 1
+[00:14:08.517] Browser LOG     isActive: 2
+[00:14:08.517] Browser LOG     isActive: 3
+[00:14:20.463] Server  LOG     ✓ Compiled in 261ms
+[00:14:20.592] Browser LOG     isActive: 1
+[00:14:20.592] Browser LOG     isActive: 2
+[00:14:20.592] Browser LOG     isActive: 3
+[00:14:20.592] Browser LOG     isActive: 1
+[00:14:20.592] Browser LOG     isActive: 2
+[00:14:20.592] Browser LOG     isActive: 3
+[00:14:28.015] Server  LOG     ✓ Compiled in 287ms
+[00:14:28.119] Browser LOG     isActive: 1
+[00:14:28.120] Browser LOG     isActive: 2
+[00:14:28.120] Browser LOG     isActive: 3
+[00:14:28.120] Browser LOG     isActive: 1
+[00:14:28.120] Browser LOG     isActive: 2
+[00:14:28.120] Browser LOG     isActive: 3
+[00:14:56.995] Server  LOG     ✓ Compiled in 1800ms
+[00:14:57.191] Browser LOG     isActive: 1
+[00:14:57.191] Browser LOG     isActive: 2
+[00:14:57.191] Browser LOG     isActive: 3
+[00:14:57.191] Browser LOG     isActive: 1
+[00:14:57.191] Browser LOG     isActive: 2
+[00:14:57.191] Browser LOG     isActive: 3
+[00:15:11.700] Server  LOG     ✓ Compiled in 467ms
+[00:15:12.006] Browser LOG     isActive: 1
+[00:15:12.006] Browser LOG     isActive: 2
+[00:15:12.007] Browser LOG     isActive: 3
+[00:15:12.007] Browser LOG     isActive: 1
+[00:15:12.007] Browser LOG     isActive: 2
+[00:15:12.007] Browser LOG     isActive: 3
+[00:15:24.241] Server  LOG     ✓ Compiled in 107ms
+[00:15:24.360] Browser LOG     isActive: 1
+[00:15:24.360] Browser LOG     isActive: 2
+[00:15:24.360] Browser LOG     isActive: 3
+[00:15:24.361] Browser LOG     isActive: 1
+[00:15:24.361] Browser LOG     isActive: 2
+[00:15:24.361] Browser LOG     isActive: 3
+[00:15:34.876] Server  LOG     ✓ Compiled in 118ms
+[00:15:35.003] Browser LOG     isActive: 1
+[00:15:35.003] Browser LOG     isActive: 2
+[00:15:35.004] Browser LOG     isActive: 3
+[00:15:35.004] Browser LOG     isActive: 1
+[00:15:35.004] Browser LOG     isActive: 2
+[00:15:35.004] Browser LOG     isActive: 3
+[00:16:12.351] Server  LOG     ✓ Compiled in 330ms
+[00:16:12.640] Browser LOG     isActive: 1
+[00:16:12.640] Browser LOG     isActive: 2
+[00:16:12.640] Browser LOG     isActive: 3
+[00:16:12.640] Browser LOG     isActive: 1
+[00:16:12.640] Browser LOG     isActive: 2
+[00:16:12.640] Browser LOG     isActive: 3
+[00:16:57.664] Server  LOG     ✓ Compiled in 241ms
+[00:16:57.821] Browser LOG     isActive: 1
+[00:16:57.821] Browser LOG     isActive: 2
+[00:16:57.821] Browser LOG     isActive: 3
+[00:16:57.821] Browser LOG     isActive: 1
+[00:16:57.821] Browser LOG     isActive: 2
+[00:16:57.821] Browser LOG     isActive: 3
+[00:17:06.485] Server  LOG     ✓ Compiled in 326ms
+[00:17:06.641] Browser LOG     isActive: 1
+[00:17:06.641] Browser LOG     isActive: 2
+[00:17:06.641] Browser LOG     isActive: 3
+[00:17:06.641] Browser LOG     isActive: 1
+[00:17:06.642] Browser LOG     isActive: 2
+[00:17:06.642] Browser LOG     isActive: 3
+[00:17:32.997] Server  LOG     ✓ Compiled in 526ms
+[00:17:33.525] Browser LOG     isActive: 1
+[00:17:33.526] Browser LOG     isActive: 2
+[00:17:33.526] Browser LOG     isActive: 3
+[00:17:33.526] Browser LOG     isActive: 1
+[00:17:33.526] Browser LOG     isActive: 2
+[00:17:33.526] Browser LOG     isActive: 3
+[00:17:47.266] Server  LOG     ✓ Compiled in 152ms
+[00:17:47.420] Browser LOG     isActive: 1
+[00:17:47.420] Browser LOG     isActive: 2
+[00:17:47.420] Browser LOG     isActive: 3
+[00:17:47.420] Browser LOG     isActive: 1
+[00:17:47.420] Browser LOG     isActive: 2
+[00:17:47.420] Browser LOG     isActive: 3
+[00:18:35.085] Server  LOG     ✓ Compiled in 105ms
+[00:18:35.306] Browser LOG     isActive: 1
+[00:18:35.306] Browser LOG     isActive: 2
+[00:18:35.306] Browser LOG     isActive: 3
+[00:18:35.306] Browser LOG     isActive: 1
+[00:18:35.306] Browser LOG     isActive: 2
+[00:18:35.306] Browser LOG     isActive: 3

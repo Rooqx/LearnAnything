@@ -4,7 +4,7 @@ import LessonContent from "@/src/components/lessons/LessonContent";
 export default function LessonPage() {
   return (
     <main
-      className=" w-full max-h-screen flex items-center justify-center"
+      className=" w-full h-screen flex items-center justify-center"
       style={{ backgroundColor: "#F0F4F2" }}
     >
       <ScoopedFrame>

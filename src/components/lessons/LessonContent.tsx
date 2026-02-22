@@ -23,7 +23,7 @@ interface LessonContentProps {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const CONTENT_BG = "#F9FBFA";
+const CONTENT_BG = "#E0F9EA";
 const TEXT_COLOR = "#121212";
 const ACCENT = "#2ED573";
 const ACCENT_HOVER = "#26B861";
@@ -72,11 +72,9 @@ const DEFAULT_BLOCKS: ContentBlock[] = [
 
 /** Renders a subtle code/formula snippet block */
 function SnippetBlock({
-  example,
   content,
   language,
 }: {
-  example: string;
   content: string;
   language?: string;
 }) {
@@ -95,7 +93,7 @@ function SnippetBlock({
           style={{ color: MUTED }}
         >
           {/*SNippiet or formula or workings */}
-          {example}
+          {"example"}
         </div>
       )}
       {/* Code text */}
@@ -137,8 +135,8 @@ function BottomNav({
 }) {
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-5 py-3"
-      style={{ backgroundColor: CONTENT_BG }}
+      className="absolute -bottom-10 left-0 right-0 z-100 flex items-center justify-between px-5 py-3"
+      style={{ backgroundColor: "transparent" }}
     >
       {/* Left: Home icon */}
       <button
@@ -183,11 +181,18 @@ function BottomNav({
       </div>
 
       {/* Right: Star / AI icon */}
+      <div className="bg-red-500 w-full ">
+        <input
+          type="text"
+          placeholder="Ask a question"
+          className="w-4/5 bg-red-500"
+        />
+      </div>
       <button
         className="w-9 h-9 flex items-center justify-center rounded-full transition-opacity duration-200 hover:opacity-70"
         title="AI Assistant"
       >
-        <Star size={20} color={TEXT_COLOR} strokeWidth={1.8} />
+        <Star size={500} color={TEXT_COLOR} strokeWidth={1.8} />
       </button>
     </div>
   );
@@ -276,24 +281,24 @@ export default function LessonContent({
      * (side arrows, bottom nav) are anchored to this box — not the viewport.
      */
     <div
-      className="w-full relative flex flex-col h-full rounded-3xl "
+      className="w-full relative flex flex-col h-[90vh] pb-10 rounded-3xl px-10"
       style={{ backgroundColor: CONTENT_BG }}
     >
       {/* ── INNER HEADER ──────────────────────────────────────────────── */}
       <div
-        className="flex items-center justify-between px-5 pt-0 pb-2 shrink-0"
+        className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0 rounded-tr-3xl rounded-tl-3xl"
         style={{ backgroundColor: CONTENT_BG }}
       >
         {/* Lesson title */}
         <h1
-          className="text-[26px] font-bold leading-tight mb-4"
+          className="text-[18px] font-bold leading-tight mb-4"
           style={{ color: TEXT_COLOR }}
         >
           {title}
         </h1>
 
         {/* Module / Chapter indicator */}
-        <div className="text-right leading-tight flex flex-col items-start text-base">
+        <div className="text-right leading-tight flex flex-col items-start text-[12px]">
           <p className=" font-semibold" style={{ color: TEXT_COLOR }}>
             Module {moduleNum}
           </p>
@@ -309,7 +314,7 @@ export default function LessonContent({
        * padding-x accounts for the side arrow buttons (~28px wide).
        */}
       <div
-        className="flex-1 overflow-y-auto px-10 pt-1 pb-16"
+        className="flex-1 overflow-y-auto px-10"
         style={{ scrollbarWidth: "none" }}
       >
         {/* Dynamic content blocks */}
@@ -328,13 +333,6 @@ export default function LessonContent({
 
       {/* ── FLOATING SIDE ARROWS ─────────────────────────────────────── */}
       <SideArrows onPrev={handlePrev} onNext={handleNext} />
-
-      {/* ── FIXED BOTTOM NAV ─────────────────────────────────────────── */}
-      <BottomNav
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
     </div>
   );
 }

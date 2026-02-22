@@ -13,7 +13,14 @@ import {
   MessageCircle,
   Smile,
   Plus,
+  Star,
+  Home,
+  ChevronLeftCircle,
+  ChevronRight,
+  Share,
+  Send,
 } from "lucide-react";
+import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,10 +29,11 @@ interface ScoopedFrameProps {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
+const MUTED = "#6B7280";
 const FRAME_BG = "#121212";
 const CONTENT_BG = "#F9FBFA";
 const ACCENT = "#2ED573";
+const TEXT_COLOR = "#121212";
 
 const NAV_ITEMS = [
   { icon: GraduationCap, label: "Learning Plan" },
@@ -45,25 +53,174 @@ const TOOLBAR_ITEMS = [
   { icon: Plus, bg: "#121212", color: "#F9FBFA" },
 ];
 
+/** Left / Right floating navigation arrows */
+function SideArrows({
+  onPrev,
+  onNext,
+}: {
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const btnBase: React.CSSProperties = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 30,
+    width: "28px",
+    height: "28px",
+    borderRadius: "50%",
+    backgroundColor: "",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    border: "none",
+    transition: "background-color 0.2s",
+  };
+
+  return (
+    <>
+      <button
+        onClick={onPrev}
+        style={{ ...btnBase, left: "500px" }}
+        title="Previous"
+        onMouseEnter={(e) =>
+          ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+            "rgba(18,18,18,0.15)")
+        }
+        onMouseLeave={(e) =>
+          ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+            "rgba(18,18,18,0.08)")
+        }
+      >
+        <p className=" text-white">Prev</p>
+        <ChevronLeftCircle size={16} color={TEXT_COLOR} strokeWidth={2} />
+      </button>
+
+      <button
+        onClick={onNext}
+        style={{ ...btnBase, right: "500px" }}
+        title="Next"
+        onMouseEnter={(e) =>
+          ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+            "rgba(18,18,18,0.15)")
+        }
+        onMouseLeave={(e) =>
+          ((e.currentTarget as HTMLButtonElement).style.backgroundColor =
+            "rgba(18,18,18,0.08)")
+        }
+      >
+        <p className=" text-white">Next</p>
+        <ChevronRight size={16} color={TEXT_COLOR} strokeWidth={2} />
+      </button>
+    </>
+  );
+}
+
+/*TODO FIX */
+/** Bottom navigation bar with home, page pills, and AI star */
+function BottomNav({
+  totalPages,
+  currentPage,
+  onPageChange,
+}: {
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+}) {
+  return (
+    <div
+      className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-5 py-3"
+      style={{ backgroundColor: "transparent" }}
+    >
+      {/* Left: Home icon */}
+      <button
+        className="w-9 h-9 flex items-center justify-center rounded-full transition-opacity duration-200 hover:opacity-70"
+        title="Home"
+      >
+        <Home size={20} color={"#121212"} strokeWidth={1.8} />
+      </button>
+
+      {/* Center: Page indicator pill */}
+      <div
+        className="flex items-center gap-1 px-2 py-1.5 -mb-5 rounded-full"
+        style={{ backgroundColor: "transparent", color: CONTENT_BG }}
+      >
+        {Array.from({ length: totalPages }, (_, i) => {
+          const pageNum = i + 1;
+          const isActive = pageNum === currentPage;
+          console.log("isActive:", pageNum);
+          return (
+            <button
+              key={pageNum}
+              onClick={() => onPageChange(pageNum)}
+              className="w-9 h-9 cusor-pointer rounded-full flex items-center justify-center text-[11px] font-semibold transition-all duration-200"
+              style={{
+                backgroundColor: isActive ? ACCENT : "transparent",
+                color: isActive ? CONTENT_BG : MUTED,
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive)
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                    "#D4EDD8";
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive)
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                    "transparent";
+              }}
+            >
+              pg {pageNum}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Right: Ask question / Input */}
+      <div className="absolute right-15 w-100 p-2">
+        <input
+          type="text"
+          placeholder="Ask a question"
+          className="w-full rounded-full px-2 p-1 text-[0.8rem] outline-none border border-[#121212]"
+        />
+      </div>
+      <button
+        className="w-9 h-9 cursor-pointer flex bg-[#121212] items-center justify-center rounded-full transition-opacity duration-200 hover:opacity-70"
+        title="AI Assistant"
+      >
+        <Send size={18} color={CONTENT_BG} strokeWidth={1.8} />
+      </button>
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ScoopedFrame({ children }: ScoopedFrameProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const handlePrev = () =>
+    setCurrentPage((p) => (p > 1 ? p - 1 : 3 /*totalPages*/));
+
+  const handleNext = () =>
+    setCurrentPage((p) => (p < 3 /*totalPages*/ ? p + 1 : 1));
+
   return (
     <div
-      className="relative flex flex-col overflow-hidden w-full p-2"
+      className="relative flex flex-col overflow-hidden w-full h-full px-2 py-0"
       style={{
         backgroundColor: FRAME_BG,
-        margin: "0 auto",
+        margin: "0",
       }}
     >
       {/* ── TOP HEADER BAR ──────────────────────────────────────────────── */}
       <div
-        className="relative z-20 flex items-center justify-between px-6 pt-5 pb-4"
+        className="relative z-20 flex items-center justify-between px-6 py-2"
         style={{ backgroundColor: FRAME_BG }}
       >
         {/* Left: Brand name */}
         <span
-          className="text-xl font-bold tracking-tight"
+          className="text-xl font-bold tracking-tight flex items-center"
           style={{ color: CONTENT_BG }}
         >
           LearnAnything
@@ -108,43 +265,13 @@ export default function ScoopedFrame({ children }: ScoopedFrameProps) {
         </div>
       </div>
 
-      {/* ── TOP SCOOP (black dome dipping DOWN into content area) ─────── */}
-      {/*
-        SVG strip sits between the header and the white content area.
-        Background is filled with CONTENT_BG so only the central dome
-        (filled with FRAME_BG) is visible — giving the illusion that the
-        dark header extends downward into the white body in the center.
-      */}
-      <div className="relative z-10 w-full" style={{ marginTop: "-1px" }}>
-        <svg
-          viewBox="0 0 390 44"
-          width="100%"
-          height="44"
-          preserveAspectRatio="none"
-          display="block"
-        >
-          {/* Content-colored base — hides the rectangular header bottom */}
-          <rect width="390" height="44" fill={CONTENT_BG} />
-          {/*
-            The dome: starts at x=110 (top of strip, y=0), curves DOWN to
-            the lowest point at (195, 44), then back up to x=280 (y=0).
-            Filled with frame color so it blends with the header above.
-          */}
-          <path
-            d="M110,0 C140,0 165,44 195,44 C225,44 250,0 280,0 Z"
-            fill={FRAME_BG}
-          />
-        </svg>
-      </div>
-
       {/* ── MAIN CONTENT AREA ───────────────────────────────────────────── */}
       <div
-        className="relative z-0 flex-1 overflow-hidden"
-        style={{ backgroundColor: CONTENT_BG }}
+        className="relative z-0 overflow-hidden rounded-3xl pb-5 "
+        style={{ backgroundColor: "" }}
       >
         {children}
       </div>
-
       {/* ── BOTTOM ARCH (black dome rising UP into content area) ─────── */}
       {/*
         SVG strip sits between the white content area and the footer bar.
@@ -152,55 +279,37 @@ export default function ScoopedFrame({ children }: ScoopedFrameProps) {
         upward from the bottom of the strip, acting as the "docking bay"
         for the pastel toolbar. The toolbar is absolutely layered on top.
       */}
-      <div className="relative z-10 w-full" style={{ marginBottom: "-1px" }}>
+      <div className="relative z-10 w-full -mt-10">
+        {/* ── FLOATING SIDE ARROWS ─────────────────────────────────────── */}
+        <div className="w-1/2 bg-red-500 z-30 px-20">
+          <SideArrows onPrev={handlePrev} onNext={handleNext} />
+        </div>
+        {/* ── FIXED BOTTOM NAV ───────────────────────────────────────────*/}
+        <BottomNav
+          totalPages={3}
+          currentPage={1}
+          onPageChange={setCurrentPage}
+        />
         <svg
-          viewBox="0 0 390 68"
+          viewBox="0 0 390 48"
           width="100%"
-          height="68"
+          height="48"
           preserveAspectRatio="none"
           display="block"
         >
-          {/* Content-colored base */}
-          <rect width="390" height="68" fill={CONTENT_BG} />
-          {/*
-            The arch: starts at x=60 (bottom of strip, y=68), curves UP to
-            the peak at (195, 10), then back down to x=330 (y=68).
-            Filled with frame color so it blends with the footer below.
-          */}
+          {/* Content-colored base*/}
+
           <path
-            d="M60,68 C90,68 140,10 195,10 C250,10 300,68 330,68 Z"
-            fill={FRAME_BG}
+            d="M0,44
+               L122,44
+               C132,44 132,2 142,2
+               L248,2
+               C258,2 258,44 268,44
+               L390,44 Z"
+            fill="#121212"
           />
         </svg>
-
-        {/* Pastel toolbar — floated inside the arch negative space */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ paddingTop: "18px" }}
-        >
-          <div
-            className="flex items-center gap-2 px-3 py-2 rounded-full"
-            style={{ backgroundColor: "rgba(255,255,255,0.08)" }}
-          >
-            {TOOLBAR_ITEMS.map(({ icon: Icon, bg, color }, i) => (
-              <button
-                key={i}
-                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-150 hover:scale-110 active:scale-95"
-                style={{ backgroundColor: bg }}
-                title={`Tool ${i + 1}`}
-              >
-                <Icon size={14} color={color} strokeWidth={1.8} />
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
-
-      {/* ── BOTTOM FOOTER BAR (thin closing strip) ───────────────────── */}
-      <div
-        className="relative z-20 h-6"
-        style={{ backgroundColor: FRAME_BG }}
-      />
     </div>
   );
 }
