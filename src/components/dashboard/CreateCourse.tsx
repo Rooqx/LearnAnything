@@ -9,6 +9,7 @@ import {
   Menu,
   LayoutGrid,
   UserCircle2,
+  Check,
 } from "lucide-react";
 import PillInput from "@/src/components/ui/PillInput";
 
@@ -76,61 +77,64 @@ const COURSES: Course[] = [
 function CourseCard({ course }: { course: Course }) {
   return (
     <div
-      className="rounded-2xl  mb-4 flex flex-col gap-3 w-[90%] p-10 shadow-[2px_3px_10px_rgba(0,0,0,0.1)]"
+      className="rounded-2xl  mb-4 flex flex-col gap-3 w-[90%] p-2 shadow-[2px_3px_10px_rgba(0,0,0,0.1)]"
       style={{ backgroundColor: course.bgColor }}
     >
-      {/* Title */}
-      <h3
-        className="text-[16px] md:text-[18px] font-bold leading-snug"
-        style={{ color: TEXT_PRIMARY }}
-      >
-        {course.title}
-      </h3>
-
-      {/* Description */}
-      <p
-        className="text-[12px] md:text-[14px] leading-relaxed"
-        style={{ color: MUTED }}
-      >
-        {course.description}
-      </p>
-
-      {/* Footer row: status badge + action buttons */}
-      <div className="flex items-center justify-between">
-        {/* Status badge */}
-        <span
-          className="text-[11px] font-semibold px-3 py-1 rounded-full"
-          style={{ backgroundColor: course.badgeBg, color: course.badgeText }}
+      {/* curve in efect container */}
+      <div className=" p-8 w-full h-full bg-linear-to-r from-[rgba(255,255,255,0.5)] to-[#E5E7E] rounded-2xl">
+        {/* Title */}
+        <h3
+          className="text-[16px] md:text-[18px] font-bold leading-snug"
+          style={{ color: TEXT_PRIMARY }}
         >
-          {course.status} {course.statusEmoji}
-        </span>
+          {course.title}
+        </h3>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2">
-          {/* More options */}
-          <button
-            title="More options"
-            className="w-7 h-7 flex items-center justify-center rounded-full bg-white bg-opacity-60 hover:bg-opacity-100 transition-all duration-200"
-          >
-            <MoreHorizontal size={13} color={TEXT_PRIMARY} strokeWidth={2} />
-          </button>
+        {/* Description */}
+        <p
+          className="text-[12px] md:text-[14px] leading-relaxed"
+          style={{ color: MUTED }}
+        >
+          {course.description}
+        </p>
 
-          {/* Light dismiss */}
-          <button
-            title="Dismiss"
-            className="w-7 h-7 flex items-center justify-center rounded-full bg-white bg-opacity-60 hover:bg-opacity-100 transition-all duration-200"
+        {/* Footer row: status badge + action buttons */}
+        <div className="flex items-center justify-between">
+          {/* Status badge */}
+          <span
+            className="text-[11px] font-semibold px-3 py-1 rounded-full"
+            style={{ backgroundColor: course.badgeBg, color: course.badgeText }}
           >
-            <X size={13} color={TEXT_PRIMARY} strokeWidth={2.5} />
-          </button>
+            {course.status} {course.statusEmoji}
+          </span>
 
-          {/* Dark remove */}
-          <button
-            title="Remove"
-            className="w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200"
-            style={{ backgroundColor: TEXT_PRIMARY }}
-          >
-            <X size={13} color="#F9FBFA" strokeWidth={2.5} />
-          </button>
+          {/* Action buttons */}
+          <div className="flex items-center gap-2">
+            {/* More options */}
+            <button
+              title="More options"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-white bg-opacity-60 hover:bg-opacity-100 transition-all duration-200"
+            >
+              <MoreHorizontal size={13} color={TEXT_PRIMARY} strokeWidth={2} />
+            </button>
+
+            {/* Light dismiss */}
+            <button
+              title="Dismiss"
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-white bg-opacity-60 hover:bg-opacity-100 transition-all duration-200"
+            >
+              <X size={13} color={TEXT_PRIMARY} strokeWidth={2.5} />
+            </button>
+
+            {/* Dark remove */}
+            <button
+              title="Remove"
+              className="w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200"
+              style={{ backgroundColor: TEXT_PRIMARY }}
+            >
+              <Check size={13} color="#F9FBFA" strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
