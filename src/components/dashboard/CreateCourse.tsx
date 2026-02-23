@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+
 import PillInput from "@/src/components/ui/PillInput";
 import ChatBubble, {
   Message,
@@ -17,6 +18,17 @@ const TEXT_PRIMARY = "#121212";
 const LEFT_BG = "#F9FBFA";
 const RIGHT_BG = "#F2F4F3";
 
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
+interface CreateCourseProps {
+  /**
+   * Optional server action injected from page.tsx.
+   * Receives the stable sessionID and the user's message.
+   * When omitted, the component works in demo/mock-only mode.
+   */
+  onSend?: (params: { sessionID: string; msg: string }) => Promise<void>;
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 /**
@@ -25,16 +37,20 @@ const RIGHT_BG = "#F2F4F3";
  * Slim orchestration shell for the two-pane dashboard layout.
  * All sub-components live in their own dedicated files:
  *
- *  - ChatBubble     → src/components/ui/ChatBubble.tsx
- *  - CourseCard     → src/components/dashboard/CourseCard.tsx
+ *  - ChatBubble              → src/components/ui/ChatBubble.tsx
+ *  - CourseCard              → src/components/dashboard/CourseCard.tsx
  *  - FloatingNavRail + WaveDivider → src/components/dashboard/DashboardNav.tsx
  *
  * This file owns only:
  *  - Chat state (messages, isChatMode)
+ *  - A stable sessionId for the entire browser session
  *  - Event handlers (handleCoursePrompt, handleChatMessage, appendAiReply)
  *  - The two-pane layout JSX
+ *
+ * Data flow:
+ *  page.tsx  →  onSend (server action)  →  CreateCourse  →  PillInput.onSubmit
  */
-export default function CreateCourse() {
+export default function CreateCourse({ onSend }: CreateCourseProps) {
   // ── State ─────────────────────────────────────────────────────────────────
 
   /** All messages in the current chat session */
@@ -42,6 +58,16 @@ export default function CreateCourse() {
 
   /** Toggles the right pane between create mode and chat mode */
   const [isChatMode, setIsChatMode] = useState(false);
+
+  // ── Refs ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Stable session identifier — generated once when the component mounts
+   * and reused for every message in this browser session.
+   * Passed to the server action so the backend can correlate messages.
+   */
+  const sessionId = crypto.randomUUID();
+  console.log(sessionId);
 
   /** Cycles through AI_REPLIES for variety in demo responses */
   const replyIndexRef = useRef(0);
@@ -60,37 +86,49 @@ export default function CreateCourse() {
 
   /**
    * Fires when the user submits the initial "Create New Course" prompt.
-   * Seeds the first user message, switches to chat mode, then appends
-   * a mock AI reply after a short delay.
+   * Seeds the first user message, switches to chat mode, fires the server
+   * action (if wired up), then appends a mock AI reply for local feedback.
    */
-  const handleCoursePrompt = (prompt: string) => {
+  const handleCoursePrompt = async (prompt: string) => {
     const firstMessage: Message = {
       id: Date.now(),
       role: "user",
       content: prompt,
     };
+
     setMessages([firstMessage]);
     setIsChatMode(true);
+
+    // ── Send to server action ──────────────────────────────────────────────
+    await onSend?.({ sessionID: sessionId, msg: prompt });
+
     appendAiReply();
   };
 
   /**
    * Fires when the user sends a follow-up message inside chat mode.
-   * Appends the user message then schedules a mock AI reply.
+   * Appends the user message, fires the server action, then schedules
+   * a mock AI reply for local feedback while waiting for a real response.
    */
-  const handleChatMessage = (message: string) => {
+  const handleChatMessage = async (message: string) => {
     const userMsg: Message = {
       id: Date.now(),
       role: "user",
       content: message,
     };
+
     setMessages((prev) => [...prev, userMsg]);
+
+    // ── Send to server action ──────────────────────────────────────────────
+    await onSend?.({ sessionID: sessionId, msg: message });
+
     appendAiReply();
   };
 
   /**
    * Appends a mock AI response after an 800ms delay to simulate
    * a network round-trip. Cycles through AI_REPLIES for variety.
+   * Replace or extend this once the real API response is wired up.
    */
   const appendAiReply = () => {
     setTimeout(() => {
@@ -138,8 +176,8 @@ export default function CreateCourse() {
 
       {/* ── WAVE DIVIDER ────────────────────────────────────────────────────
           Organic SVG swoosh at the top of the column boundary.
-               <WaveDivider leftColor={LEFT_BG} rightColor={RIGHT_BG} />
       ──────────────────────────────────────────────────────────────────── */}
+      <WaveDivider leftColor={LEFT_BG} rightColor={RIGHT_BG} />
 
       {/* ── RIGHT PANE ──────────────────────────────────────────────────────
           Switches between two views based on isChatMode:
@@ -199,7 +237,7 @@ export default function CreateCourse() {
             <PillInput
               placeholder="Enter what u would like to learn"
               buttonLabel="SEND"
-              buttonColor="#F97316"
+              buttonColor="#121212"
               buttonTextColor="#ffffff"
               onSubmit={handleCoursePrompt}
               className="w-full max-w-lg shadow-md"
