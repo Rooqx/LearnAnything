@@ -51,6 +51,8 @@ export default function PillInput({
     const trimmed = value.trim();
     if (onSubmit && trimmed) {
       onSubmit(trimmed);
+      // Clear the input after successful submission
+      setValue("");
     }
   };
 

@@ -12,11 +12,31 @@ import {
   Check,
 } from "lucide-react";
 import PillInput from "@/src/components/ui/PillInput";
+import { useState, useRef, useEffect } from "react";
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
 const TEXT_PRIMARY = "#121212";
 const MUTED = "#6B7280";
 const ACCENT = "#2ED573";
+
+// Chat bubble colours — intentionally reuse the course card palette
+const USER_BUBBLE_BG = "#EADBFF"; // matches Card 2 (purple)
+const AI_BUBBLE_BG = "#DDFCE2"; // matches Card 3 (green)
+
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
+interface Message {
+  id: number;
+  role: "user" | "ai";
+  content: string;
+}
+
+// Mock AI replies — cycled through for demo purposes
+const AI_REPLIES = [
+  "Certainly! UX Design focuses on the overall experience on the design and inserted with elements manuals, marketings, and implement revicate are strumbling experience. UX Design terom specificsmous understand ethical principles, and design and design ars and nousomenns in healthcare.",
+  "That's a great question! Let me break that down for you in a structured and easy-to-follow way.",
+  "Great point! Here's how you can think about this concept step by step.",
+];
 
 // ─── Static Data ───────────────────────────────────────────────────────────────
 
@@ -66,6 +86,36 @@ const COURSES: Course[] = [
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+
+/**
+ * ChatBubble
+ *
+ * Renders a single message bubble inside the AI Tutor Chat view.
+ *
+ * - User messages: right-aligned, purple (#EADBFF), tight bottom-right radius
+ * - AI messages:   left-aligned,  green  (#DDFCE2), tight bottom-left radius
+ */
+function ChatBubble({ message }: { message: Message }) {
+  const isUser = message.role === "user";
+
+  return (
+    <div
+      className={`flex w-full mb-3 ${isUser ? "justify-end" : "justify-start"}`}
+    >
+      <div
+        className="max-w-[75%] px-4 py-3 text-[13px] leading-relaxed"
+        style={{
+          backgroundColor: isUser ? USER_BUBBLE_BG : AI_BUBBLE_BG,
+          color: TEXT_PRIMARY,
+          // Tighter corner on the "speaker" side to indicate message origin
+          borderRadius: isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+        }}
+      >
+        {message.content}
+      </div>
+    </div>
+  );
+}
 
 /**
  * CourseCard
@@ -284,7 +334,9 @@ function WaveDivider({
  *
  * Two-pane dashboard layout:
  *  - Left pane  (~40%): scrollable list of existing course cards
- *  - Right pane (~60%): prompt area for generating a new course
+ *  - Right pane (~60%): switches between two states:
+ *      1. "create" — centred prompt input for generating a new course
+ *      2. "chat"   — AI Tutor Chat with scrollable message history
  *
  * A floating nav rail sits on the far left edge, and a wave SVG
  * divider provides the organic column boundary described in the spec.
@@ -293,18 +345,75 @@ export default function CreateCourse() {
   const LEFT_BG = "#F9FBFA";
   const RIGHT_BG = "#F2F4F3";
 
+  // ── State ──────────────────────────────────────────────────────────────────
+
+  /** All messages in the current chat session */
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  /** Tracks whether the right pane is in chat mode or create mode */
+  const [isChatMode, setIsChatMode] = useState(false);
+
+  /** Counter used to cycle through mock AI replies for demo purposes */
+  const replyIndexRef = useRef(0);
+
+  /** Ref attached to an invisible div at the bottom of the chat list */
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // ── Effects ────────────────────────────────────────────────────────────────
+
+  /** Auto-scroll to the latest message whenever the messages array changes */
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // ── Handlers ───────────────────────────────────────────────────────────────
+
+  /**
+   * Fires when the user submits the "Create New Course" prompt.
+   * Adds the first user message, switches to chat mode, then
+   * appends a mock AI reply after a short delay.
+   */
   const handleCoursePrompt = (prompt: string) => {
-    // TODO: wire up to course generation API
-    console.log("Generate course for:", prompt);
+    const firstMessage: Message = {
+      id: Date.now(),
+      role: "user",
+      content: prompt,
+    };
+    setMessages([firstMessage]);
+    setIsChatMode(true);
+    appendAiReply();
+  };
+
+  /**
+   * Fires when the user sends a follow-up message inside chat mode.
+   * Appends the user message then schedules a mock AI reply.
+   */
+  const handleChatMessage = (message: string) => {
+    const userMsg: Message = { id: Date.now(), role: "user", content: message };
+    setMessages((prev) => [...prev, userMsg]);
+    appendAiReply();
+  };
+
+  /**
+   * Appends a mock AI message after an 800ms delay to simulate
+   * a network round-trip. Cycles through AI_REPLIES for variety.
+   */
+  const appendAiReply = () => {
+    setTimeout(() => {
+      const reply = AI_REPLIES[replyIndexRef.current % AI_REPLIES.length];
+      replyIndexRef.current += 1;
+      const aiMsg: Message = { id: Date.now(), role: "ai", content: reply };
+      setMessages((prev) => [...prev, aiMsg]);
+    }, 800);
   };
 
   return (
-    <div className="relative  flex justify-between h-screen gap-10 max-h-screen">
+    <div className="relative flex justify-between h-full gap-10 overflow-hidden">
       {/* ── FLOATING NAV RAIL ─────────────────────────────────────────────
           Absolute-positioned on the left edge, vertically centred.
           Floats above both panes via z-index.
       ──────────────────────────────────────────────────────────────────── */}
-      <div className="pl-5 h-full mt-5">
+      <div className="pl-5 pt-5 shrink-0">
         <FloatingNavRail />
       </div>
 
@@ -313,7 +422,7 @@ export default function CreateCourse() {
           Left padding accounts for the floating nav rail width (~60px).
       ──────────────────────────────────────────────────────────────────── */}
       <div
-        className="w-[30%] flex flex-col items-center h-full overflow-y-auto pb-30 mt-5"
+        className="w-[30%] flex flex-col items-center min-h-0 overflow-y-auto pt-5 pb-30"
         style={{ backgroundColor: LEFT_BG, scrollbarWidth: "none" }}
       >
         <h2
@@ -328,31 +437,71 @@ export default function CreateCourse() {
         ))}
       </div>
 
-      {/* ── RIGHT PANE — Create New Course ────────────────────────────────
-          Centred prompt input for generating a new course via AI.
+      {/* ── RIGHT PANE ────────────────────────────────────────────────────
+          Conditionally renders one of two views depending on isChatMode:
+            - CREATE view: centred prompt input (initial state)
+            - CHAT view:   scrollable message history + bottom input bar
       ──────────────────────────────────────────────────────────────────── */}
       <div
-        className=" flex-1 flex flex-col px-0 pt-5 px-5 pb-6 h-full rounded-tl-3xl"
+        className="flex-1 flex flex-col pt-5 px-15 pb-6 min-h-0 overflow-hidden rounded-tl-3xl"
         style={{ backgroundColor: RIGHT_BG }}
       >
+        {/* Heading changes with the active mode */}
         <h2
-          className="text-[22px] font-bold mb-4"
+          className="text-[22px] font-bold mb-4 shrink-0"
           style={{ color: TEXT_PRIMARY }}
         >
-          Create New Course
+          {isChatMode ? "AI Tutor Chat" : "Create New Course"}
         </h2>
 
-        {/* Vertically and horizontally centred input */}
-        <div className="flex-1 flex items-center justify-center">
-          <PillInput
-            placeholder="Enter what u would like to learn"
-            buttonLabel="SEND"
-            buttonColor="#F97316"
-            buttonTextColor="#ffffff"
-            onSubmit={handleCoursePrompt}
-            className="w-full max-w-lg shadow-md"
-          />
-        </div>
+        {isChatMode ? (
+          /* ── CHAT VIEW ─────────────────────────────────────────────────
+              Fills remaining height with a scrollable bubble list and
+              pins the PillInput to the bottom of the pane.
+          ────────────────────────────────────────────────────────────── */
+          <>
+            {/* Scrollable message history */}
+            <div
+              className="flex-1 overflow-y-auto pr-2 mb-0 min-h-0"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#D1D5DB transparent",
+              }}
+            >
+              {messages.map((msg) => (
+                <ChatBubble key={msg.id} message={msg} />
+              ))}
+              {/* Invisible anchor — scrolled into view on new messages */}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Bottom-pinned chat input */}
+            <div className="shrink-0">
+              <PillInput
+                placeholder="Type your message here"
+                buttonLabel="SEND"
+                buttonColor="#F97316"
+                buttonTextColor="#ffffff"
+                onSubmit={handleChatMessage}
+                className="w-full shadow-md"
+              />
+            </div>
+          </>
+        ) : (
+          /* ── CREATE VIEW ───────────────────────────────────────────────
+              Vertically and horizontally centres the course prompt input.
+          ────────────────────────────────────────────────────────────── */
+          <div className="flex-1 flex items-center justify-center">
+            <PillInput
+              placeholder="Enter what u would like to learn"
+              buttonLabel="SEND"
+              buttonColor="#F97316"
+              buttonTextColor="#ffffff"
+              onSubmit={handleCoursePrompt}
+              className="w-full max-w-lg shadow-md"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
