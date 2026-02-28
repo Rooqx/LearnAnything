@@ -4,7 +4,7 @@ import { Bell, Plus, Minus, Menu, LayoutGrid, UserCircle2 } from "lucide-react";
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
 const TEXT_PRIMARY = "#121212";
-const ACCENT = "#2ED573";
+const ACCENT = "#111111ff";
 
 // ─── FloatingNavRail ───────────────────────────────────────────────────────────
 
