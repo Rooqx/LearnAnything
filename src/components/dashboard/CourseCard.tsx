@@ -78,7 +78,7 @@ export default function CourseCard({ course }: CourseCardProps) {
       style={{ backgroundColor: course.bgColor }}
     >
       {/* Inner container with subtle gradient overlay */}
-      <div className="p-8 w-full h-full bg-linear-to-r from-[rgba(255,255,255,0.5)] to-[#E5E7E] rounded-2xl">
+      <div className="p-8 w-full h-full bg-[rgba(255,255,255,0.3)] rounded-2xl">
         {/* Title */}
         <h3
           className="text-[16px] md:text-[18px] font-bold leading-snug"

@@ -15,9 +15,9 @@ interface Stat {
 // ─── Static Data ───────────────────────────────────────────────────────────────
 
 const STATS: Stat[] = [
-  { value: 26, label: "Total", bgColor: "#E2F6F8" },
-  { value: 2, label: "Complo", emoji: "🥳", bgColor: "#D1F7E0" },
-  { value: 23, label: "uncomplito", bgColor: "#FFFFFF" },
+  { value: 26, label: "Total Chapters", bgColor: "#E2F6F8" },
+  { value: 2, label: "Completed", emoji: "🥳", bgColor: "#D1F7E0" },
+  { value: 23, label: "Not Completed", bgColor: "#FFFFFF" },
 ];
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -31,16 +31,16 @@ const STATS: Stat[] = [
  */
 export default function StatCards() {
   return (
-    <div className="flex items-center gap-3 w-full">
+    <div className="flex justify-center items-center gap-3 w-full">
       {STATS.map((stat) => (
         <div
           key={stat.label}
-          className="flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-2xl shadow-[1px_2px_6px_rgba(0,0,0,0.06)]"
+          className="flex-1 flex flex-col items-center justify-center py-3 px-2 rounded-2xl shadow-[1px_2px_6px_rgba(0,0,0,0.1)]"
           style={{ backgroundColor: stat.bgColor }}
         >
           <div className="flex items-center gap-1">
             <span
-              className="text-[22px] font-bold leading-none"
+              className="text-[22px] font-bold leading-none text-nowrap"
               style={{ color: TEXT_PRIMARY }}
             >
               {stat.value}
@@ -49,7 +49,7 @@ export default function StatCards() {
               <span className="text-[14px]">{stat.emoji}</span>
             )}
           </div>
-          <span className="text-[11px] text-gray-500 font-medium mt-1">
+          <span className="text-[11px] text-gray-500 text-nowrap font-medium mt-1">
             {stat.label}
           </span>
         </div>

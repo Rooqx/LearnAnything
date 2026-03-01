@@ -7,7 +7,7 @@ import { forwardRef } from "react";
 const TEXT_PRIMARY = "#121212";
 const ACCENT = "#2ED573";
 const MUTED = "#6B7280";
-const CARD_BG = "#FFFFFF";
+const CARD_BG = "#82f195ff";
 const PILL_BG = "#F0F1F0";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -17,10 +17,11 @@ export interface Module {
   title: string;
   subtitle: string;
   description: string;
-  chapterLabel: string;
+  chapterLength: string;
 }
 
 interface ModuleCardProps {
+  cardBg: string;
   module: Module;
   isActive: boolean;
   onClick: () => void;
@@ -41,20 +42,24 @@ interface ModuleCardProps {
  * so the parent can read its position for SVG line drawing.
  */
 const ModuleCard = forwardRef<HTMLDivElement, ModuleCardProps>(
-  function ModuleCard({ module, isActive, onClick }, ref) {
+  function ModuleCard({ cardBg = CARD_BG, module, isActive, onClick }, ref) {
     return (
       <div
-        className="relative rounded-2xl p-8 flex flex-col gap-2.5 cursor-pointer transition-all duration-300 w-4/5 "
+        className="relative rounded-2xl p-2 cursor-pointer transition-all duration-300 w-4/5 "
         style={{
-          backgroundColor: CARD_BG,
+          zIndex:100,
+          backgroundColor: cardBg,
           boxShadow: isActive
             ? `0 0 0 2px ${ACCENT}, 2px 4px 12px rgba(0,0,0,0.1)`
-            : "2px 3px 10px rgba(0,0,0,0.08)",
+            : "2px 3px 10px rgba(0,0,0,0.2)",
             scrollbarWidth:"none",
             
         }}
         onClick={onClick}
       >
+         {/* Inner container with subtle gradient overlay */}
+      <div className="p-8 w-full h-full flex flex-col gap-2.5 bg-[rgba(255,255,255,0.3)] rounded-2xl">
+     
         {/* ── Header: Book icon + Module title/subtitle ───────────────── */}
         <div className="flex items-start gap-3">
           <div
@@ -93,7 +98,7 @@ const ModuleCard = forwardRef<HTMLDivElement, ModuleCardProps>(
             className="text-[11px] font-semibold px-3 py-1.5 rounded-full"
             style={{ backgroundColor: PILL_BG, color: TEXT_PRIMARY }}
           >
-            {module.chapterLabel}
+            {module.chapterLength} Chapters
           </span>
 
           <div className="flex items-center gap-1.5">
@@ -128,6 +133,7 @@ const ModuleCard = forwardRef<HTMLDivElement, ModuleCardProps>(
           style={{ backgroundColor: "#D1F7E0" }}
         >
           <Plus size={13} color={ACCENT} strokeWidth={2.5} />
+        </div>
         </div>
       </div>
     );

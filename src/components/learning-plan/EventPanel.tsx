@@ -42,6 +42,7 @@ const EVENTS: EventItem[] = [
     description:
       "Overview healt, policy, and their impact on patient care.",
     bgColor: "#EADBFF",
+     badge: "Start at 12:30",
   },
   {
     id: 3,
@@ -52,6 +53,7 @@ const EVENTS: EventItem[] = [
     description:
       "Examination of mfecious diseases, non-communicable diseases, and healthcare disparities.",
     bgColor: "#FEF9C3",
+     badge: "Start at 12:30",
   },
 ];
 
@@ -82,14 +84,14 @@ function TypeIcon({ type }: { type: EventItem["typeIcon"] }) {
 function EventCard({ event }: { event: EventItem }) {
   return (
     <div
-      className="rounded-2xl p-4 flex flex-col gap-2 transition-all duration-200 hover:shadow-md"
+      className="rounded-2xl cursor-pointer max-h-[300px] p-2 transition-all duration-200 hover:shadow-md"
       style={{
         backgroundColor: event.bgColor,
         boxShadow: "1px 2px 6px rgba(0,0,0,0.05)",
       }}
     >
-      {/* Header: icon + type + date */}
-      <div className="flex items-center justify-between">
+        {/* Header: icon + type + date */}
+      <div className="flex items-center justify-between p-2.5">
         <div className="flex items-center gap-2">
           <TypeIcon type={event.typeIcon} />
           <span
@@ -103,6 +105,11 @@ function EventCard({ event }: { event: EventItem }) {
           {event.date}
         </span>
       </div>
+
+       {/* Inner container with subtle gradient overlay */}
+      <div className="p-4 w-full  flex flex-col gap-2 bg-[rgba(255,255,255,0.3)] rounded-2xl">
+      
+    
 
       {/* Title */}
       <h4
@@ -127,6 +134,8 @@ function EventCard({ event }: { event: EventItem }) {
         </div>
       )}
     </div>
+    </div>
+
   );
 }
 
@@ -135,7 +144,7 @@ function EventCard({ event }: { event: EventItem }) {
 function StickyNote() {
   return (
     <div
-      className="rounded-2xl p-4 flex flex-col gap-2 mt-4 transition-transform duration-300 hover:rotate-0"
+      className="rounded-2xl p-4 cursor-pointer flex flex-col gap-2 mt-4 transition-transform duration-300 hover:rotate-0"
       style={{
         backgroundColor: "#DDFCE2",
         boxShadow: "2px 4px 12px rgba(0,0,0,0.08)",
@@ -176,7 +185,7 @@ function StickyNote() {
  */
 export default function EventPanel() {
   return (
-    <div className="flex flex-col gap-4 h-full overflow-y-auto pr-2 pb-6">
+    <div className="flex flex-col gap-4 h-full overflow-y-auto pr-2 pb-6" style={{scrollbarWidth:"none"}}>
       {/* Column heading */}
       <h2
         className="text-[22px] font-bold"

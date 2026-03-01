@@ -21,6 +21,7 @@ const CONTENT_BG = "#F9FBFA";
 const LEFT_PANE_BG = "#F3F4F3";
 const DIVIDER_COLOR = "#D1D5DB";
 const TEXT_PRIMARY = "#121212";
+const CARDS_BG = ["#DDFCE2", "#E2F6F8", "#EADBFF"];
 
 // ─── Static Data ───────────────────────────────────────────────────────────────
 
@@ -30,21 +31,36 @@ const MODULES: Module[] = [
     title: "Module 1",
     subtitle: "TITLE L",
     description: "Learn basic medical language for effective communication.",
-    chapterLabel: "CHAPTER LONK",
+    chapterLength: "2",
   },
+
   {
     id: 2,
     title: "Module 2",
     subtitle: "Title",
     description: "Learn basic medical language for effective communication.",
-    chapterLabel: "CHAPTER LONK",
+    chapterLength: "2",
   },
   {
     id: 3,
     title: "Module 3",
     subtitle: "Title",
     description: "Advanced topics in healthcare systems and policy.",
-    chapterLabel: "CHAPTER LONK",
+    chapterLength: "2",
+  },
+      {
+    id: 4,
+    title: "Module 1",
+    subtitle: "TITLE L",
+    description: "Learn basic medical language for effective communication.",
+    chapterLength: "5",
+  },
+    {
+    id: 5,
+    title: "Module 1",
+    subtitle: "TITLE L",
+    description: "Learn basic medical language for effective communication.",
+    chapterLength: "1",
   },
 ];
 
@@ -180,14 +196,14 @@ export default function LearningPlanPage() {
       <div className="relative flex h-full w-full overflow-hidden">
         {/* ── Left Floating Nav Rail ─────────────────────────────────────── */}
         <div
-          className="shrink-0 flex flex-col items-center py-6 px-2"
-          style={{ width: "52px" }}
+          className="shrink-0 flex flex-col items-center py-6 px-5"
+          style={{ width: "72px" }}
         >
           <FloatingNavRail />
         </div>
 
-        {/* ── Wavy curve at top-left junction ────────────────────────────── */}
-        <WaveDivider leftColor={LEFT_PANE_BG} rightColor={CONTENT_BG} />
+        {/* ── Wavy curve at top-left junction  <WaveDivider leftColor={LEFT_PANE_BG} rightColor={CONTENT_BG} /> ────────────────────────────── */}
+       
 
         {/* ── Three-column area (relative for SVG overlay) ───────────────── */}
         <div
@@ -206,11 +222,11 @@ export default function LearningPlanPage() {
               LEFT COLUMN — Teaching Plan (~35%)
           ══════════════════════════════════════════════════════════════════ */}
           <div
-            className="flex flex-col gap-5 py-6 px-5 overflow-y-auto"
-            style={{ width: "35%", backgroundColor: LEFT_PANE_BG }}
+            className="flex flex-col items-center gap-5 py-6 px-0  overflow-y-auto"
+            style={{ width: "35%", backgroundColor: CONTENT_BG, scrollbarWidth: "none"}}
           >
             <h2
-              className="text-[22px] font-bold"
+              className="text-[22px] font-bold w-full text-start px-10"
               style={{ color: TEXT_PRIMARY }}
             >
               Teaching Plan for course
@@ -218,6 +234,7 @@ export default function LearningPlanPage() {
 
             {MODULES.map((mod) => (
               <ModuleCard
+                cardBg={CARDS_BG[mod.id % CARDS_BG.length]}
                 key={mod.id}
                 module={mod}
                 isActive={mod.id === activeModuleId}
@@ -237,7 +254,7 @@ export default function LearningPlanPage() {
           ══════════════════════════════════════════════════════════════════ */}
           <div
             className="flex flex-col gap-4 py-6 px-5 overflow-y-auto"
-            style={{ width: "35%" }}
+            style={{ width: "30%", scrollbarWidth: "none" }}
           >
             {/* Search + Stats */}
             <SearchBar />
@@ -274,7 +291,7 @@ export default function LearningPlanPage() {
           {/* ══════════════════════════════════════════════════════════════════
               RIGHT COLUMN — My Event (~30%)
           ══════════════════════════════════════════════════════════════════ */}
-          <div className="flex-1 py-6 px-5 overflow-y-auto">
+          <div className="flex-1 py-6 px-5 overflow-y-auto" style={{ backgroundColor: LEFT_PANE_BG, scrollbarWidth: "none" }}>
             <EventPanel />
           </div>
         </div>

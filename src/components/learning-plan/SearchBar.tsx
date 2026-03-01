@@ -19,7 +19,7 @@ const TEXT_PRIMARY = "#121212";
 export default function SearchBar() {
   return (
     <div
-      className="flex items-center gap-2 px-4 py-2.5 rounded-full w-full max-w-[280px]"
+      className="flex items-center gap-2 px-4 py-2.5 rounded-full w-full"
       style={{ backgroundColor: INPUT_BG }}
     >
       <Search size={15} color={TEXT_MUTED} strokeWidth={2} />
