@@ -1,39 +1,54 @@
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeMathjax from "rehype-mathjax";
+"use client";
 
-// Your single string from the database
-const dbContent =
-  "Here is some text. \n\n ```javascript\n console.log('hello');\n``` \n\n And here is math: $$ E = mc^2 $$";
+import StatisticCard from "@/src/components/dashboard/StatisticCard";
+import YourCourses from "@/src/components/dashboard/YourCourses";
+import StudyProcess from "@/src/components/dashboard/StudyProcess";
+import AIAssistant from "@/src/components/dashboard/AIAssistant";
 
-export default function CourseChapter() {
+// ─── Design Tokens ─────────────────────────────────────────────────────────────
+const CONTENT_BG = "#F3F4F6";
+
+// ─── Component ─────────────────────────────────────────────────────────────────
+
+/**
+ * Dashboard Page
+ *
+ * Two-column masonry-style layout:
+ *   Left (~30%)  — StatisticCard (full height)
+ *   Right (~70%) — YourCourses (top), StudyProcess + AIAssistant (bottom 50/50)
+ */
+export default function DashboardPage() {
   return (
-    <div className="chapter-container">
-      <ReactMarkdown
-        remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeMathjax]}
-        components={{
-          // 1. Tell it how to handle code blocks
-          code({ node, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || "");
-            return match ? (
-              // THIS IS YOUR CUSTOM UI BLOCK!
-              // It automatically drops it right in the flow of the text.
-              <div className="my-special-code-block-ui">
-                <div className="block-header">{match[1]}</div>
-                <code className="bg-red-500">{children}</code>
-              </div>
-            ) : (
-              // This handles the short oneliners like `<a>`
-              <code className="my-inline-highlight" {...props}>
-                {children}
-              </code>
-            );
-          },
-        }}
-      >
-        {dbContent}
-      </ReactMarkdown>
+    <div
+      className="h-full overflow-y-auto p-6"
+      style={{ backgroundColor: CONTENT_BG, scrollbarWidth: "none" }}
+    >
+      <div className="flex gap-5 h-full max-h-[calc(100vh-80px)]">
+        {/* ══════════════════════════════════════════════════════════════════
+            LEFT COLUMN — Statistic (~30%)
+        ══════════════════════════════════════════════════════════════════ */}
+        <div className="w-[30%] shrink-0">
+          <StatisticCard />
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            RIGHT COLUMN — Courses + Study/AI (~70%)
+        ══════════════════════════════════════════════════════════════════ */}
+        <div className="flex-1 flex flex-col gap-5 min-w-0">
+          {/* Top: Your Courses (full width) */}
+          <YourCourses />
+
+          {/* Bottom: Study Process + AI Assistant (50/50) */}
+          <div className="flex gap-5 flex-1 min-h-0">
+            <div className="flex-1">
+              <StudyProcess />
+            </div>
+            <div className="flex-1">
+              <AIAssistant />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

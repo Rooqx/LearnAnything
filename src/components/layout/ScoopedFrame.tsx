@@ -7,7 +7,10 @@ import {
   Inbox,
   SlidersHorizontal,
   ChevronDown,
+  Headphones,
+  Bell,
 } from "lucide-react";
+import Link from "next/link";
 
 // ─── Design Tokens ─────────────────────────────────────────────────────────────
 const FRAME_BG = "#121212";
@@ -24,6 +27,17 @@ const ICON_NAV_ITEMS = [
   { icon: SlidersHorizontal, label: "Settings" },
 ];
 
+// ─── Dashboard Nav Items ────────────────────────────────────────────────────────
+
+/** Pill-shaped text nav items used when isDashboard is true */
+const DASHBOARD_NAV_ITEMS = [
+  { label: "All courses", href: "/courses" },
+  { label: "Dashboard", href: "/dashboard", isActive: true },
+  { label: "Statistic", href: "/dashboard" },
+  { label: "AI-assistant", href: "/dashboard" },
+  { label: "Support", href: "/dashboard" },
+];
+
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 interface ScoopedFrameProps {
@@ -31,6 +45,8 @@ interface ScoopedFrameProps {
   children: React.ReactNode;
   /** Optional extra classes on the outermost wrapper */
   className?: string;
+  /** When true, renders dashboard-style pill nav instead of icon nav */
+  isDashboard?: boolean;
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -46,6 +62,7 @@ interface ScoopedFrameProps {
 export default function ScoopedFrame({
   children,
   className = "",
+  isDashboard = false,
 }: ScoopedFrameProps) {
   return (
     <div
@@ -57,7 +74,7 @@ export default function ScoopedFrame({
           Sits above the scoop so it is always visible.
       ─────────────────────────────────────────────────────────────────────── */}
       <header
-        className="relative z-20 flex items-center justify-between px-8 py-3"
+        className="relative z-100 inset-0 flex items-center justify-between px-8 py-3"
         style={{ backgroundColor: FRAME_BG }}
       >
         {/* Brand */}
@@ -69,29 +86,71 @@ export default function ScoopedFrame({
         </span>
 
         {/* Primary navigation */}
-        <nav className="flex items-center gap-6">
-          {/* "Learning Plan" — only item with a visible text label */}
-          <button className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity duration-200">
-            <GraduationCap size={17} color={CONTENT_BG} strokeWidth={1.6} />
-            <span className="text-xs font-medium" style={{ color: CONTENT_BG }}>
-              Learning Plan
-            </span>
-          </button>
-
-          {/* Icon-only nav items */}
-          {ICON_NAV_ITEMS.map(({ icon: Icon, label }) => (
-            <button
-              key={label}
-              title={label}
-              className="opacity-60 hover:opacity-100 transition-opacity duration-200"
-            >
-              <Icon size={17} color={CONTENT_BG} strokeWidth={1.6} />
+        {isDashboard ? (
+          /* ── Dashboard pill nav ─────────────────────────────────────── */
+          <nav className="flex items-center gap-1 rounded-full px-1 py-1" style={{ backgroundColor: "rgba(255,255,255,0.1)" }}>
+            {DASHBOARD_NAV_ITEMS.map(({ label, href, isActive }) => (
+              <Link
+                key={label}
+                href={href}
+                className="px-4 py-1.5 rounded-full text-[12px] font-medium transition-all duration-200"
+                style={{
+                  backgroundColor: isActive ? CONTENT_BG : "transparent",
+                  color: isActive ? FRAME_BG : CONTENT_BG,
+                  opacity: isActive ? 1 : 0.7,
+                }}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        ) : (
+          /* ── Default icon nav ──────────────────────────────────────── */
+          <nav className="flex items-center gap-6">
+            <button className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity duration-200">
+              <GraduationCap size={17} color={CONTENT_BG} strokeWidth={1.6} />
+              <span className="text-xs font-medium" style={{ color: CONTENT_BG }}>
+                Learning Plan
+              </span>
             </button>
-          ))}
-        </nav>
+            {ICON_NAV_ITEMS.map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                title={label}
+                className="opacity-60 hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                onClick={() => console.log("works")}
+              >
+                <Icon size={17} color={CONTENT_BG} strokeWidth={1.6} />
+              </button>
+            ))}
+          </nav>
+        )}
 
-        {/* User profile */}
-        <div className="flex items-center gap-2.5">
+        {/* User profile + optional dashboard icons */}
+        <div className="flex items-center gap-3">
+          {/* Dashboard-only: headphone + bell icons */}
+          {isDashboard && (
+            <>
+              <button
+                title="Support"
+                className="opacity-60 hover:opacity-100 transition-opacity duration-200"
+              >
+                <Headphones size={17} color={CONTENT_BG} strokeWidth={1.6} />
+              </button>
+              <div className="relative">
+                <button
+                  title="Notifications"
+                  className="opacity-60 hover:opacity-100 transition-opacity duration-200"
+                >
+                  <Bell size={17} color={CONTENT_BG} strokeWidth={1.6} />
+                </button>
+                <span
+                  className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2"
+                  style={{ backgroundColor: ACCENT, borderColor: FRAME_BG }}
+                />
+              </div>
+            </>
+          )}
           {/* Avatar — uses accent green as placeholder background */}
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
