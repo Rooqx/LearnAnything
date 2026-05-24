@@ -1,82 +1,239 @@
-"use client";
+/* ============================================================
+   LumiAnimated — SVG Mascot Component
+   A small glowing cosmic orb with an expressive face.
+   4 emotion states rendered as SVG with CSS animations.
 
-import { cn } from "@/lib/utils";
-import type { LumiEmotion } from "@/types";
+   States: idle, thinking, excited, celebrating
+   Props: size (px), state (LumiState)
+   Respects useAnimationMode — LITE mode uses static SVG only.
+   ============================================================ */
 
-/**
- * LumiAnimated — The Lumi mascot as a CSS/SVG animated cosmic orb.
- * 4 emotion states with distinct animations.
- * Falls back gracefully. Can be swapped to Lottie later.
- */
+'use client';
 
-interface LumiAnimatedProps {
-  state?: LumiEmotion;
+import { useAnimationMode } from '@/hooks/useAnimationMode';
+import { cn } from '@/lib/utils';
+import type { LumiState } from '@/types';
+
+export interface LumiAnimatedProps {
+  /** Pixel size of the Lumi orb */
   size?: number;
+  /** Current emotion state */
+  state?: LumiState;
+  /** Additional CSS classes */
   className?: string;
 }
 
-const stateAnimations: Record<LumiEmotion, string> = {
-  idle: "animate-lumi-bob",
-  thinking: "animate-lumi-think",
-  excited: "animate-lumi-bounce",
-  celebrating: "animate-lumi-celebrate",
-};
+/**
+ * Lumi mascot — SVG cosmic orb with 4 emotion states.
+ *
+ * Built as inline SVG with CSS animations instead of Lottie
+ * for instant availability. Can be swapped to Lottie later.
+ *
+ * LITE mode: renders static SVG without animations.
+ * FULL mode: CSS animations per state (bob, spin, bounce, celebrate).
+ *
+ * The orb has a gradient fill from primary to reward,
+ * with a face (eyes and mouth) that changes per state.
+ * Soft glow effect via SVG filter.
+ */
+export function LumiAnimated({
+  size = 80,
+  state = 'idle',
+  className,
+}: LumiAnimatedProps) {
+  const { isLite } = useAnimationMode();
 
-export function LumiAnimated({ state = "idle", size = 64, className }: LumiAnimatedProps) {
+  /** Determine animation class based on state and mode */
+  const animationClass = isLite
+    ? ''
+    : state === 'idle'
+      ? 'animate-lumi-bob'
+      : state === 'thinking'
+        ? 'animate-lumi-think'
+        : state === 'excited'
+          ? 'animate-lumi-bounce'
+          : 'animate-lumi-celebrate';
+
+  /** Eye shape changes per state */
+  const getEyes = () => {
+    const eyeY = size * 0.38;
+    const leftEyeX = size * 0.36;
+    const rightEyeX = size * 0.64;
+    const eyeSize = size * 0.06;
+
+    switch (state) {
+      case 'thinking':
+        /* Eyes looking upward */
+        return (
+          <>
+            <circle cx={leftEyeX} cy={eyeY - eyeSize} r={eyeSize} fill="white" />
+            <circle cx={rightEyeX} cy={eyeY - eyeSize} r={eyeSize} fill="white" />
+          </>
+        );
+      case 'excited':
+        /* Wide eyes */
+        return (
+          <>
+            <circle cx={leftEyeX} cy={eyeY} r={eyeSize * 1.4} fill="white" />
+            <circle cx={rightEyeX} cy={eyeY} r={eyeSize * 1.4} fill="white" />
+          </>
+        );
+      case 'celebrating':
+        /* Star eyes — rendered as small star shapes */
+        return (
+          <>
+            <text
+              x={leftEyeX}
+              y={eyeY + eyeSize}
+              textAnchor="middle"
+              fill="white"
+              fontSize={eyeSize * 4}
+              fontFamily="sans-serif"
+            >
+              ★
+            </text>
+            <text
+              x={rightEyeX}
+              y={eyeY + eyeSize}
+              textAnchor="middle"
+              fill="white"
+              fontSize={eyeSize * 4}
+              fontFamily="sans-serif"
+            >
+              ★
+            </text>
+          </>
+        );
+      default:
+        /* Idle — normal round eyes */
+        return (
+          <>
+            <circle cx={leftEyeX} cy={eyeY} r={eyeSize} fill="white" />
+            <circle cx={rightEyeX} cy={eyeY} r={eyeSize} fill="white" />
+          </>
+        );
+    }
+  };
+
+  /** Mouth shape changes per state */
+  const getMouth = () => {
+    const mouthY = size * 0.52;
+    const centerX = size * 0.5;
+
+    switch (state) {
+      case 'thinking':
+        /* Small O shape */
+        return (
+          <circle
+            cx={centerX}
+            cy={mouthY}
+            r={size * 0.04}
+            fill="none"
+            stroke="white"
+            strokeWidth={size * 0.015}
+          />
+        );
+      case 'excited':
+      case 'celebrating':
+        /* Wide smile arc */
+        return (
+          <path
+            d={`M ${centerX - size * 0.1} ${mouthY} Q ${centerX} ${mouthY + size * 0.08} ${centerX + size * 0.1} ${mouthY}`}
+            fill="none"
+            stroke="white"
+            strokeWidth={size * 0.02}
+            strokeLinecap="round"
+          />
+        );
+      default:
+        /* Gentle smile */
+        return (
+          <path
+            d={`M ${centerX - size * 0.07} ${mouthY} Q ${centerX} ${mouthY + size * 0.05} ${centerX + size * 0.07} ${mouthY}`}
+            fill="none"
+            stroke="white"
+            strokeWidth={size * 0.015}
+            strokeLinecap="round"
+          />
+        );
+    }
+  };
+
   return (
     <div
-      className={cn("relative inline-flex items-center justify-center", stateAnimations[state], className)}
+      className={cn(animationClass, className)}
       style={{ width: size, height: size }}
-      aria-label={`Lumi mascot - ${state}`}
       role="img"
+      aria-label={`Lumi mascot — ${state} state`}
     >
-      <svg viewBox="0 0 100 100" width={size} height={size} className="drop-shadow-lg">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          {/* Radial gradient for the glowing orb effect */}
-          <radialGradient id={`lumi-grad-${state}`} cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#C8F135" stopOpacity="0.9" />
-            <stop offset="40%" stopColor="#6C3CE1" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#4F1FCC" stopOpacity="0.6" />
+          {/* Radial gradient for the orb body */}
+          <radialGradient id={`lumi-grad-${size}`} cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stopColor="var(--color-reward)" />
+            <stop offset="50%" stopColor="var(--color-primary)" />
+            <stop offset="100%" stopColor="var(--color-primary-dark)" />
           </radialGradient>
-          {/* Outer glow filter */}
-          <filter id={`lumi-glow-${state}`} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+
+          {/* Soft glow filter */}
+          <filter id={`lumi-glow-${size}`} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation={size * 0.06} result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
+
+        {/* Outer glow ring */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={size * 0.38}
+          fill="var(--color-primary)"
+          opacity={0.15}
+          filter={`url(#lumi-glow-${size})`}
+        />
+
         {/* Main orb body */}
-        <circle cx="50" cy="50" r="35" fill={`url(#lumi-grad-${state})`} filter={`url(#lumi-glow-${state})`} />
-        {/* Inner highlight for depth */}
-        <circle cx="42" cy="40" r="12" fill="rgba(255,255,255,0.25)" />
-        {/* Eyes */}
-        <circle cx="40" cy="48" r={state === "excited" || state === "celebrating" ? 4.5 : 3.5} fill="#0E0B1A" />
-        <circle cx="60" cy="48" r={state === "excited" || state === "celebrating" ? 4.5 : 3.5} fill="#0E0B1A" />
-        {/* Eye highlights */}
-        <circle cx="41.5" cy="46.5" r="1.5" fill="white" />
-        <circle cx="61.5" cy="46.5" r="1.5" fill="white" />
-        {/* Mouth — changes with emotion */}
-        {state === "idle" && <path d="M44 58 Q50 62 56 58" stroke="#0E0B1A" strokeWidth="2" fill="none" strokeLinecap="round" />}
-        {state === "thinking" && <circle cx="50" cy="60" r="3" fill="#0E0B1A" />}
-        {state === "excited" && <path d="M42 56 Q50 66 58 56" stroke="#0E0B1A" strokeWidth="2" fill="#0E0B1A" strokeLinecap="round" />}
-        {state === "celebrating" && (
-          <>
-            <path d="M40 55 Q50 68 60 55" stroke="#0E0B1A" strokeWidth="2" fill="#0E0B1A" strokeLinecap="round" />
-            {/* Star eyes for celebrating */}
-            <path d="M40 48 l-2-3 l3.5 1 l1-3.5 l1 3.5 l3.5-1 l-2 3 l2 3 l-3.5-1 l-1 3.5 l-1-3.5 l-3.5 1z" fill="#F7C948" />
-            <path d="M60 48 l-2-3 l3.5 1 l1-3.5 l1 3.5 l3.5-1 l-2 3 l2 3 l-3.5-1 l-1 3.5 l-1-3.5 l-3.5 1z" fill="#F7C948" />
-          </>
-        )}
-        {/* Sparkle particles for celebrating state */}
-        {state === "celebrating" && (
-          <>
-            <circle cx="20" cy="25" r="2" fill="#F7C948" opacity="0.8" />
-            <circle cx="80" cy="30" r="2.5" fill="#C8F135" opacity="0.7" />
-            <circle cx="25" cy="75" r="1.5" fill="#6C3CE1" opacity="0.6" />
-            <circle cx="78" cy="70" r="2" fill="#F7C948" opacity="0.8" />
-          </>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={size * 0.32}
+          fill={`url(#lumi-grad-${size})`}
+        />
+
+        {/* Highlight / light reflection */}
+        <ellipse
+          cx={size * 0.42}
+          cy={size * 0.35}
+          rx={size * 0.12}
+          ry={size * 0.08}
+          fill="white"
+          opacity={0.25}
+        />
+
+        {/* Face — eyes and mouth */}
+        <g>
+          {getEyes()}
+          {getMouth()}
+        </g>
+
+        {/* Celebrating sparkles — only in celebrating state */}
+        {state === 'celebrating' && (
+          <g opacity={0.8}>
+            <circle cx={size * 0.15} cy={size * 0.2} r={size * 0.02} fill="var(--color-accent)" />
+            <circle cx={size * 0.85} cy={size * 0.25} r={size * 0.015} fill="var(--color-accent)" />
+            <circle cx={size * 0.2} cy={size * 0.75} r={size * 0.018} fill="var(--color-reward)" />
+            <circle cx={size * 0.82} cy={size * 0.7} r={size * 0.022} fill="var(--color-primary)" />
+            <circle cx={size * 0.5} cy={size * 0.12} r={size * 0.015} fill="var(--color-success)" />
+          </g>
         )}
       </svg>
     </div>

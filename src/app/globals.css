@@ -27,10 +27,10 @@
   --radius-full: 9999px;
 
   /* ---------- Shadows ---------- */
-  --shadow-sm: 0 2px 8px rgba(108, 60, 225, 0.08);
-  --shadow-md: 0 4px 24px rgba(108, 60, 225, 0.15);
-  --shadow-lg: 0 8px 48px rgba(108, 60, 225, 0.25);
-  --shadow-glow: 0 0 32px rgba(108, 60, 225, 0.4);
+  --shadow-sm: 0 2px 8px rgba(255, 48, 8, 0.08);
+  --shadow-md: 0 4px 24px rgba(255, 48, 8, 0.15);
+  --shadow-lg: 0 8px 48px rgba(255, 48, 8, 0.25);
+  --shadow-glow: 0 0 32px rgba(255, 48, 8, 0.4);
 
   /* ---------- Font Families ---------- */
   /* Actual font-family values are set by next/font/google in layout.tsx
@@ -52,6 +52,9 @@
   /* ---------- Animations ---------- */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --duration-fast: 150ms;
   --duration-normal: 200ms;
   --duration-slow: 300ms;
@@ -90,14 +93,14 @@
 }
 /* ============================================================
    GLOBAL RESETS & BASE STYLES
-   ============================================================ */
+   ============================================================ 
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-
+*/
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
@@ -193,7 +196,7 @@ code, pre, kbd, samp {
    ============================================================ */
 
 ::selection {
-  background: rgba(108, 60, 225, 0.3);
+  background: rgba(255, 48, 8, 0.3);
   color: var(--color-text);
 }
 
@@ -251,10 +254,10 @@ code, pre, kbd, samp {
 /* Pulse glow animation for streak/badge elements */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 16px rgba(108, 60, 225, 0.3);
+    box-shadow: 0 0 16px rgba(255, 48, 8, 0.3);
   }
   50% {
-    box-shadow: 0 0 32px rgba(108, 60, 225, 0.6);
+    box-shadow: 0 0 32px rgba(255, 48, 8, 0.6);
   }
 }
 
@@ -381,3 +384,139 @@ code, pre, kbd, samp {
 .animate-flame-pulse {
   animation: flame-pulse 1.5s ease-in-out infinite;
 }
+
+/* ============================================================
+   COMPONENT KEYFRAMES
+   Used by Modal, Drawer, Input components
+   ============================================================ */
+
+/* Fade in — used by modal/drawer backdrops */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scale in — used by Modal panel (from 0.95 per Emil's principle) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide up — used by bottom sheet Drawer */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+/* Slide left — used by right-side Drawer */
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+/* Shake — used by Input error state */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* ============================================================
+   LUMI MASCOT KEYFRAMES
+   ============================================================ */
+
+/* Lumi idle — gentle bobbing */
+@keyframes lumiBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-lumi-bob { animation: lumiBob 2.5s ease-in-out infinite; }
+
+/* Lumi thinking — slow rotation with bob */
+@keyframes lumiThink {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(8deg); }
+}
+
+.animate-lumi-think { animation: lumiThink 2s ease-in-out infinite; }
+
+/* Lumi excited — energetic bounce */
+@keyframes lumiBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-10px) scale(1.05); }
+  50% { transform: translateY(0) scale(1); }
+  75% { transform: translateY(-6px) scale(1.02); }
+}
+
+.animate-lumi-bounce { animation: lumiBounce 0.8s ease-in-out infinite; }
+
+/* Lumi celebrating — full bounce with sparkle */
+@keyframes lumiCelebrate {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  25% { transform: translateY(-14px) scale(1.1) rotate(-5deg); }
+  50% { transform: translateY(0) scale(1) rotate(0deg); }
+  75% { transform: translateY(-8px) scale(1.05) rotate(5deg); }
+}
+
+.animate-lumi-celebrate { animation: lumiCelebrate 1s ease-in-out infinite; }
+
+/* ============================================================
+   FADE-IN DIRECTION KEYFRAMES
+   Used by FadeIn, AnimatedPage, StaggerChildren
+   ============================================================ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   FLOAT UP — XP Toast animation
+   ============================================================ */
+
+@keyframes floatUp {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-40px); }
+}
+
+.animate-float-up { animation: floatUp 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }

@@ -1,10 +1,46 @@
 /* ============================================================
-   Type Barrel Export
-   Re-exports all types from a single entry point for clean imports.
-   Usage: import { Course, UserProfile, AnimationMode } from '@/types'
+   Type Barrel Exports
+   Single import point for all shared types:
+   import { Course, User, Quiz, AnimationMode } from '@/types'
    ============================================================ */
 
-export * from "./animation";
-export * from "./course";
-export * from "./user";
-export * from "./quiz";
+export type {
+  LearningMode,
+  CourseStatus,
+  ContentBlockType,
+  ContentBlock,
+  CoursePage,
+  Module,
+  Course,
+  CourseGenerationRequest,
+  CourseGenerationResponse,
+} from './course';
+
+export type {
+  DailyGoalMinutes,
+  BadgeRarity,
+  InterestCategory,
+  XPData,
+  Streak,
+  DailyGoal,
+  Badge,
+  Achievement,
+  NotificationSettings,
+  User,
+  LeaderboardEntry,
+} from './user';
+
+export type {
+  QuizAnswer,
+  QuizQuestion,
+  Quiz,
+  QuizResult,
+} from './quiz';
+
+export type {
+  AnimationMode,
+  LumiState,
+  MotionVariant,
+  SwipeDirection,
+  SwipeEvent,
+} from './animation';

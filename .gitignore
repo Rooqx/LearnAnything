@@ -62,3 +62,4 @@ docker-compose.override.env
 *.dockerignore
 
 LearnAnything_Prompt.md
+design-system

@@ -1,77 +1,100 @@
-"use client";
-
-import { cn } from "@/lib/utils";
-
 /* ============================================================
    Avatar Component
-   
-   User and Lumi avatar with image support and fallback initials.
-   Circular by default with multiple size options.
+   User and Lumi avatar with fallback initials.
+   Uses squircle-inspired rounded shape (not perfect circle)
+   for a premium feel per taste-skill guidance.
    ============================================================ */
 
-type AvatarSize = "sm" | "md" | "lg" | "xl";
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
-interface AvatarProps {
-  src?: string;
-  alt?: string;
-  /** Display name — first letter used as fallback */
+export interface AvatarProps {
+  /** Image source URL */
+  src?: string | null;
+  /** Alt text for the image */
+  alt: string;
+  /** Display name for generating fallback initials */
   name?: string;
-  size?: AvatarSize;
+  /** Size variant — maps to specific pixel sizes */
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** Additional CSS classes */
   className?: string;
 }
 
-const sizeStyles: Record<AvatarSize, string> = {
-  sm: "h-8 w-8 text-xs",
-  md: "h-10 w-10 text-sm",
-  lg: "h-14 w-14 text-lg",
-  xl: "h-24 w-24 text-2xl",
-};
+/** Size mappings in pixels */
+const SIZES = {
+  sm: 32,
+  md: 40,
+  lg: 56,
+  xl: 96,
+} as const;
 
 /**
- * Get initials from a display name (max 2 characters).
- * @example getInitials("John Doe") → "JD"
- * @example getInitials("Alice") → "A"
+ * Extract initials from a display name.
+ * Takes the first character of the first two words.
+ * Example: "Kai Nakamura" → "KN", "Priya" → "P"
  */
 function getInitials(name: string): string {
   return name
-    .split(" ")
-    .map((word) => word[0])
+    .split(' ')
     .filter(Boolean)
     .slice(0, 2)
-    .join("")
-    .toUpperCase();
+    .map((word) => word[0].toUpperCase())
+    .join('');
 }
 
+/**
+ * Avatar component.
+ *
+ * Shows a user photo when available, falls back to
+ * generated initials on a gradient background.
+ * Uses a slightly rounded square (squircle) shape
+ * instead of a perfect circle for differentiation
+ * from generic AI avatar patterns.
+ */
 export function Avatar({
   src,
-  alt = "Avatar",
-  name = "",
-  size = "md",
+  alt,
+  name = '',
+  size = 'md',
   className,
 }: AvatarProps) {
-  const initials = getInitials(name);
+  const pixelSize = SIZES[size];
+  const initials = name ? getInitials(name) : '?';
 
   return (
     <div
       className={cn(
-        "relative shrink-0 overflow-hidden rounded-full",
-        "bg-[var(--color-primary)]/20",
-        "flex items-center justify-center",
-        "font-heading font-semibold text-[var(--color-primary)]",
-        sizeStyles[size],
+        'relative shrink-0 overflow-hidden',
+        'rounded-[30%]',
+        'bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-reward)]',
         className
       )}
+      style={{ width: pixelSize, height: pixelSize }}
+      role="img"
       aria-label={alt}
     >
       {src ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
+        <Image
           src={src}
           alt={alt}
-          className="h-full w-full object-cover"
+          width={pixelSize}
+          height={pixelSize}
+          className="object-cover w-full h-full"
         />
       ) : (
-        <span>{initials || "?"}</span>
+        <div
+          className={cn(
+            'w-full h-full flex items-center justify-center',
+            'font-[family-name:var(--font-heading)] font-semibold text-white',
+            size === 'sm' && 'text-xs',
+            size === 'md' && 'text-sm',
+            size === 'lg' && 'text-lg',
+            size === 'xl' && 'text-2xl'
+          )}
+        >
+          {initials}
+        </div>
       )}
     </div>
   );

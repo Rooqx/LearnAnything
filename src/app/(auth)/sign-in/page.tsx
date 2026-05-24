@@ -1,105 +1,213 @@
-"use client";
+/* ============================================================
+   Sign In Page
+   Email + password sign-in form with social auth buttons
+   (Google + Apple — UI only, mock auth).
+   Animated pill toggle to sign-up.
+   ============================================================ */
 
-import { useState } from "react";
-import Link from "next/link";
-import { Mail, Lock, User } from "lucide-react";
-import { Button, Input } from "@/components/ui";
-import { AnimatedPage, LumiAnimated } from "@/components/ux";
+'use client';
+
+import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Button, Input, Card } from '@/components/ui';
+import { LumiAnimated, AnimatedPage } from '@/components/ux';
+import { useUserStore } from '@/store/useUserStore';
+import { INITIAL_USER_DATA } from '@/lib/constants';
+import { generateId } from '@/lib/utils';
+import Link from 'next/link';
+import type { LumiState } from '@/types';
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [lumiState, setLumiState] = useState<LumiState>('idle');
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
     setIsLoading(true);
-    setError("");
-    /* TODO: Implement auth logic */
-    setTimeout(() => setIsLoading(false), 1500);
+    setLumiState('thinking');
+
+    /* Mock auth — simulate network delay */
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    /* Mock: create a user and navigate */
+    const mockUser = {
+      ...INITIAL_USER_DATA,
+      id: generateId(),
+      displayName: email.split('@')[0],
+      email,
+      createdAt: new Date().toISOString(),
+    };
+
+    setUser(mockUser);
+    setLumiState('excited');
+
+    /* Brief celebration then navigate */
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    if (mockUser.onboardingComplete) {
+      router.push('/dashboard');
+    } else {
+      router.push('/onboarding');
+    }
+  };
+
+  const handleSocialAuth = async (provider: string) => {
+    setIsLoading(true);
+    setLumiState('thinking');
+
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    const mockUser = {
+      ...INITIAL_USER_DATA,
+      id: generateId(),
+      displayName: provider === 'google' ? 'Alex Chen' : 'Alex',
+      email: `alex@${provider}.com`,
+      createdAt: new Date().toISOString(),
+    };
+
+    setUser(mockUser);
+    setLumiState('excited');
+
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    router.push('/onboarding');
   };
 
   return (
-    <AnimatedPage>
-      <div className="flex min-h-dvh">
-        {/* Left — Brand visual (desktop only) */}
-        <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:items-center lg:justify-center lg:gap-6 lg:px-12"
-          style={{ background: "radial-gradient(ellipse at 30% 20%, rgba(108,60,225,0.25) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(200,241,53,0.1) 0%, transparent 50%), var(--color-bg)" }}>
-          <LumiAnimated state="idle" size={120} />
-          <h1 className="font-heading text-4xl font-bold text-center">
-            Learn<span className="text-[var(--color-primary)]">Anything</span>
-          </h1>
-          <p className="text-lg text-[var(--color-muted)] text-center max-w-md">Learn anything. Master everything.</p>
-        </div>
+   
+      <div className="space-y-12">
+      {/* Lumi mascot */}
+      <div className="flex justify-center">
+        <LumiAnimated size={72} state={lumiState} />
+      </div>
 
-        {/* Right — Auth form */}
-        <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-          {/* Mobile logo */}
-          <div className="mb-8 flex flex-col items-center gap-3 lg:hidden">
-            <LumiAnimated state="idle" size={80} />
-            <h1 className="font-heading text-2xl font-bold">
-              Learn<span className="text-[var(--color-primary)]">Anything</span>
-            </h1>
-          </div>
+      {/* Header */}
+        <div className="text-center space-y-3">
+          <h1 className="font-[family-name:var(--font-heading)] font-bold text-3xl tracking-tight text-[var(--color-text)]">
+          Welcome back
+        </h1>
+        <p className="font-[family-name:var(--font-body)] text-[var(--color-muted)]">
+          Sign in to continue your learning journey
+        </p>
+      </div>
 
-          <div className="w-full max-w-sm">
-            <h2 className="font-heading text-2xl font-bold mb-1">Welcome back</h2>
-            <p className="text-sm text-[var(--color-muted)] mb-6">Sign in to continue learning</p>
-
-            {error && <p className="mb-4 text-sm text-[var(--color-error)]">{error}</p>}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                id="email"
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                leftIcon={<Mail size={18} />}
-                required
-              />
-              <Input
-                id="password"
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                leftIcon={<Lock size={18} />}
-                required
-              />
-
-              <div className="flex justify-end">
-                <button type="button" className="text-xs text-[var(--color-primary)] cursor-pointer hover:underline">Forgot Password?</button>
-              </div>
-
-              <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
-                Sign In
-              </Button>
-            </form>
-
-            {/* Divider */}
-            <div className="my-6 flex items-center gap-3">
-              <div className="h-px flex-1 bg-[var(--color-border)]" />
-              <span className="text-xs text-[var(--color-muted)]">OR</span>
-              <div className="h-px flex-1 bg-[var(--color-border)]" />
-            </div>
-
-            {/* Social auth */}
-            <div className="space-y-3">
-              <Button variant="secondary" fullWidth leftIcon={<User size={18} />}>Continue with Google</Button>
-              <Button variant="secondary" fullWidth leftIcon={<User size={18} />}>Continue with Apple</Button>
-            </div>
-
-            <p className="mt-6 text-center text-sm text-[var(--color-muted)]">
-              Don&apos;t have an account?{" "}
-              <Link href="/sign-up" className="text-[var(--color-primary)] cursor-pointer hover:underline font-medium">Sign Up</Link>
-            </p>
-          </div>
+      {/* Auth toggle pill */}
+      <div className="flex justify-center">
+        <div className="inline-flex bg-[var(--color-surface)] rounded-full p-1 border border-[var(--color-border)]">
+          <span className="px-5 py-2 rounded-full text-sm font-medium font-[family-name:var(--font-body)] bg-[var(--color-primary)] text-white">
+            Sign in
+          </span>
+          <Link
+            href="/sign-up"
+            className="px-5 py-2 rounded-full text-sm font-medium font-[family-name:var(--font-body)] text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors"
+          >
+            Sign up
+          </Link>
         </div>
       </div>
-    </AnimatedPage>
+
+      {/* Sign in form */}
+      <Card variant="glass" padding="lg">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            leftIcon={<Mail size={18} />}
+            error={error && !email ? 'Email is required' : undefined}
+            autoComplete="email"
+          />
+
+          <Input
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            leftIcon={<Lock size={18} />}
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="p-1 cursor-pointer"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            }
+            error={error && !password ? 'Password is required' : undefined}
+            autoComplete="current-password"
+          />
+
+          {error && email && password && (
+            <p className="text-[var(--color-error)] text-sm font-[family-name:var(--font-body)]" role="alert">
+              {error}
+            </p>
+          )}
+
+          <Button type="submit" fullWidth isLoading={isLoading}>
+            Sign in
+          </Button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 h-px bg-[var(--color-border)]" />
+          <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] uppercase tracking-wide">
+            or continue with
+          </span>
+          <div className="flex-1 h-px bg-[var(--color-border)]" />
+        </div>
+
+        {/* Social auth buttons */}
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={() => handleSocialAuth('google')}
+            disabled={isLoading}
+            leftIcon={
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+              </svg>
+            }
+          >
+            Google
+          </Button>
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={() => handleSocialAuth('apple')}
+            disabled={isLoading}
+            leftIcon={
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+            }
+          >
+            Apple
+          </Button>
+        </div>
+      </Card>
+    </div>
   );
 }

@@ -1,85 +1,136 @@
-"use client";
+/* ============================================================
+   Courses Page
+   Course list with filter chips and grid layout.
+   ============================================================ */
 
-import { useState } from "react";
-import Link from "next/link";
-import { Menu, Plus } from "lucide-react";
-import { Card, Badge, ProgressBar, Chip, Button, Drawer, EmptyState } from "@/components/ui";
-import { AnimatedPage, LumiAnimated, StaggerChildren } from "@/components/ux";
-import { PageWrapper } from "@/components/layout/PageWrapper";
-import { ChatHistory } from "@/components/chat/ChatHistory";
-import { useCourseStore } from "@/store/useCourseStore";
-import { MODE_COLORS } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
+'use client';
 
-type Filter = "all" | "in-progress" | "completed";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { BookOpen, Clock, ChevronRight, Plus } from 'lucide-react';
+import { Card, Badge, Chip, Button, ProgressBar, EmptyState } from '@/components/ui';
+import { AnimatedPage, FadeIn, StaggerChildren, LumiAnimated } from '@/components/ux';
+import { PageWrapper } from '@/components/layout/PageWrapper';
+import { useCourseStore } from '@/store/useCourseStore';
+import { formatDuration, formatDate, getCompletionPercentage } from '@/lib/utils';
+import type { CourseStatus } from '@/types';
+
+type FilterOption = 'all' | CourseStatus;
 
 export default function CoursesPage() {
-  const [filter, setFilter] = useState<Filter>("all");
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const courseList = useCourseStore((s) => s.courseList);
+  const router = useRouter();
+  const courses = useCourseStore((state) => state.courses);
+  const [filter, setFilter] = useState<FilterOption>('all');
 
-  const filtered = courseList.filter((c) => {
-    if (filter === "in-progress") return !c.isCompleted;
-    if (filter === "completed") return c.isCompleted;
-    return true;
-  });
+  const filteredCourses = filter === 'all'
+    ? courses
+    : courses.filter((c) => c.status === filter);
+
+  const filterOptions: { value: FilterOption; label: string }[] = [
+    { value: 'all', label: 'All' },
+    { value: 'in_progress', label: 'In progress' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'ready', label: 'Not started' },
+  ];
 
   return (
     <AnimatedPage>
-      <div className="flex h-[calc(100dvh-4rem)]">
-        {/* Desktop Sidebar */}
-        <aside className="hidden md:flex md:w-[280px] md:flex-col md:border-r md:border-[var(--color-border)] md:bg-[var(--color-surface)]/50">
-          <div className="p-4"><Link href="/chat"><Button variant="primary" fullWidth leftIcon={<Plus size={18} />}>New Course</Button></Link></div>
-          <div className="flex-1 overflow-y-auto px-2"><ChatHistory courses={courseList} onSelect={() => {}} /></div>
-        </aside>
-
-        {/* Mobile Drawer */}
-        <Drawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} title="Courses">
-          <div className="p-4"><Link href="/chat"><Button variant="primary" fullWidth leftIcon={<Plus size={18} />}>New Course</Button></Link></div>
-          <div className="px-2"><ChatHistory courses={courseList} onSelect={() => setDrawerOpen(false)} /></div>
-        </Drawer>
-
-        {/* Main content */}
-        <div className="flex-1 overflow-y-auto">
-          <PageWrapper>
-            <div className="flex items-center gap-3 mb-6 md:hidden">
-              <button onClick={() => setDrawerOpen(true)} className="cursor-pointer text-[var(--color-muted)]"><Menu size={22} /></button>
-              <h1 className="font-heading text-2xl font-bold">My Courses</h1>
+      <PageWrapper>
+        <div className="space-y-6">
+          {/* Header */}
+          <FadeIn>
+            <div className="flex items-center justify-between">
+              <h1 className="font-[family-name:var(--font-heading)] font-bold text-3xl tracking-[-0.02em] text-[var(--color-text)]">
+                My courses
+              </h1>
+              <Button onClick={() => router.push('/chat')} leftIcon={<Plus size={18} />} size="sm">
+                New course
+              </Button>
             </div>
-            <h1 className="hidden md:block font-heading text-2xl font-bold mb-6">My Courses</h1>
+          </FadeIn>
 
-            {/* Filter chips */}
-            <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hidden">
-              {(["all", "in-progress", "completed"] as Filter[]).map((f) => (
-                <Chip key={f} label={f === "all" ? "All" : f === "in-progress" ? "In Progress" : "Completed"} isSelected={filter === f} onClick={() => setFilter(f)} />
+          {/* Filter chips */}
+          <FadeIn delay={100}>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {filterOptions.map((option) => (
+                <Chip
+                  key={option.value}
+                  selected={filter === option.value}
+                  onClick={() => setFilter(option.value)}
+                  size="sm"
+                >
+                  {option.label}
+                </Chip>
               ))}
             </div>
+          </FadeIn>
 
-            {filtered.length === 0 ? (
-              <EmptyState title={filter === "all" ? "No courses yet" : `No ${filter} courses`} description="Start a new course from the chat." ctaLabel="Start a Course" ctaOnClick={() => window.location.href = "/chat"} icon={<LumiAnimated state="idle" size={80} />} />
-            ) : (
-              <StaggerChildren className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((course) => (
-                  <Link key={course.id} href={`/learn/${course.id}`}>
-                    <Card hoverable clickable>
-                      <h3 className="font-heading text-base font-semibold line-clamp-2">{course.title}</h3>
-                      <div className="mt-2 flex items-center gap-2">
-                        <Badge variant="custom" customColor={MODE_COLORS[course.mode]} size="sm">{course.mode}</Badge>
-                        <span className="text-xs text-[var(--color-muted)]">{course.totalModules} modules</span>
+          {/* Course grid */}
+          {filteredCourses.length === 0 ? (
+            <EmptyState
+              icon={<LumiAnimated size={80} state="idle" />}
+              title={filter === 'all' ? 'No courses yet' : `No ${filter.replace('_', ' ')} courses`}
+              description="Start a conversation to create your first course"
+              actionLabel="Create course"
+              onAction={() => router.push('/chat')}
+            />
+          ) : (
+            <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredCourses.map((course) => {
+                const progress = getCompletionPercentage(course.completedPages, course.totalPages);
+                return (
+                  <Card
+                    key={course.id}
+                    variant="glass"
+                    padding="md"
+                    interactive
+                    onClick={() => router.push(`/learn/${course.id}/plan`)}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-[family-name:var(--font-heading)] font-semibold text-base text-[var(--color-text)] truncate">
+                            {course.title}
+                          </h3>
+                          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-muted)] mt-0.5 line-clamp-2">
+                            {course.description}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={
+                            course.mode === 'beginner' ? 'primary'
+                              : course.mode === 'simplified' ? 'accent'
+                                : 'success'
+                          }
+                        >
+                          {course.mode}
+                        </Badge>
                       </div>
-                      <ProgressBar value={course.progress} height="sm" className="mt-3" color={MODE_COLORS[course.mode]} />
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-[var(--color-muted)]">{formatDate(course.lastAccessedAt)}</span>
-                        <Button variant="ghost" size="sm">{course.isCompleted ? "Review" : "Continue"}</Button>
+
+                      <div className="flex items-center gap-3 text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
+                        <span className="flex items-center gap-1"><Clock size={12} />{formatDuration(course.totalEstimatedMinutes)}</span>
+                        <span className="flex items-center gap-1"><BookOpen size={12} />{course.modules.length} modules</span>
+                        <span>{formatDate(course.lastAccessedAt)}</span>
                       </div>
-                    </Card>
-                  </Link>
-                ))}
-              </StaggerChildren>
-            )}
-          </PageWrapper>
+
+                      <ProgressBar value={progress} variant="primary" size="sm" />
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
+                          {course.completedPages}/{course.totalPages} pages
+                        </span>
+                        {course.status === 'completed' && (
+                          <Badge variant="success" size="sm">Complete</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </StaggerChildren>
+          )}
         </div>
-      </div>
+      </PageWrapper>
     </AnimatedPage>
   );
 }

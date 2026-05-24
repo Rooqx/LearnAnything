@@ -1,239 +1,371 @@
-import type { LearningModeConfig, Badge } from "@/types";
-
 /* ============================================================
-   App-Wide Constants
-   All magic numbers, threshold values, copy strings, and
-   configuration objects live here. Never hardcode in components.
+   App Constants
+   Single source of truth for all magic numbers, copy strings,
+   configuration values, and mock data across the app.
+   No hardcoded values in components — everything references here.
    ============================================================ */
 
-/* ---------- XP System ---------- */
+import type {
+  LearningMode,
+  DailyGoalMinutes,
+  InterestCategory,
+  Badge,
+  User,
+} from '@/types';
 
-/** XP awarded for different actions */
+/* ============================================================
+   XP & Leveling
+   ============================================================ */
+
+/** XP required to gain one level */
+export const XP_PER_LEVEL = 500;
+
+/** XP rewards for different actions */
 export const XP_REWARDS = {
+  /** XP for completing a single page */
+  PAGE_COMPLETE: 10,
+  /** XP for answering a quiz question correctly */
   QUIZ_CORRECT: 25,
-  QUIZ_WRONG: 5,
+  /** Bonus XP for completing an entire module */
   MODULE_COMPLETE: 50,
+  /** Bonus XP for completing an entire course */
   COURSE_COMPLETE: 200,
-  DAILY_GOAL_MET: 30,
-  STREAK_BONUS: 10,
+  /** XP for maintaining a daily streak */
+  STREAK_BONUS: 15,
 } as const;
 
-/* ---------- Learning Modes ---------- */
-
-export const LEARNING_MODES: LearningModeConfig[] = [
-  {
-    name: "Beginner",
-    mode: "beginner",
-    description: "Start from scratch with detailed, step-by-step explanations",
-    estimatedTime: "2-4 hours",
-    color: "#6C3CE1",
-    icon: "Sprout",
-  },
-  {
-    name: "Simplified",
-    mode: "simplified",
-    description: "Condensed version that skips the very basics",
-    estimatedTime: "1-2 hours",
-    color: "#F7C948",
-    icon: "Zap",
-  },
-  {
-    name: "Quick",
-    mode: "quick",
-    description: "Fast sprint for those who already know the fundamentals",
-    estimatedTime: "30-60 min",
-    color: "#2DD4BF",
-    icon: "Timer",
-  },
-];
-
-/* ---------- Loading Screen Messages ---------- */
+/* ============================================================
+   Loading Messages
+   Rotated every 2.5 seconds on the loading screen.
+   ============================================================ */
 
 export const LOADING_MESSAGES = [
-  "Brewing your brain fuel...",
-  "Downloading genius mode...",
-  "Consulting the knowledge galaxies...",
-  "Assembling your personal curriculum...",
-  "Teaching the AI to teach you...",
-  "Preparing your path to mastery...",
+  'Brewing your brain fuel...',
+  'Downloading genius mode...',
+  'Consulting the knowledge galaxies...',
+  'Assembling your personal curriculum...',
+  'Teaching the AI to teach you...',
+  'Preparing your path to mastery...',
+  'Connecting to the hive mind...',
+  'Compiling brilliance...',
 ] as const;
 
-/** How often loading messages rotate (ms) */
+/** Interval between loading message rotations (ms) */
 export const LOADING_MESSAGE_INTERVAL = 2500;
 
-/* ---------- Chat Suggestion Chips ---------- */
+/** Timeout for course generation API call (ms) */
+export const COURSE_GENERATION_TIMEOUT = 30000;
+
+/* ============================================================
+   Suggestion Chips
+   Pre-written topic suggestions shown in the chat empty state.
+   ============================================================ */
 
 export const SUGGESTION_CHIPS = [
-  "Teach me Python",
-  "Explain Quantum Physics",
-  "How does the stock market work?",
-  "What is Machine Learning?",
-  "Intro to UI Design",
-  "Basics of Neuroscience",
+  'Teach me Python',
+  'Explain Quantum Physics',
+  'How does the stock market work?',
+  'What is Machine Learning?',
+  'Intro to UI Design',
+  'Basics of Neuroscience',
 ] as const;
 
-/* ---------- Onboarding Interest Options ---------- */
+/* ============================================================
+   Interest Categories
+   Available during onboarding step 1.
+   ============================================================ */
 
-export const INTEREST_OPTIONS = [
-  "Technology",
-  "Science",
-  "History",
-  "Design",
-  "Business",
-  "Math",
-  "Languages",
-  "Music",
-  "Fitness",
-  "Philosophy",
-] as const;
+export const INTEREST_OPTIONS: { value: InterestCategory; label: string }[] = [
+  { value: 'technology', label: 'Technology' },
+  { value: 'science', label: 'Science' },
+  { value: 'history', label: 'History' },
+  { value: 'design', label: 'Design' },
+  { value: 'business', label: 'Business' },
+  { value: 'math', label: 'Math' },
+  { value: 'languages', label: 'Languages' },
+  { value: 'music', label: 'Music' },
+  { value: 'fitness', label: 'Fitness' },
+  { value: 'philosophy', label: 'Philosophy' },
+  { value: 'art', label: 'Art' },
+  { value: 'psychology', label: 'Psychology' },
+  { value: 'cooking', label: 'Cooking' },
+  { value: 'writing', label: 'Writing' },
+  { value: 'engineering', label: 'Engineering' },
+];
 
-/* ---------- Daily Goal Options ---------- */
+/* ============================================================
+   Daily Goal Options
+   Available during onboarding step 3 and in settings.
+   ============================================================ */
 
-export const DAILY_GOAL_OPTIONS = [
-  { minutes: 10, label: "10 mins", description: "Casual" },
-  { minutes: 20, label: "20 mins", description: "Regular" },
-  { minutes: 30, label: "30 mins", description: "Serious" },
-  { minutes: 60, label: "1 hour", description: "Intense" },
-] as const;
+export const DAILY_GOAL_OPTIONS: {
+  value: DailyGoalMinutes;
+  label: string;
+  description: string;
+}[] = [
+  { value: 10, label: '10 mins', description: 'Quick daily habit' },
+  { value: 20, label: '20 mins', description: 'Steady learner' },
+  { value: 30, label: '30 mins', description: 'Serious student' },
+  { value: 60, label: '1 hour', description: 'Knowledge warrior' },
+];
 
-/* ---------- Navigation ---------- */
+/* ============================================================
+   Learning Mode Configuration
+   Defines behavior, colors, and copy for each mode.
+   ============================================================ */
 
-export const NAV_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: "Home" },
-  { href: "/chat", label: "Learn", icon: "MessageSquare" },
-  { href: "/courses", label: "Courses", icon: "BookOpen" },
-  { href: "/leaderboard", label: "Ranks", icon: "Trophy" },
-  { href: "/profile", label: "Profile", icon: "User" },
-] as const;
-
-/* ---------- Thresholds ---------- */
-
-/** API timeout in milliseconds */
-export const API_TIMEOUT_MS = 30000;
-
-/** Maximum display name length */
-export const MAX_DISPLAY_NAME_LENGTH = 24;
-
-/** Minimum touch target size in pixels (WCAG) */
-export const MIN_TOUCH_TARGET = 44;
-
-/* ---------- Default Badges ---------- */
-
-export const DEFAULT_BADGES: Badge[] = [
+export const MODE_CONFIG: Record<
+  LearningMode,
   {
-    id: "first-course",
-    name: "First Steps",
-    description: "Complete your first course",
-    icon: "Footprints",
-    isEarned: false,
-    criteria: "Complete any course",
-    category: "milestone",
+    name: string;
+    description: string;
+    estimatedTime: string;
+    color: string;
+    icon: string;
+    quizFrequency: string;
+  }
+> = {
+  beginner: {
+    name: 'Beginner',
+    description: 'Full detailed course with step-by-step explanations',
+    estimatedTime: '2-3 hours',
+    color: 'var(--color-primary)',
+    icon: 'Sprout',
+    quizFrequency: 'After every module',
+  },
+  simplified: {
+    name: 'Simplified',
+    description: 'Condensed but complete — skips the basics',
+    estimatedTime: '1-2 hours',
+    color: 'var(--color-accent)',
+    icon: 'Zap',
+    quizFrequency: 'Every 2-3 modules',
+  },
+  quick: {
+    name: 'Quick',
+    description: 'Fast focused sprint — assumes prior knowledge',
+    estimatedTime: '30-60 mins',
+    color: 'var(--color-success)',
+    icon: 'Timer',
+    quizFrequency: 'Optional at end',
+  },
+};
+
+/* ============================================================
+   Badge Definitions
+   All possible badges in the app. Earned status is tracked
+   per-user in useUserStore.
+   ============================================================ */
+
+export const BADGE_DEFINITIONS: Badge[] = [
+  {
+    id: 'first-course',
+    name: 'First Steps',
+    description: 'Completed your very first course',
+    lockedDescription: '???',
+    icon: 'Rocket',
+    rarity: 'common',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Complete your first course',
   },
   {
-    id: "streak-3",
-    name: "On Fire",
-    description: "Maintain a 3-day streak",
-    icon: "Flame",
-    isEarned: false,
-    criteria: "Learn 3 days in a row",
-    category: "streak",
+    id: 'streak-7',
+    name: 'Week Warrior',
+    description: 'Maintained a 7-day learning streak',
+    lockedDescription: '???',
+    icon: 'Flame',
+    rarity: 'common',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Learn for 7 consecutive days',
   },
   {
-    id: "streak-7",
-    name: "Week Warrior",
-    description: "Maintain a 7-day streak",
-    icon: "Zap",
-    isEarned: false,
-    criteria: "Learn 7 days in a row",
-    category: "streak",
+    id: 'streak-30',
+    name: 'Monthly Machine',
+    description: 'Maintained a 30-day learning streak',
+    lockedDescription: '???',
+    icon: 'Crown',
+    rarity: 'rare',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Learn for 30 consecutive days',
   },
   {
-    id: "streak-30",
-    name: "Unstoppable",
-    description: "Maintain a 30-day streak",
-    icon: "Shield",
-    isEarned: false,
-    criteria: "Learn 30 days in a row",
-    category: "streak",
+    id: 'quiz-perfect',
+    name: 'Perfect Score',
+    description: 'Aced a quiz with 100% accuracy',
+    lockedDescription: '???',
+    icon: 'Target',
+    rarity: 'common',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Get every question right on a quiz',
   },
   {
-    id: "5-courses",
-    name: "Knowledge Seeker",
-    description: "Complete 5 courses",
-    icon: "Search",
-    isEarned: false,
-    criteria: "Complete 5 courses",
-    category: "milestone",
+    id: 'courses-5',
+    name: 'Knowledge Seeker',
+    description: 'Completed 5 courses',
+    lockedDescription: '???',
+    icon: 'BookOpen',
+    rarity: 'rare',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Complete 5 courses',
   },
   {
-    id: "10-courses",
-    name: "Scholar",
-    description: "Complete 10 courses",
-    icon: "GraduationCap",
-    isEarned: false,
-    criteria: "Complete 10 courses",
-    category: "milestone",
+    id: 'courses-10',
+    name: 'Scholar',
+    description: 'Completed 10 courses',
+    lockedDescription: '???',
+    icon: 'GraduationCap',
+    rarity: 'epic',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Complete 10 courses',
   },
   {
-    id: "quiz-master",
-    name: "Quiz Master",
-    description: "Get 100% on 5 quizzes",
-    icon: "Brain",
-    isEarned: false,
-    criteria: "Score perfectly on 5 quizzes",
-    category: "learning",
+    id: 'xp-5000',
+    name: 'XP Legend',
+    description: 'Earned 5,000 total XP',
+    lockedDescription: '???',
+    icon: 'Zap',
+    rarity: 'epic',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Earn 5,000 total XP',
   },
   {
-    id: "speed-learner",
-    name: "Speed Learner",
-    description: "Complete a Quick mode course",
-    icon: "Timer",
-    isEarned: false,
-    criteria: "Finish a course in Quick mode",
-    category: "learning",
+    id: 'quick-master',
+    name: 'Speed Demon',
+    description: 'Completed 3 courses in Quick mode',
+    lockedDescription: '???',
+    icon: 'Timer',
+    rarity: 'rare',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Complete 3 courses using Quick mode',
   },
   {
-    id: "level-5",
-    name: "Rising Star",
-    description: "Reach Level 5",
-    icon: "Star",
-    isEarned: false,
-    criteria: "Earn enough XP to reach Level 5",
-    category: "milestone",
+    id: 'all-modes',
+    name: 'Versatile Learner',
+    description: 'Completed a course in every learning mode',
+    lockedDescription: '???',
+    icon: 'Layers',
+    rarity: 'epic',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Complete at least one course in each mode',
   },
   {
-    id: "level-10",
-    name: "Luminary",
-    description: "Reach Level 10",
-    icon: "Sparkles",
-    isEarned: false,
-    criteria: "Earn enough XP to reach Level 10",
-    category: "milestone",
-  },
-  {
-    id: "daily-goal-7",
-    name: "Consistent",
-    description: "Meet daily goal 7 days in a row",
-    icon: "Target",
-    isEarned: false,
-    criteria: "Hit your daily learning goal 7 consecutive days",
-    category: "streak",
-  },
-  {
-    id: "night-owl",
-    name: "Night Owl",
-    description: "Learn after midnight",
-    icon: "Moon",
-    isEarned: false,
-    criteria: "Complete a lesson between 12am and 5am",
-    category: "learning",
+    id: 'streak-100',
+    name: 'Centurion',
+    description: 'Maintained a 100-day learning streak',
+    lockedDescription: '???',
+    icon: 'Award',
+    rarity: 'legendary',
+    earned: false,
+    earnedAt: null,
+    criteria: 'Learn for 100 consecutive days',
   },
 ];
 
-/* ---------- Mode Colors (for dynamic styling) ---------- */
+/* ============================================================
+   Navigation Items
+   Used by BottomNav and Sidebar components.
+   ============================================================ */
 
-export const MODE_COLORS: Record<string, string> = {
-  beginner: "#6C3CE1",
-  simplified: "#F7C948",
-  quick: "#2DD4BF",
+export const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Home', icon: 'LayoutDashboard' },
+  { href: '/chat', label: 'Learn', icon: 'MessageSquare' },
+  { href: '/courses', label: 'Courses', icon: 'BookOpen' },
+  { href: '/leaderboard', label: 'Ranks', icon: 'Trophy' },
+  { href: '/profile', label: 'Profile', icon: 'User' },
+] as const;
+
+/* ============================================================
+   Initial User Data (Mock)
+   Used when creating a new mock user after sign-up.
+   ============================================================ */
+
+export const INITIAL_USER_DATA: Omit<User, 'id' | 'displayName' | 'email' | 'createdAt'> = {
+  interests: [],
+  xp: {
+    totalXP: 0,
+    currentLevel: 1,
+    xpToNextLevel: XP_PER_LEVEL,
+    xpInCurrentLevel: 0,
+  },
+  streak: {
+    currentStreak: 0,
+    longestStreak: 0,
+    lastActivityDate: new Date().toISOString(),
+    todayCompleted: false,
+  },
+  dailyGoal: {
+    targetMinutes: 20,
+    completedMinutes: 0,
+    isComplete: false,
+  },
+  badges: BADGE_DEFINITIONS,
+  totalCoursesCreated: 0,
+  totalCoursesCompleted: 0,
+  coursesInProgress: 0,
+  notifications: {
+    streakReminder: true,
+    completionCelebration: true,
+    leaderboardUpdates: true,
+    newBadge: true,
+  },
+  defaultMode: 'beginner',
+  onboardingComplete: false,
 };
+
+/* ============================================================
+   Pricing Data
+   ============================================================ */
+
+export const CREDIT_PACKAGES = [
+  { id: 'credits-5', credits: 5, price: 4.99, courses: '5 courses' },
+  { id: 'credits-15', credits: 15, price: 12.99, courses: '15 courses', popular: true },
+  { id: 'credits-30', credits: 30, price: 22.99, courses: '30 courses' },
+  { id: 'credits-50', credits: 50, price: 34.99, courses: '50 courses' },
+  { id: 'credits-100', credits: 100, price: 59.99, courses: '100 courses', bestValue: true },
+] as const;
+
+export const SUBSCRIPTION_TIERS = [
+  {
+    id: 'free',
+    name: 'Free',
+    tagline: 'Get started',
+    price: 0,
+    features: ['3 courses per month', 'Basic learning modes', 'Progress tracking'],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    tagline: 'For serious learners',
+    price: 9.99,
+    popular: true,
+    features: [
+      'Unlimited courses',
+      'All learning modes',
+      'AI help assistant',
+      'Advanced analytics',
+      'Priority generation',
+    ],
+  },
+  {
+    id: 'team',
+    name: 'Team',
+    tagline: 'Learn together',
+    price: 19.99,
+    features: [
+      'Everything in Pro',
+      'Team leaderboard',
+      'Shared courses',
+      'Admin dashboard',
+      'API access',
+    ],
+  },
+] as const;

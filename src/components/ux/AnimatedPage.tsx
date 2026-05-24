@@ -1,23 +1,31 @@
-"use client";
+/* ============================================================
+   AnimatedPage — Page entry wrapper
+   Wraps every page with a fade-in + translateY entrance.
+   Respects animation mode — LITE mode renders instantly.
+   ============================================================ */
 
-import { useAnimationMode } from "@/hooks/useAnimationMode";
-import { cn } from "@/lib/utils";
+'use client';
 
-/** Wraps every page with entry/exit transitions. FULL: motion fade+slide, LITE: CSS transition. */
-export function AnimatedPage({ children, className }: { children: React.ReactNode; className?: string }) {
-  const mode = useAnimationMode();
+import { useAnimationMode } from '@/hooks/useAnimationMode';
+import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
 
-  if (mode === "lite") {
-    return <div className={cn("animate-fade-in", className)}>{children}</div>;
-  }
+export interface AnimatedPageProps {
+  children: ReactNode;
+  className?: string;
+}
 
-  /* FULL mode: use CSS animation since we avoid top-level framer-motion import */
+export function AnimatedPage({ children, className }: AnimatedPageProps) {
+  const { isLite } = useAnimationMode();
+
   return (
-    <div className={cn(className)} style={{ animation: "pageIn 300ms ease-out" }}>
+    <div
+      className={cn(
+        isLite ? 'opacity-100' : 'animate-[fadeInUp_300ms_cubic-bezier(0.25,1,0.5,1)_both]',
+        className
+      )}
+    >
       {children}
-      <style jsx>{`
-        @keyframes pageIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
     </div>
   );
 }

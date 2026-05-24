@@ -1,50 +1,51 @@
-"use client";
-
-import { forwardRef } from "react";
-import { cn } from "@/lib/utils";
-
 /* ============================================================
    Button Component
-   
-   Base button with 4 variants: primary, secondary, ghost, danger.
-   Includes loading state, icon support, and press interaction.
-   All buttons have cursor-pointer and visible focus rings.
+   Primary interactive element used throughout the app.
+
+   Variants: primary, secondary, ghost, danger
+   Sizes: sm, md, lg
+   Features: loading state, icon slots, scale-on-press,
+             minimum 44px touch target on mobile.
+
+   Design tokens: --color-primary, --radius-full
+   Animation: scale(0.96) on active, 150ms ease-out-quart
    ============================================================ */
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+'use client';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Visual variant determining color scheme and emphasis */
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  /** Size variant — all sizes maintain 44px minimum touch target */
+  size?: 'sm' | 'md' | 'lg';
+  /** Show loading spinner and disable interactions */
   isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  /** Icon element rendered before the label */
+  leftIcon?: ReactNode;
+  /** Icon element rendered after the label */
+  rightIcon?: ReactNode;
+  /** Render as full width */
   fullWidth?: boolean;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary:
-    "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)] shadow-sm hover:shadow-md",
-  secondary:
-    "border-2 border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-[var(--color-primary)]/10",
-  ghost:
-    "text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-elevated)]",
-  danger:
-    "bg-[var(--color-error)] text-white hover:brightness-110",
-};
-
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm gap-1.5",
-  md: "px-5 py-2.5 text-base gap-2",
-  lg: "px-7 py-3.5 text-lg gap-2.5",
-};
-
+/**
+ * Primary button component.
+ * Implements taste-skill button patterns:
+ * - Pill shape (border-radius: 9999px) for primary CTAs
+ * - Scale(0.96) on :active for tactile press feedback (Emil's principle)
+ * - Custom ease-out-quart curve for premium feel
+ * - Loading state with spinner
+ * - Never uses `ease-in` — always ease-out for responsiveness
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      variant = "primary",
-      size = "md",
+      variant = 'primary',
+      size = 'md',
       isLoading = false,
       leftIcon,
       rightIcon,
@@ -56,61 +57,86 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const isDisabled = disabled || isLoading;
+
     return (
       <button
         ref={ref}
-        disabled={disabled || isLoading}
+        disabled={isDisabled}
         className={cn(
-          /* Base styles */
-          "inline-flex items-center justify-center font-medium",
-          "rounded-[var(--radius-md)] cursor-pointer",
-          "transition-all duration-200 ease-out",
-          /* Press interaction: scale down on active */
-          "active:scale-[0.96] active:shadow-none",
-          /* Focus ring for keyboard navigation */
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]",
+          /* Base styles — all variants share these */
+          'relative inline-flex items-center justify-center gap-2',
+          'font-[family-name:var(--font-body)] font-medium',
+          'rounded-full cursor-pointer select-none',
+          'transition-all duration-150',
+          /* Scale on press — Emil's tactile feedback principle */
+          'active:scale-[0.96]',
+          /* Focus visible ring for keyboard navigation */
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]',
           /* Disabled state */
-          "disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100",
-          /* Variant and size */
-          variantStyles[variant],
-          sizeStyles[size],
-          fullWidth && "w-full",
+          isDisabled && 'opacity-50 cursor-not-allowed active:scale-100',
+
+          /* Variant styles */
+          variant === 'primary' && [
+            'bg-[var(--color-primary)] text-white',
+            'hover:bg-[var(--color-primary-dark)]',
+            'shadow-[var(--shadow-sm)]',
+            'hover:shadow-[var(--shadow-md)]',
+          ],
+          variant === 'secondary' && [
+            'bg-[var(--glass-bg)] text-[var(--color-text)]',
+            'border border-[var(--glass-border)]',
+            'backdrop-blur-md',
+            'hover:bg-[var(--color-surface-elevated)]',
+            /* Inner refraction highlight — taste-skill Liquid Glass */
+            'shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]',
+          ],
+          variant === 'ghost' && [
+            'bg-transparent text-[var(--color-text)]',
+            'hover:bg-[var(--color-surface)]',
+          ],
+          variant === 'danger' && [
+            'bg-[var(--color-error)] text-white',
+            'hover:brightness-110',
+          ],
+
+          /* Size styles — all maintain 44px minimum touch target */
+          size === 'sm' && 'h-9 px-4 text-sm min-h-[44px]',
+          size === 'md' && 'h-11 px-6 text-base min-h-[44px]',
+          size === 'lg' && 'h-13 px-8 text-lg min-h-[44px]',
+
+          /* Full width */
+          fullWidth && 'w-full',
+
           className
         )}
         {...props}
       >
+        {/* Loading spinner replaces left icon */}
         {isLoading ? (
-          /* Loading spinner */
-          <svg
-            className="h-5 w-5 animate-spin"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-label="Loading"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
+          <Loader2
+            size={size === 'sm' ? 16 : 20}
+            className="animate-spin"
+            aria-hidden="true"
+          />
         ) : (
-          <>
-            {leftIcon && <span className="shrink-0">{leftIcon}</span>}
-            {children}
-            {rightIcon && <span className="shrink-0">{rightIcon}</span>}
-          </>
+          leftIcon && (
+            <span className="shrink-0" aria-hidden="true">
+              {leftIcon}
+            </span>
+          )
+        )}
+
+        {children && <span className={cn(isLoading && 'opacity-70')}>{children}</span>}
+
+        {rightIcon && !isLoading && (
+          <span className="shrink-0" aria-hidden="true">
+            {rightIcon}
+          </span>
         )}
       </button>
     );
   }
 );
 
-Button.displayName = "Button";
+Button.displayName = 'Button';

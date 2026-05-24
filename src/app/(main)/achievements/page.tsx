@@ -1,49 +1,136 @@
-"use client";
+/* ============================================================
+   Achievements Page
+   Badge grid with earned/locked states.
+   ============================================================ */
 
-import { useState } from "react";
-import { Chip, EmptyState } from "@/components/ui";
-import { AnimatedPage, LumiAnimated, StaggerChildren } from "@/components/ux";
-import { PageWrapper } from "@/components/layout/PageWrapper";
-import { BadgeCard } from "@/components/gamification/BadgeCard";
-import { useUserStore } from "@/store/useUserStore";
-import { DEFAULT_BADGES } from "@/lib/constants";
+'use client';
 
-type BadgeFilter = "all" | "earned" | "locked";
+import { useState } from 'react';
+import { Award, Lock } from 'lucide-react';
+import { Card, Badge, Modal, Button, Chip } from '@/components/ui';
+import { AnimatedPage, FadeIn, StaggerChildren } from '@/components/ux';
+import { PageWrapper } from '@/components/layout/PageWrapper';
+import { useUserStore } from '@/store/useUserStore';
+import type { Badge as BadgeType, BadgeRarity } from '@/types';
+
+const RARITY_COLORS: Record<BadgeRarity, string> = {
+  common: 'var(--color-muted)',
+  rare: 'var(--color-success)',
+  epic: 'var(--color-primary)',
+  legendary: 'var(--color-accent)',
+};
 
 export default function AchievementsPage() {
-  const [filter, setFilter] = useState<BadgeFilter>("all");
-  const badges = useUserStore((s) => s.badges);
+  const user = useUserStore((state) => state.user);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeType | null>(null);
+  const [filter, setFilter] = useState<'all' | 'earned' | 'locked'>('all');
 
-  /* Use default badges if store is empty (first visit) */
-  const allBadges = badges.length > 0 ? badges : DEFAULT_BADGES;
-  const earnedCount = allBadges.filter((b) => b.isEarned).length;
-  const lockedCount = allBadges.filter((b) => !b.isEarned).length;
+  if (!user) return null;
 
-  const filtered = allBadges.filter((b) => {
-    if (filter === "earned") return b.isEarned;
-    if (filter === "locked") return !b.isEarned;
-    return true;
-  });
+  const filteredBadges = filter === 'all'
+    ? user.badges
+    : filter === 'earned'
+      ? user.badges.filter((b) => b.earned)
+      : user.badges.filter((b) => !b.earned);
+
+  const earnedCount = user.badges.filter((b) => b.earned).length;
 
   return (
     <AnimatedPage>
-      <PageWrapper>
-        <h1 className="font-heading text-2xl font-bold md:text-3xl">Achievements</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">{earnedCount} earned · {lockedCount} to unlock</p>
+      <PageWrapper maxWidth="md">
+        <div className="space-y-6">
+          <FadeIn>
+            <div className="text-center">
+              <h1 className="font-[family-name:var(--font-heading)] font-bold text-3xl tracking-[-0.02em] text-[var(--color-text)]">
+                Achievements
+              </h1>
+              <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-muted)] mt-1">
+                {earnedCount} of {user.badges.length} badges earned
+              </p>
+            </div>
+          </FadeIn>
 
-        <div className="mt-4 flex gap-2">
-          {(["all", "earned", "locked"] as BadgeFilter[]).map((f) => (
-            <Chip key={f} label={f.charAt(0).toUpperCase() + f.slice(1)} isSelected={filter === f} onClick={() => setFilter(f)} />
-          ))}
+          <FadeIn delay={100}>
+            <div className="flex gap-2 justify-center">
+              {(['all', 'earned', 'locked'] as const).map((f) => (
+                <Chip key={f} selected={filter === f} onClick={() => setFilter(f)} size="sm">
+                  {f === 'all' ? 'All' : f === 'earned' ? 'Earned' : 'Locked'}
+                </Chip>
+              ))}
+            </div>
+          </FadeIn>
+
+          <StaggerChildren className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {filteredBadges.map((badge) => (
+              <Card
+                key={badge.id}
+                variant="glass"
+                padding="md"
+                interactive
+                onClick={() => setSelectedBadge(badge)}
+                className={!badge.earned ? 'opacity-50 grayscale' : ''}
+              >
+                <div className="text-center space-y-2">
+                  <div
+                    className="w-14 h-14 mx-auto rounded-full flex items-center justify-center"
+                    style={{
+                      backgroundColor: `${RARITY_COLORS[badge.rarity]}15`,
+                      color: RARITY_COLORS[badge.rarity],
+                    }}
+                  >
+                    {badge.earned ? <Award size={24} /> : <Lock size={20} />}
+                  </div>
+                  <p className="font-[family-name:var(--font-heading)] font-semibold text-sm text-[var(--color-text)]">
+                    {badge.name}
+                  </p>
+                  <Badge
+                    variant="custom"
+                    customColor={RARITY_COLORS[badge.rarity]}
+                    size="sm"
+                  >
+                    {badge.rarity}
+                  </Badge>
+                </div>
+              </Card>
+            ))}
+          </StaggerChildren>
         </div>
 
-        {filtered.length === 0 ? (
-          <EmptyState title="No badges yet" description="Complete your first course to earn your first badge!" icon={<LumiAnimated state="idle" size={80} />} />
-        ) : (
-          <StaggerChildren className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {filtered.map((badge) => <BadgeCard key={badge.id} badge={badge} />)}
-          </StaggerChildren>
-        )}
+        {/* Badge detail modal */}
+        <Modal
+          isOpen={!!selectedBadge}
+          onClose={() => setSelectedBadge(null)}
+          title={selectedBadge?.name}
+          size="sm"
+        >
+          {selectedBadge && (
+            <div className="text-center space-y-4">
+              <div
+                className="w-20 h-20 mx-auto rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: `${RARITY_COLORS[selectedBadge.rarity]}15`,
+                  color: RARITY_COLORS[selectedBadge.rarity],
+                }}
+              >
+                {selectedBadge.earned ? <Award size={36} /> : <Lock size={28} />}
+              </div>
+              <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text)]">
+                {selectedBadge.earned ? selectedBadge.description : selectedBadge.lockedDescription}
+              </p>
+              <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-muted)]">
+                {selectedBadge.criteria}
+              </p>
+              <Badge variant="custom" customColor={RARITY_COLORS[selectedBadge.rarity]}>
+                {selectedBadge.rarity}
+              </Badge>
+              {selectedBadge.earnedAt && (
+                <p className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
+                  Earned {new Date(selectedBadge.earnedAt).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          )}
+        </Modal>
       </PageWrapper>
     </AnimatedPage>
   );

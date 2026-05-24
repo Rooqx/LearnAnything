@@ -1,219 +1,339 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type {
-  UserProfile,
-  XPData,
-  StreakData,
-  DailyGoalProgress,
-  UserStats,
-  Badge,
-  NotificationPreferences,
-} from "@/types";
-
 /* ============================================================
    User Store
-   Manages user profile, XP, streak, daily goal, stats, badges,
-   and notification preferences.
-   Persisted to localStorage for offline-first experience.
+   Manages user profile, XP, streaks, badges, and daily goal
+   with localStorage persistence. Will be migrated to database
+   persistence in a future iteration.
    ============================================================ */
 
-interface UserStoreState {
-  profile: UserProfile;
-  xp: XPData;
-  streak: StreakData;
-  dailyGoal: DailyGoalProgress;
-  stats: UserStats;
-  badges: Badge[];
-  notifications: NotificationPreferences;
-}
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type {
+  User,
+  XPData,
+  Streak,
+  DailyGoal,
+  DailyGoalMinutes,
+  Badge,
+  InterestCategory,
+  NotificationSettings,
+  LearningMode,
+} from '@/types';
+import {
+  XP_PER_LEVEL,
+  INITIAL_USER_DATA,
+} from '@/lib/constants';
 
-interface UserStoreActions {
-  /** Update profile fields */
-  updateProfile: (updates: Partial<UserProfile>) => void;
+interface UserState {
+  /** Complete user profile — null if not logged in */
+  user: User | null;
 
-  /** Add XP and recalculate level. Returns true if user leveled up */
-  addXP: (amount: number) => boolean;
+  /** Initialize user data after sign-up/sign-in */
+  setUser: (user: User) => void;
 
-  /** Update streak data (called on daily login check) */
-  updateStreak: (data: Partial<StreakData>) => void;
+  /** Update display name */
+  updateDisplayName: (name: string) => void;
 
-  /** Add minutes to daily goal progress */
+  /** Update bio */
+  updateBio: (bio: string) => void;
+
+  /** Update avatar URL */
+  updateAvatar: (url: string) => void;
+
+  /** Set interests during onboarding */
+  setInterests: (interests: InterestCategory[]) => void;
+
+  /** Set daily goal during onboarding or settings */
+  setDailyGoal: (minutes: DailyGoalMinutes) => void;
+
+  /** Add learning minutes to daily goal progress */
   addLearningMinutes: (minutes: number) => void;
 
-  /** Update user stats */
-  updateStats: (updates: Partial<UserStats>) => void;
+  /** Set default learning mode preference */
+  setDefaultMode: (mode: LearningMode) => void;
 
-  /** Award a badge by ID */
-  awardBadge: (badgeId: string) => void;
+  /** Update notification settings */
+  setNotifications: (settings: Partial<NotificationSettings>) => void;
 
-  /** Update notification preferences */
-  updateNotifications: (updates: Partial<NotificationPreferences>) => void;
+  /** Mark onboarding as complete */
+  completeOnboarding: () => void;
 
-  /** Reset daily goal progress (called at midnight) */
-  resetDailyGoal: () => void;
+  /**
+   * Add XP to the user's total.
+   * Automatically recalculates level, xpToNextLevel, and xpInCurrentLevel.
+   * Returns the new level if a level-up occurred, null otherwise.
+   */
+  addXP: (amount: number) => number | null;
 
-  /** Set daily goal target minutes */
-  setDailyGoalMinutes: (minutes: number) => void;
+  /**
+   * Increment streak if it hasn't been incremented today.
+   * Checks lastActivityDate — if it's today, does nothing.
+   * If it's yesterday, increments. If older, resets to 1.
+   */
+  updateStreak: () => void;
+
+  /** Increment total courses created */
+  incrementCoursesCreated: () => void;
+
+  /** Increment completed courses and decrement in-progress */
+  completeCourse: () => void;
+
+  /** Increment courses in progress */
+  startCourse: () => void;
+
+  /** Earn a badge by ID */
+  earnBadge: (badgeId: string) => void;
+
+  /** Sign out — clear user data */
+  signOut: () => void;
 }
 
 /**
- * Calculate level from total XP.
- * Each level requires progressively more XP.
- * Formula: level = floor(sqrt(totalXP / 100))
- * This gives a smooth curve: L1=100XP, L2=400XP, L3=900XP, etc.
+ * Calculate XP data from total XP.
+ * Level formula: level = floor(totalXP / XP_PER_LEVEL) + 1
  */
-function calculateLevel(totalXP: number): number {
-  return Math.floor(Math.sqrt(totalXP / 100)) + 1;
+function calculateXPData(totalXP: number): XPData {
+  const currentLevel = Math.floor(totalXP / XP_PER_LEVEL) + 1;
+  const xpInCurrentLevel = totalXP % XP_PER_LEVEL;
+  const xpToNextLevel = XP_PER_LEVEL - xpInCurrentLevel;
+
+  return {
+    totalXP,
+    currentLevel,
+    xpToNextLevel,
+    xpInCurrentLevel,
+  };
 }
 
 /**
- * Calculate XP needed for a specific level.
- * Inverse of the level formula.
+ * Check if an ISO date string represents today.
  */
-function xpForLevel(level: number): number {
-  return Math.pow(level - 1, 2) * 100;
+function isToday(dateString: string): boolean {
+  const date = new Date(dateString);
+  const today = new Date();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
 }
 
-export const useUserStore = create<UserStoreState & UserStoreActions>()(
+/**
+ * Check if an ISO date string represents yesterday.
+ */
+function isYesterday(dateString: string): boolean {
+  const date = new Date(dateString);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return (
+    date.getFullYear() === yesterday.getFullYear() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getDate() === yesterday.getDate()
+  );
+}
+
+export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
-      /* ---------- Default State ---------- */
-      profile: {
-        id: "",
-        displayName: "",
-        email: "",
-        createdAt: new Date().toISOString(),
-        interests: [],
-        dailyGoalMinutes: 20,
-        hasCompletedOnboarding: false,
-      },
+      user: null,
 
-      xp: {
-        totalXP: 0,
-        currentLevel: 1,
-        currentLevelXP: 0,
-        xpForNextLevel: 100,
-      },
+      setUser: (user) => set({ user }),
 
-      streak: {
-        currentStreak: 0,
-        longestStreak: 0,
-        lastActiveDate: "",
-        isActiveToday: false,
-      },
-
-      dailyGoal: {
-        minutesToday: 0,
-        goalMinutes: 20,
-        isGoalMet: false,
-      },
-
-      stats: {
-        totalCoursesCreated: 0,
-        coursesCompleted: 0,
-        coursesInProgress: 0,
-        totalXP: 0,
-      },
-
-      badges: [],
-
-      notifications: {
-        dailyStreakReminder: true,
-        courseCompletionCelebration: true,
-        leaderboardUpdates: true,
-        newBadgeEarned: true,
-      },
-
-      /* ---------- Actions ---------- */
-
-      updateProfile: (updates) =>
-        set((state) => ({
-          profile: { ...state.profile, ...updates },
-        })),
-
-      addXP: (amount) => {
-        const state = get();
-        const newTotalXP = state.xp.totalXP + amount;
-        const newLevel = calculateLevel(newTotalXP);
-        const currentLevelStartXP = xpForLevel(newLevel);
-        const nextLevelXP = xpForLevel(newLevel + 1);
-        const didLevelUp = newLevel > state.xp.currentLevel;
-
-        set({
-          xp: {
-            totalXP: newTotalXP,
-            currentLevel: newLevel,
-            currentLevelXP: newTotalXP - currentLevelStartXP,
-            xpForNextLevel: nextLevelXP - currentLevelStartXP,
-          },
-          stats: {
-            ...state.stats,
-            totalXP: newTotalXP,
-          },
-        });
-
-        return didLevelUp;
-      },
-
-      updateStreak: (data) =>
-        set((state) => ({
-          streak: { ...state.streak, ...data },
-        })),
-
-      addLearningMinutes: (minutes) =>
+      updateDisplayName: (name) =>
         set((state) => {
-          const newMinutes = state.dailyGoal.minutesToday + minutes;
+          if (!state.user) return state;
+          return { user: { ...state.user, displayName: name } };
+        }),
+
+      updateBio: (bio) =>
+        set((state) => {
+          if (!state.user) return state;
+          return { user: { ...state.user, bio } };
+        }),
+
+      updateAvatar: (url) =>
+        set((state) => {
+          if (!state.user) return state;
+          return { user: { ...state.user, avatarUrl: url } };
+        }),
+
+      setInterests: (interests) =>
+        set((state) => {
+          if (!state.user) return state;
+          return { user: { ...state.user, interests } };
+        }),
+
+      setDailyGoal: (minutes) =>
+        set((state) => {
+          if (!state.user) return state;
           return {
-            dailyGoal: {
-              ...state.dailyGoal,
-              minutesToday: newMinutes,
-              isGoalMet: newMinutes >= state.dailyGoal.goalMinutes,
+            user: {
+              ...state.user,
+              dailyGoal: {
+                ...state.user.dailyGoal,
+                targetMinutes: minutes,
+              },
             },
           };
         }),
 
-      updateStats: (updates) =>
-        set((state) => ({
-          stats: { ...state.stats, ...updates },
-        })),
+      addLearningMinutes: (minutes) =>
+        set((state) => {
+          if (!state.user) return state;
+          const completed = state.user.dailyGoal.completedMinutes + minutes;
+          return {
+            user: {
+              ...state.user,
+              dailyGoal: {
+                ...state.user.dailyGoal,
+                completedMinutes: completed,
+                isComplete: completed >= state.user.dailyGoal.targetMinutes,
+              },
+            },
+          };
+        }),
 
-      awardBadge: (badgeId) =>
-        set((state) => ({
-          badges: state.badges.map((badge) =>
-            badge.id === badgeId
-              ? { ...badge, isEarned: true, earnedAt: new Date().toISOString() }
-              : badge
-          ),
-        })),
+      setDefaultMode: (mode) =>
+        set((state) => {
+          if (!state.user) return state;
+          return { user: { ...state.user, defaultMode: mode } };
+        }),
 
-      updateNotifications: (updates) =>
-        set((state) => ({
-          notifications: { ...state.notifications, ...updates },
-        })),
+      setNotifications: (settings) =>
+        set((state) => {
+          if (!state.user) return state;
+          return {
+            user: {
+              ...state.user,
+              notifications: { ...state.user.notifications, ...settings },
+            },
+          };
+        }),
 
-      resetDailyGoal: () =>
-        set((state) => ({
-          dailyGoal: {
-            ...state.dailyGoal,
-            minutesToday: 0,
-            isGoalMet: false,
+      completeOnboarding: () =>
+        set((state) => {
+          if (!state.user) return state;
+          return { user: { ...state.user, onboardingComplete: true } };
+        }),
+
+      addXP: (amount) => {
+        const state = get();
+        if (!state.user) return null;
+
+        const oldLevel = state.user.xp.currentLevel;
+        const newTotalXP = state.user.xp.totalXP + amount;
+        const newXPData = calculateXPData(newTotalXP);
+
+        set({
+          user: {
+            ...state.user,
+            xp: newXPData,
           },
-        })),
+        });
 
-      setDailyGoalMinutes: (minutes) =>
-        set((state) => ({
-          dailyGoal: {
-            ...state.dailyGoal,
-            goalMinutes: minutes,
-          },
-          profile: {
-            ...state.profile,
-            dailyGoalMinutes: minutes,
-          },
-        })),
+        /* Return new level if a level-up occurred — triggers LevelUpModal */
+        return newXPData.currentLevel > oldLevel ? newXPData.currentLevel : null;
+      },
+
+      updateStreak: () =>
+        set((state) => {
+          if (!state.user) return state;
+
+          const { streak } = state.user;
+          const today = new Date().toISOString();
+
+          /* Already completed today — no change needed */
+          if (isToday(streak.lastActivityDate)) {
+            return {
+              user: {
+                ...state.user,
+                streak: { ...streak, todayCompleted: true },
+              },
+            };
+          }
+
+          /* Yesterday — increment streak */
+          if (isYesterday(streak.lastActivityDate)) {
+            const newStreak = streak.currentStreak + 1;
+            return {
+              user: {
+                ...state.user,
+                streak: {
+                  currentStreak: newStreak,
+                  longestStreak: Math.max(newStreak, streak.longestStreak),
+                  lastActivityDate: today,
+                  todayCompleted: true,
+                },
+              },
+            };
+          }
+
+          /* Older than yesterday — streak broken, reset to 1 */
+          return {
+            user: {
+              ...state.user,
+              streak: {
+                currentStreak: 1,
+                longestStreak: streak.longestStreak,
+                lastActivityDate: today,
+                todayCompleted: true,
+              },
+            },
+          };
+        }),
+
+      incrementCoursesCreated: () =>
+        set((state) => {
+          if (!state.user) return state;
+          return {
+            user: {
+              ...state.user,
+              totalCoursesCreated: state.user.totalCoursesCreated + 1,
+            },
+          };
+        }),
+
+      completeCourse: () =>
+        set((state) => {
+          if (!state.user) return state;
+          return {
+            user: {
+              ...state.user,
+              totalCoursesCompleted: state.user.totalCoursesCompleted + 1,
+              coursesInProgress: Math.max(0, state.user.coursesInProgress - 1),
+            },
+          };
+        }),
+
+      startCourse: () =>
+        set((state) => {
+          if (!state.user) return state;
+          return {
+            user: {
+              ...state.user,
+              coursesInProgress: state.user.coursesInProgress + 1,
+            },
+          };
+        }),
+
+      earnBadge: (badgeId) =>
+        set((state) => {
+          if (!state.user) return state;
+          return {
+            user: {
+              ...state.user,
+              badges: state.user.badges.map((badge) =>
+                badge.id === badgeId
+                  ? { ...badge, earned: true, earnedAt: new Date().toISOString() }
+                  : badge
+              ),
+            },
+          };
+        }),
+
+      signOut: () => set({ user: null }),
     }),
     {
-      name: "la-user",
+      name: 'learn-anything-user',
     }
   )
 );

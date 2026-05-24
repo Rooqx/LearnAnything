@@ -1,136 +1,297 @@
-"use client";
+/* ============================================================
+   Learning Page
+   The core swipe-based learning interface.
+   Content renderer + progress bar + navigation.
+   ============================================================ */
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Button, ProgressBar } from "@/components/ui";
-import { AnimatedPage, SwipeContainer } from "@/components/ux";
-import { LearningPage } from "@/components/learning/LearningPage";
-import { AIHelpButton } from "@/components/learning/AIHelpButton";
-import { AIHelpDrawer } from "@/components/learning/AIHelpDrawer";
-import { QuizPopup } from "@/components/learning/QuizPopup";
-import { useCourseStore } from "@/store/useCourseStore";
-import { useXP } from "@/hooks/useXP";
-import { LumiAnimated, ConfettiBlast } from "@/components/ux";
-import { EmptyState } from "@/components/ui";
-import { XP_REWARDS } from "@/lib/constants";
-import { cn, truncate, calculateProgress } from "@/lib/utils";
+'use client';
 
-export default function LearningInterfacePage() {
+import { useEffect, useCallback, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  BookOpen,
+  HelpCircle,
+} from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { Button, Card, ProgressBar, Badge, Drawer } from '@/components/ui';
+import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast } from '@/components/ux';
+import { useCourseStore } from '@/store/useCourseStore';
+import { useXP } from '@/hooks/useXP';
+import { remarkPlugins, rehypePlugins } from '@/lib/markdownConfig';
+import { getCompletionPercentage } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import type { ContentBlock, LumiState } from '@/types';
+
+export default function LearningPage() {
   const router = useRouter();
-  const activeCourse = useCourseStore((s) => s.activeCourse);
-  const updateProgress = useCourseStore((s) => s.updateProgress);
-  const completeCourse = useCourseStore((s) => s.completeCourse);
-  const { earnXP } = useXP();
+  const params = useParams();
+  const courseId = params.courseId as string;
 
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [quizOpen, setQuizOpen] = useState(false);
+  const activeCourse = useCourseStore((state) => state.activeCourse);
+  const currentPageIndex = useCourseStore((state) => state.currentPageIndex);
+  const nextPage = useCourseStore((state) => state.nextPage);
+  const prevPage = useCourseStore((state) => state.prevPage);
+  const completePage = useCourseStore((state) => state.completePage);
+  const setActiveCourse = useCourseStore((state) => state.setActiveCourse);
+  const completeCourse = useCourseStore((state) => state.completeCourse);
+
+  const { earnPageXP, lastXPEarned } = useXP();
+  const [showXP, setShowXP] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [lumiState, setLumiState] = useState<LumiState>('idle');
+
+  /* Set active course if not already set */
+  useEffect(() => {
+    if (!activeCourse) {
+      setActiveCourse(courseId);
+    }
+  }, [activeCourse, courseId, setActiveCourse]);
 
   if (!activeCourse) {
     return (
-      <AnimatedPage>
-        <div className="flex min-h-dvh items-center justify-center px-4">
-          <EmptyState title="No course loaded" description="Start a course from the chat." ctaLabel="Go to Chat" ctaOnClick={() => router.push("/chat")} icon={<LumiAnimated state="idle" size={80} />} />
-        </div>
-      </AnimatedPage>
+      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)]">
+        <LumiAnimated size={80} state="thinking" />
+      </div>
     );
   }
 
-  const { currentModuleIndex, currentPageIndex, modules } = activeCourse;
-  const currentModule = modules[currentModuleIndex];
-  const currentPage = currentModule?.pages[currentPageIndex];
-  const totalPages = modules.reduce((sum, m) => sum + m.pages.length, 0);
-  const completedPages = modules.slice(0, currentModuleIndex).reduce((sum, m) => sum + m.pages.length, 0) + currentPageIndex;
-  const progress = calculateProgress(completedPages, totalPages);
+  /* Calculate current page from flat index */
+  const allPages = activeCourse.modules.flatMap((m) => m.pages);
+  const currentPage = allPages[currentPageIndex];
+  const totalPages = allPages.length;
+  const isLastPage = currentPageIndex >= totalPages - 1;
+  const isFirstPage = currentPageIndex === 0;
+  const progress = getCompletionPercentage(currentPageIndex + 1, totalPages);
 
-  const goNext = () => {
-    if (currentPageIndex < currentModule.pages.length - 1) {
-      updateProgress(currentModuleIndex, currentPageIndex + 1);
-    } else if (currentModuleIndex < modules.length - 1) {
-      /* Module completed — check for quiz */
-      earnXP(XP_REWARDS.MODULE_COMPLETE);
-      if (currentModule.quiz && currentModule.quiz.length > 0) {
-        setQuizOpen(true);
-      } else {
-        updateProgress(currentModuleIndex + 1, 0);
-      }
-    } else {
-      /* Course completed */
-      earnXP(XP_REWARDS.COURSE_COMPLETE);
-      completeCourse();
+  const handleNext = useCallback(() => {
+    if (isLastPage) {
+      /* Course complete */
+      completeCourse(courseId);
       setShowCompletion(true);
+      setLumiState('celebrating');
+      return;
     }
+
+    completePage();
+    earnPageXP();
+    setShowXP(true);
+    setTimeout(() => setShowXP(false), 1000);
+    nextPage();
+  }, [isLastPage, completePage, earnPageXP, nextPage, courseId, completeCourse]);
+
+  const handlePrev = useCallback(() => {
+    if (!isFirstPage) prevPage();
+  }, [isFirstPage, prevPage]);
+
+  const handleExit = () => {
+    router.push(`/learn/${courseId}/plan`);
   };
 
-  const goPrev = () => {
-    if (currentPageIndex > 0) {
-      updateProgress(currentModuleIndex, currentPageIndex - 1);
-    } else if (currentModuleIndex > 0) {
-      const prevModule = modules[currentModuleIndex - 1];
-      updateProgress(currentModuleIndex - 1, prevModule.pages.length - 1);
-    }
-  };
+  /* Course completion overlay */
+  if (showCompletion) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)] p-6">
+        <ConfettiBlast trigger />
+        <AnimatedPage>
+          <Card variant="elevated" padding="lg" className="max-w-md text-center">
+            <LumiAnimated size={100} state="celebrating" className="mx-auto mb-6" />
+            <h1 className="font-[family-name:var(--font-heading)] font-bold text-3xl text-[var(--color-text)] mb-2">
+              Course complete
+            </h1>
+            <p className="font-[family-name:var(--font-body)] text-[var(--color-muted)] mb-6">
+              You finished {activeCourse.title}
+            </p>
+            <Badge variant="reward" size="md" className="mb-6">
+              +{activeCourse.totalPages * 10 + 200} XP earned
+            </Badge>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => router.push('/dashboard')} fullWidth>
+                Dashboard
+              </Button>
+              <Button onClick={() => router.push('/chat')} fullWidth>
+                Learn more
+              </Button>
+            </div>
+          </Card>
+        </AnimatedPage>
+      </div>
+    );
+  }
 
-  const isFirstPage = currentModuleIndex === 0 && currentPageIndex === 0;
+  if (!currentPage) return null;
 
   return (
-    <AnimatedPage>
-      <div className="flex min-h-dvh flex-col">
-        {/* Header bar */}
-        <div className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-xl px-4 py-3">
-          <div className="mx-auto flex max-w-[720px] items-center gap-3">
-            <button onClick={() => router.push("/courses")} className="cursor-pointer text-[var(--color-muted)] hover:text-[var(--color-text)]"><X size={22} /></button>
-            <span className="flex-1 truncate text-center text-sm font-medium">{truncate(activeCourse.title, 30)}</span>
-            <span className="text-xs text-[var(--color-muted)]">M{currentModuleIndex + 1}/{modules.length}</span>
+    <div className="min-h-dvh flex flex-col bg-[var(--color-bg)]">
+      {/* Top bar — progress + close */}
+      <div className="sticky top-0 z-30 bg-[var(--color-bg)]/80 backdrop-blur-md border-b border-[var(--color-border)] px-4 py-3">
+        <div className="flex items-center gap-3 max-w-3xl mx-auto">
+          <button onClick={handleExit} className="p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Exit learning">
+            <X size={20} />
+          </button>
+          <div className="flex-1">
+            <ProgressBar value={progress} variant="primary" size="sm" />
           </div>
-          <ProgressBar value={progress} height="sm" className="mx-auto mt-2 max-w-[720px]" />
+          <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] shrink-0">
+            {currentPageIndex + 1}/{totalPages}
+          </span>
         </div>
-
-        {/* Content */}
-        <div className="flex-1">
-          <SwipeContainer onSwipeLeft={goNext} onSwipeRight={isFirstPage ? undefined : goPrev}>
-            {currentPage && <LearningPage page={currentPage} />}
-          </SwipeContainer>
-        </div>
-
-        {/* Navigation */}
-        <div className="sticky bottom-0 z-20 border-t border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-xl px-4 py-3 md:hidden">
-          <div className="mx-auto flex max-w-[720px] items-center justify-between">
-            <Button variant="ghost" onClick={goPrev} disabled={isFirstPage} leftIcon={<ChevronLeft size={18} />}>Prev</Button>
-            <span className="text-xs text-[var(--color-muted)]">{completedPages + 1} / {totalPages}</span>
-            <Button variant="primary" onClick={goNext} rightIcon={<ChevronRight size={18} />}>Next</Button>
-          </div>
-        </div>
-
-        {/* Desktop nav arrows */}
-        <div className="hidden md:block">
-          <button onClick={goPrev} disabled={isFirstPage} className={cn("fixed left-8 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full glass cursor-pointer transition-all hover:shadow-md", isFirstPage && "opacity-30 cursor-not-allowed")}><ChevronLeft size={24} /></button>
-          <button onClick={goNext} className="fixed right-8 top-1/2 -translate-y-1/2 z-10 flex h-12 w-12 items-center justify-center rounded-full glass cursor-pointer transition-all hover:shadow-md"><ChevronRight size={24} /></button>
-        </div>
-
-        {/* Floating AI help */}
-        <AIHelpButton onClick={() => setHelpOpen(true)} />
-        <AIHelpDrawer isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
-
-        {/* Quiz popup */}
-        {currentModule?.quiz && (
-          <QuizPopup isOpen={quizOpen} onClose={() => { setQuizOpen(false); updateProgress(currentModuleIndex + 1, 0); }} questions={currentModule.quiz} onComplete={(correct, xp) => { earnXP(xp); }} />
-        )}
-
-        {/* Course completion overlay */}
-        {showCompletion && (
-          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--color-bg)]/95 backdrop-blur-md">
-            <ConfettiBlast trigger={true} />
-            <LumiAnimated state="celebrating" size={160} />
-            <h1 className="mt-6 font-heading text-3xl font-bold">You crushed it!</h1>
-            <p className="mt-2 text-[var(--color-muted)]">{activeCourse.title}</p>
-            <div className="mt-6 flex gap-4">
-              <Button variant="primary" onClick={() => router.push("/dashboard")}>Back to Dashboard</Button>
-            </div>
-          </div>
-        )}
       </div>
-    </AnimatedPage>
+
+      {/* Content area */}
+      <SwipeContainer onNext={handleNext} onPrev={handlePrev} className="flex-1">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-10">
+          {/* Page title */}
+          <h2 className="font-[family-name:var(--font-heading)] font-bold text-2xl tracking-[-0.02em] text-[var(--color-text)] mb-6">
+            {currentPage.title}
+          </h2>
+
+          {/* Content blocks */}
+          <div className="space-y-6">
+            {currentPage.blocks.map((block) => (
+              <ContentBlockRenderer key={block.id} block={block} />
+            ))}
+          </div>
+        </div>
+      </SwipeContainer>
+
+      {/* XP float notification */}
+      {showXP && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-float-up">
+          <Badge variant="reward" size="md">
+            +{lastXPEarned} XP
+          </Badge>
+        </div>
+      )}
+
+      {/* Bottom navigation */}
+      <div className="sticky bottom-0 bg-[var(--color-bg)]/80 backdrop-blur-md border-t border-[var(--color-border)] px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+        <div className="flex items-center justify-between max-w-3xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={handlePrev}
+            disabled={isFirstPage}
+            leftIcon={<ChevronLeft size={18} />}
+          >
+            Back
+          </Button>
+
+          <button
+            onClick={() => setShowHelp(true)}
+            className="p-2.5 rounded-full text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface)] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Get AI help"
+          >
+            <HelpCircle size={20} />
+          </button>
+
+          <Button
+            onClick={handleNext}
+            rightIcon={isLastPage ? undefined : <ChevronRight size={18} />}
+          >
+            {isLastPage ? 'Finish' : 'Next'}
+          </Button>
+        </div>
+      </div>
+
+      {/* AI Help Drawer */}
+      <Drawer isOpen={showHelp} onClose={() => setShowHelp(false)} title="AI Help">
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            <LumiAnimated size={64} state="thinking" />
+          </div>
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-muted)] text-center">
+            AI Help will be available once the n8n webhook is configured. For now, try re-reading the current page or checking the previous pages for context.
+          </p>
+          <Button variant="secondary" fullWidth onClick={() => setShowHelp(false)}>
+            Got it
+          </Button>
+        </div>
+      </Drawer>
+    </div>
   );
+}
+
+/* ============================================================
+   Content Block Renderer
+   Renders individual content blocks based on their type.
+   ============================================================ */
+
+function ContentBlockRenderer({ block }: { block: ContentBlock }) {
+  switch (block.type) {
+    case 'text':
+      return (
+        <div className="prose-custom font-[family-name:var(--font-body)] text-[var(--color-text)] leading-relaxed">
+          <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins}>
+            {block.content}
+          </ReactMarkdown>
+        </div>
+      );
+
+    case 'bullet_list':
+      return (
+        <div className="font-[family-name:var(--font-body)] text-[var(--color-text)] leading-relaxed">
+          <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins}>
+            {block.content}
+          </ReactMarkdown>
+        </div>
+      );
+
+    case 'code':
+      return (
+        <Card variant="solid" padding="none" className="overflow-hidden">
+          {block.meta?.language && (
+            <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--color-border)] bg-[var(--color-surface-elevated)]">
+              <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-mono)]">
+                {block.meta.language}
+              </span>
+            </div>
+          )}
+          <pre className="p-4 overflow-x-auto bg-[#0a0a0a] text-sm leading-relaxed">
+            <code className="font-[family-name:var(--font-mono)] text-[var(--color-text)]">
+              {block.content}
+            </code>
+          </pre>
+        </Card>
+      );
+
+    case 'math':
+      return (
+        <Card variant="glass" padding="md" className="text-center">
+          <ReactMarkdown
+            remarkPlugins={remarkPlugins}
+            rehypePlugins={rehypePlugins}
+          >
+            {`$$${block.content}$$`}
+          </ReactMarkdown>
+        </Card>
+      );
+
+    case 'image':
+      return (
+        <Card variant="glass" padding="none" className="overflow-hidden">
+          <div className="aspect-video bg-[var(--color-surface-elevated)] flex items-center justify-center">
+            <span className="text-[var(--color-muted)] text-sm font-[family-name:var(--font-body)]">
+              {block.meta?.alt || 'Image'}
+            </span>
+          </div>
+        </Card>
+      );
+
+    case 'video':
+      return (
+        <Card variant="glass" padding="none" className="overflow-hidden">
+          <div className="aspect-video bg-[var(--color-surface-elevated)] flex items-center justify-center">
+            <span className="text-[var(--color-muted)] text-sm font-[family-name:var(--font-body)]">
+              {block.meta?.title || 'Video'}
+            </span>
+          </div>
+        </Card>
+      );
+
+    default:
+      return null;
+  }
 }

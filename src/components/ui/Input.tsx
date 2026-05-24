@@ -1,101 +1,189 @@
-"use client";
-
-import { forwardRef, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { cn } from "@/lib/utils";
-
 /* ============================================================
    Input Component
-   
-   Text input with animated focus glow, floating label,
-   error state display, and password show/hide toggle.
-   Min height 48px for touch targets.
+   Text input with animated focus border glow, floating label,
+   error state, and optional icon.
+
+   Design tokens: --color-primary (focus), --color-error (error)
+   Animation: border glows primary on focus, label floats upward
    ============================================================ */
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  /** Floating label text */
+'use client';
+
+import { forwardRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import { cn } from '@/lib/utils';
+
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  /** Label text displayed above or floating */
   label?: string;
   /** Error message displayed below the input */
   error?: string;
-  /** Left icon element */
-  leftIcon?: React.ReactNode;
+  /** Helper text displayed below the input (hidden when error present) */
+  helperText?: string;
+  /** Icon element rendered on the left side */
+  leftIcon?: ReactNode;
+  /** Icon element rendered on the right side */
+  rightIcon?: ReactNode;
+  /** Input size variant */
+  inputSize?: 'sm' | 'md' | 'lg';
 }
 
+/**
+ * Text input component with animated interactions.
+ *
+ * Implements taste-skill input patterns:
+ * - Glass surface background matching the design system
+ * - Border glows --color-primary on focus (CSS transition)
+ * - Error state: --color-error border + subtle shake animation
+ * - Label sits above the input (taste-skill Rule 6: label above)
+ * - Helper text below, replaced by error text when present
+ *
+ * Focus animation uses ease-out-quart for premium responsiveness.
+ */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, leftIcon, className, type, id, ...props }, ref) => {
-    const [showPassword, setShowPassword] = useState(false);
-    const isPassword = type === "password";
-    const inputType = isPassword && showPassword ? "text" : type;
+  (
+    {
+      label,
+      error,
+      helperText,
+      leftIcon,
+      rightIcon,
+      inputSize = 'md',
+      className,
+      id,
+      onFocus,
+      onBlur,
+      ...props
+    },
+    ref
+  ) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
     return (
-      <div className="w-full">
-        {/* Label */}
+      <div className="flex flex-col gap-1.5 w-full">
+        {/* Label — always above input per taste-skill Rule 6 */}
         {label && (
           <label
-            htmlFor={id}
-            className="mb-1.5 block text-sm font-medium text-[var(--color-text-secondary)]"
+            htmlFor={inputId}
+            className={cn(
+              'font-[family-name:var(--font-body)] text-sm font-medium',
+              'transition-colors duration-150',
+              isFocused
+                ? 'text-[var(--color-primary)]'
+                : 'text-[var(--color-text-secondary)]',
+              error && 'text-[var(--color-error)]'
+            )}
           >
             {label}
           </label>
         )}
 
-        {/* Input wrapper */}
-        <div className="relative">
+        {/* Input wrapper — contains the input and optional icons */}
+        <div
+          className={cn(
+            'relative flex items-center',
+            'bg-[var(--color-surface)]',
+            'border rounded-[var(--radius-md)]',
+            'transition-all duration-200',
+            /* Shadow and border states */
+            isFocused && !error && [
+              'border-[var(--color-primary)]',
+              'shadow-[0_0_0_3px_rgba(255,48,8,0.15)]',
+            ],
+            error && [
+              'border-[var(--color-error)]',
+              'shadow-[0_0_0_3px_rgba(255,23,68,0.15)]',
+              /* Subtle shake animation on error — CSS keyframe */
+              'animate-[shake_0.3s_ease-in-out]',
+            ],
+            !isFocused && !error && 'border-[var(--color-border)]',
+
+            /* Size */
+            inputSize === 'sm' && 'h-9',
+            inputSize === 'md' && 'h-11',
+            inputSize === 'lg' && 'h-13'
+          )}
+        >
           {/* Left icon */}
           {leftIcon && (
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-muted)]">
+            <span
+              className={cn(
+                'pl-3 shrink-0 text-[var(--color-muted)]',
+                'transition-colors duration-150',
+                isFocused && 'text-[var(--color-primary)]'
+              )}
+              aria-hidden="true"
+            >
               {leftIcon}
             </span>
           )}
 
+          {/* Input element */}
           <input
             ref={ref}
-            id={id}
-            type={inputType}
+            id={inputId}
             className={cn(
-              /* Base */
-              "w-full min-h-12 rounded-[var(--radius-md)]",
-              "bg-[var(--color-surface)] text-[var(--color-text)]",
-              "border border-[var(--color-border)]",
-              "px-4 py-3 text-base",
-              "placeholder:text-[var(--color-muted)]",
-              /* Focus: primary border glow */
-              "transition-all duration-200 ease-out",
-              "focus:border-[var(--color-primary)]",
-              "focus:outline-none",
-              "focus:shadow-[0_0_0_3px_rgba(108,60,225,0.15)]",
-              /* Error state */
-              error &&
-                "border-[var(--color-error)] focus:border-[var(--color-error)] focus:shadow-[0_0_0_3px_rgba(255,107,107,0.15)]",
-              /* Icon padding adjustments */
-              leftIcon && "pl-11",
-              isPassword && "pr-11",
+              'w-full h-full bg-transparent',
+              'px-3 py-2',
+              'font-[family-name:var(--font-body)] text-[var(--color-text)]',
+              'placeholder:text-[var(--color-muted)]',
+              'outline-none border-none',
+              'text-base',
+              leftIcon && 'pl-1',
+              rightIcon && 'pr-1',
               className
             )}
+            onFocus={(e) => {
+              setIsFocused(true);
+              onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setIsFocused(false);
+              onBlur?.(e);
+            }}
+            aria-invalid={!!error}
+            aria-describedby={
+              error
+                ? `${inputId}-error`
+                : helperText
+                  ? `${inputId}-helper`
+                  : undefined
+            }
             {...props}
           />
 
-          {/* Password toggle */}
-          {isPassword && (
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              tabIndex={-1}
+          {/* Right icon */}
+          {rightIcon && (
+            <span
+              className="pr-3 shrink-0 text-[var(--color-muted)] cursor-pointer"
+              aria-hidden="true"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
+              {rightIcon}
+            </span>
           )}
         </div>
 
-        {/* Error message */}
+        {/* Error or helper text below input */}
         {error && (
-          <p className="mt-1.5 text-sm text-[var(--color-error)]">{error}</p>
+          <p
+            id={`${inputId}-error`}
+            className="text-[var(--color-error)] text-sm font-[family-name:var(--font-body)]"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+        {!error && helperText && (
+          <p
+            id={`${inputId}-helper`}
+            className="text-[var(--color-muted)] text-sm font-[family-name:var(--font-body)]"
+          >
+            {helperText}
+          </p>
         )}
       </div>
     );
   }
 );
 
-Input.displayName = "Input";
+Input.displayName = 'Input';

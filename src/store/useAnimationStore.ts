@@ -1,39 +1,50 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { AnimationMode } from "@/types";
-
 /* ============================================================
    Animation Store
-   Manages the two-tier animation system (full vs lite).
-   Set during onboarding based on device detection.
-   User can change this in Settings.
-   Persisted to localStorage so preference survives page reloads.
+   Manages the two-tier animation mode (full/lite) with
+   localStorage persistence. Set during onboarding based on
+   device detection, changeable in Settings > Appearance.
    ============================================================ */
 
-interface AnimationStoreState {
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { AnimationMode } from '@/types';
+
+interface AnimationState {
+  /** Current animation mode — determines which animation libraries are used */
   animationMode: AnimationMode;
-  /** Whether the animation mode has been explicitly set by the user */
-  isExplicitlySet: boolean;
-}
-
-interface AnimationStoreActions {
+  /** Whether the device detection has been run (prevents re-prompting) */
+  detectionComplete: boolean;
+  /** Set the animation mode directly */
   setAnimationMode: (mode: AnimationMode) => void;
+  /** Mark device detection as complete */
+  setDetectionComplete: () => void;
 }
 
-export const useAnimationStore = create<
-  AnimationStoreState & AnimationStoreActions
->()(
+/**
+ * Animation store with localStorage persistence.
+ *
+ * FULL mode: framer-motion (lazy) + motion package + CSS transitions
+ * LITE mode: CSS transitions only — zero JS animation imports
+ *
+ * Default is 'full' — will be set to 'lite' if device detection
+ * detects a low-end device (≤4 CPU cores or ≤4GB RAM) and
+ * user chooses "Keep it smooth" during onboarding.
+ *
+ * Components NEVER read from this store directly.
+ * They MUST use the useAnimationMode hook instead.
+ */
+export const useAnimationStore = create<AnimationState>()(
   persist(
     (set) => ({
-      /* Default to 'full' — updated during onboarding if device is low-end */
-      animationMode: "full",
-      isExplicitlySet: false,
+      animationMode: 'full',
+      detectionComplete: false,
 
-      setAnimationMode: (mode) =>
-        set({ animationMode: mode, isExplicitlySet: true }),
+      setAnimationMode: (mode) => set({ animationMode: mode }),
+
+      setDetectionComplete: () => set({ detectionComplete: true }),
     }),
     {
-      name: "la-animation-mode",
+      name: 'learn-anything-animation',
     }
   )
 );

@@ -1,47 +1,44 @@
-"use client";
+/* ============================================================
+   Sidebar Component
+   Desktop sidebar (280px fixed) for chat and courses pages.
+   Hidden on mobile — uses Drawer instead.
+   ============================================================ */
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, MessageSquare, BookOpen, Trophy, User, Settings, Award } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
 
-const sidebarLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/chat", label: "New Course", icon: MessageSquare },
-  { href: "/courses", label: "My Courses", icon: BookOpen },
-  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
-  { href: "/achievements", label: "Achievements", icon: Award },
-  { href: "/profile", label: "Profile", icon: User },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
+export interface SidebarProps {
+  children: ReactNode;
+  className?: string;
+}
 
-/** Desktop sidebar navigation — 280px fixed width. Hidden on mobile. */
-export function Sidebar({ className }: { className?: string }) {
-  const pathname = usePathname();
-
+/**
+ * Desktop sidebar — fixed 280px left panel.
+ *
+ * Only visible on desktop (hidden on mobile).
+ * Mobile equivalent is the Drawer component triggered
+ * by a hamburger button on the page.
+ *
+ * Glass surface with inner refraction for depth.
+ */
+export function Sidebar({ children, className }: SidebarProps) {
   return (
-    <aside className={cn("hidden md:flex md:w-[280px] md:flex-col md:border-r md:border-[var(--color-border)] md:bg-[var(--color-surface)]/50", className)}>
-      <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
-        {sidebarLinks.map((link) => {
-          const isActive = pathname.startsWith(link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "flex items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 text-sm font-medium cursor-pointer",
-                "transition-all duration-200",
-                isActive
-                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text)]"
-              )}
-            >
-              <link.icon size={20} />
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
+    <aside
+      className={cn(
+        'hidden md:flex flex-col',
+        'w-[280px] shrink-0',
+        'h-[calc(100dvh-5rem)]',
+        'sticky top-[5rem]',
+        /* Glass surface */
+        'bg-[var(--glass-bg)]',
+        'backdrop-blur-[16px]',
+        'border-r border-[var(--glass-border)]',
+        'shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]',
+        'overflow-y-auto',
+        className
+      )}
+    >
+      {children}
     </aside>
   );
 }

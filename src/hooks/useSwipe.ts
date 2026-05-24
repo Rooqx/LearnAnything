@@ -1,117 +1,132 @@
-"use client";
-
-import { useRef, useCallback, useState } from "react";
-
 /* ============================================================
    useSwipe Hook
-   
-   Touch swipe gesture detection for the learning page interface.
-   Detects horizontal swipe direction and velocity.
-   
-   Returns:
-   - onTouchStart / onTouchEnd handlers to attach to the container
-   - swipeDirection: 'left' | 'right' | null after a swipe
-   - resetSwipe: function to clear the swipe state
-   
-   Thresholds:
-   - Minimum distance: 50px to count as a swipe
-   - Minimum velocity: 0.3px/ms to prevent slow drags
+   Touch swipe gesture detection for learning page navigation.
+   Detects horizontal swipe direction and velocity for
+   momentum-based page transitions.
+
+   Uses the momentum-based dismissal pattern from Emil's
+   design engineering skill — velocity threshold matters
+   more than distance for a natural feel.
    ============================================================ */
 
-type SwipeDirection = "left" | "right" | null;
+'use client';
 
-interface SwipeState {
-  swipeDirection: SwipeDirection;
-  isSwiping: boolean;
-}
+import { useRef, useCallback } from 'react';
+import type { SwipeDirection, SwipeEvent } from '@/types';
+
+/** Minimum swipe distance in pixels to register as a swipe */
+const SWIPE_THRESHOLD = 50;
+
+/** Velocity threshold for momentum-based dismissal (px/ms) */
+const VELOCITY_THRESHOLD = 0.11;
 
 interface SwipeHandlers {
+  /** Attach to the element's onTouchStart */
   onTouchStart: (e: React.TouchEvent) => void;
+  /** Attach to the element's onTouchMove */
   onTouchMove: (e: React.TouchEvent) => void;
+  /** Attach to the element's onTouchEnd */
   onTouchEnd: (e: React.TouchEvent) => void;
 }
 
-interface UseSwipeReturn extends SwipeState, SwipeHandlers {
-  resetSwipe: () => void;
+interface UseSwipeOptions {
+  /** Callback fired when a valid swipe is detected */
+  onSwipe: (event: SwipeEvent) => void;
+  /** Whether swipe detection is enabled (default: true) */
+  enabled?: boolean;
 }
 
-const SWIPE_MIN_DISTANCE = 50;
-const SWIPE_MIN_VELOCITY = 0.3;
+/**
+ * Hook for detecting touch swipe gestures.
+ *
+ * Uses momentum-based dismissal: a quick flick (velocity > 0.11 px/ms)
+ * triggers a swipe even if the distance is below the threshold.
+ * This follows Emil Kowalski's principle that gestures should
+ * feel natural — users expect quick flicks to work.
+ *
+ * Usage:
+ * ```tsx
+ * const { onTouchStart, onTouchMove, onTouchEnd } = useSwipe({
+ *   onSwipe: ({ direction }) => {
+ *     if (direction === 'left') nextPage();
+ *     if (direction === 'right') prevPage();
+ *   },
+ * });
+ *
+ * return <div {...{ onTouchStart, onTouchMove, onTouchEnd }}>...</div>;
+ * ```
+ */
+export function useSwipe({ onSwipe, enabled = true }: UseSwipeOptions): SwipeHandlers {
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const startTime = useRef(0);
+  const isDragging = useRef(false);
 
-export function useSwipe(
-  onSwipeLeft?: () => void,
-  onSwipeRight?: () => void
-): UseSwipeReturn {
-  const [state, setState] = useState<SwipeState>({
-    swipeDirection: null,
-    isSwiping: false,
-  });
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!enabled) return;
 
-  /* Store touch start data in a ref to avoid re-renders during drag */
-  const touchStart = useRef<{ x: number; y: number; time: number } | null>(
-    null
+      /* Multi-touch protection: ignore additional touch points
+         after the initial drag begins (Emil's principle) */
+      if (isDragging.current) return;
+
+      const touch = e.touches[0];
+      startX.current = touch.clientX;
+      startY.current = touch.clientY;
+      startTime.current = Date.now();
+      isDragging.current = true;
+    },
+    [enabled]
   );
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchStart.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-    setState({ swipeDirection: null, isSwiping: true });
-  }, []);
+  const onTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!enabled || !isDragging.current) return;
 
-  const onTouchMove = useCallback((e: React.TouchEvent) => {
-    /* Prevent vertical scroll when horizontal swiping */
-    if (!touchStart.current) return;
-    const touch = e.touches[0];
-    const deltaX = Math.abs(touch.clientX - touchStart.current.x);
-    const deltaY = Math.abs(touch.clientY - touchStart.current.y);
+      /* Prevent default only if horizontal movement exceeds vertical
+         to avoid blocking vertical scrolling */
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - startX.current);
+      const deltaY = Math.abs(touch.clientY - startY.current);
 
-    if (deltaX > deltaY && deltaX > 10) {
-      e.preventDefault();
-    }
-  }, []);
+      if (deltaX > deltaY && deltaX > 10) {
+        e.preventDefault();
+      }
+    },
+    [enabled]
+  );
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
-      if (!touchStart.current) return;
+      if (!enabled || !isDragging.current) return;
+
+      isDragging.current = false;
 
       const touch = e.changedTouches[0];
-      const deltaX = touch.clientX - touchStart.current.x;
-      const deltaTime = Date.now() - touchStart.current.time;
-      const velocity = Math.abs(deltaX) / deltaTime;
+      const deltaX = touch.clientX - startX.current;
+      const deltaY = touch.clientY - startY.current;
+      const distance = Math.abs(deltaX);
+      const elapsed = Date.now() - startTime.current;
+      const velocity = distance / elapsed;
 
-      let direction: SwipeDirection = null;
+      /* Determine if this qualifies as a swipe:
+         Either distance exceeds threshold OR velocity exceeds threshold
+         (momentum-based dismissal — quick flicks always work) */
+      const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+      const meetsThreshold = distance >= SWIPE_THRESHOLD || velocity > VELOCITY_THRESHOLD;
 
-      /* Check if swipe meets minimum distance and velocity thresholds */
-      if (
-        Math.abs(deltaX) >= SWIPE_MIN_DISTANCE &&
-        velocity >= SWIPE_MIN_VELOCITY
-      ) {
-        direction = deltaX < 0 ? "left" : "right";
+      if (isHorizontalSwipe && meetsThreshold) {
+        const direction: SwipeDirection = deltaX > 0 ? 'right' : 'left';
 
-        /* Trigger callbacks */
-        if (direction === "left" && onSwipeLeft) onSwipeLeft();
-        if (direction === "right" && onSwipeRight) onSwipeRight();
+        onSwipe({
+          direction,
+          distance,
+          velocity,
+        });
       }
-
-      setState({ swipeDirection: direction, isSwiping: false });
-      touchStart.current = null;
     },
-    [onSwipeLeft, onSwipeRight]
+    [enabled, onSwipe]
   );
 
-  const resetSwipe = useCallback(() => {
-    setState({ swipeDirection: null, isSwiping: false });
-  }, []);
-
-  return {
-    ...state,
-    onTouchStart,
-    onTouchMove,
-    onTouchEnd,
-    resetSwipe,
-  };
+  return { onTouchStart, onTouchMove, onTouchEnd };
 }

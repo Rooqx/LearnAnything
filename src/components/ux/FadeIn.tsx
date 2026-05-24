@@ -1,38 +1,49 @@
-"use client";
+/* ============================================================
+   FadeIn — Fade-in wrapper with optional direction and delay
+   ============================================================ */
 
-import { useAnimationMode } from "@/hooks/useAnimationMode";
-import { cn } from "@/lib/utils";
+'use client';
 
-type FadeDirection = "up" | "down" | "left" | "right" | "none";
+import { useAnimationMode } from '@/hooks/useAnimationMode';
+import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
 
-interface FadeInProps {
-  children: React.ReactNode;
-  direction?: FadeDirection;
+export interface FadeInProps {
+  children: ReactNode;
+  direction?: 'up' | 'down' | 'left' | 'right';
   delay?: number;
   duration?: number;
   className?: string;
 }
 
-const directionKeyframes: Record<FadeDirection, string> = {
-  up: "from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); }",
-  down: "from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); }",
-  left: "from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); }",
-  right: "from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); }",
-  none: "from { opacity: 0; } to { opacity: 1; }",
-};
+export function FadeIn({
+  children,
+  direction = 'up',
+  delay = 0,
+  duration = 400,
+  className,
+}: FadeInProps) {
+  const { isLite } = useAnimationMode();
 
-export function FadeIn({ children, direction = "up", delay = 0, duration = 300, className }: FadeInProps) {
-  const mode = useAnimationMode();
-  const animName = `fadeIn-${direction}`;
-
-  if (mode === "lite") {
-    return <div className={cn("transition-opacity duration-200", className)} style={{ opacity: 1 }}>{children}</div>;
+  if (isLite) {
+    return <div className={className}>{children}</div>;
   }
 
+  const directionMap = {
+    up: 'fadeInUp',
+    down: 'fadeInDown',
+    left: 'fadeInLeft',
+    right: 'fadeInRight',
+  };
+
   return (
-    <div className={cn(className)} style={{ animation: `${animName} ${duration}ms ease-out ${delay}ms both` }}>
+    <div
+      className={cn('opacity-0', className)}
+      style={{
+        animation: `${directionMap[direction]} ${duration}ms cubic-bezier(0.25, 1, 0.5, 1) ${delay}ms both`,
+      }}
+    >
       {children}
-      <style jsx>{`@keyframes ${animName} { ${directionKeyframes[direction]} }`}</style>
     </div>
   );
 }

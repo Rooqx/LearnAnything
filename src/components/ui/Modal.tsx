@@ -1,123 +1,199 @@
-"use client";
-
-import { useEffect, useRef, useCallback } from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
-
 /* ============================================================
    Modal Component
-   
-   Base modal wrapper with glass surface, focus trap,
-   keyboard escape, and overlay blur.
-   Reused by QuizPopup, LevelUpModal, and confirmation dialogs.
+   Glass surface modal with focus trap, backdrop, scale-in
+   entrance animation, and escape-to-close.
+
+   Used by: QuizPopup, LevelUpModal, badge details, and
+   delete account confirmation.
+
+   Design: glass-elevated surface, NOT a plain dialog.
+   Animation: scale from 0.95 + opacity (Emil: never from 0).
    ============================================================ */
 
-interface ModalProps {
+'use client';
+
+import { useEffect, useRef, useCallback, type ReactNode } from 'react';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export interface ModalProps {
+  /** Whether the modal is currently visible */
   isOpen: boolean;
+  /** Callback to close the modal */
   onClose: () => void;
-  children: React.ReactNode;
-  /** Whether to show the close button (X) in top-right */
-  showCloseButton?: boolean;
-  /** Whether clicking the overlay closes the modal */
-  closeOnOverlay?: boolean;
-  /** Max width class */
-  maxWidth?: string;
+  /** Modal title displayed in the header */
+  title?: string;
+  /** Modal content */
+  children: ReactNode;
+  /** Size variant */
+  size?: 'sm' | 'md' | 'lg';
+  /** Whether to show the close (X) button */
+  showClose?: boolean;
+  /** Whether clicking the backdrop closes the modal */
+  closeOnBackdrop?: boolean;
+  /** Additional CSS classes for the modal panel */
   className?: string;
 }
 
+/**
+ * Modal component with focus trap and accessible keyboard handling.
+ *
+ * Implements taste-skill modal patterns:
+ * - Glass elevated surface with backdrop blur
+ * - Scale-in from 0.95 (never from 0 — Emil's principle)
+ * - transform-origin: center (correct for modals, not popovers)
+ * - Focus trap: Tab cycles within modal, Escape closes
+ * - Returns focus to trigger element on close
+ */
 export function Modal({
   isOpen,
   onClose,
+  title,
   children,
-  showCloseButton = true,
-  closeOnOverlay = true,
-  maxWidth = "max-w-lg",
+  size = 'md',
+  showClose = true,
+  closeOnBackdrop = true,
   className,
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  /* Keyboard escape handler */
+  /* Store the element that triggered the modal so we can
+     return focus to it on close (accessibility requirement) */
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      /* Focus the modal panel after render */
+      requestAnimationFrame(() => {
+        modalRef.current?.focus();
+      });
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [isOpen]);
+
+  /* Escape key handler */
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      /* Focus trap — Tab cycles within the modal */
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     },
     [onClose]
   );
 
+  /* Prevent body scroll when modal is open */
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      /* Prevent body scroll when modal is open */
-      document.body.style.overflow = "hidden";
-
-      /* Focus the modal on open for accessibility */
-      modalRef.current?.focus();
+      document.body.style.overflow = 'hidden';
     }
-
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
-  }, [isOpen, handleKeyDown]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    /* Overlay */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
+      aria-label={title}
+      onKeyDown={handleKeyDown}
     >
-      {/* Backdrop */}
+      {/* Backdrop — dark overlay with blur */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={closeOnOverlay ? onClose : undefined}
+        className={cn(
+          'absolute inset-0',
+          'bg-black/60 backdrop-blur-sm',
+          /* Fade in animation */
+          'animate-[fadeIn_200ms_ease-out]'
+        )}
+        onClick={closeOnBackdrop ? onClose : undefined}
         aria-hidden="true"
       />
 
-      {/* Modal content */}
+      {/* Modal panel */}
       <div
         ref={modalRef}
         tabIndex={-1}
         className={cn(
-          "glass-elevated relative z-10 w-full",
-          "rounded-[var(--radius-xl)] p-6",
-          "animate-in fade-in zoom-in-95 duration-200",
-          maxWidth,
+          'relative z-10',
+          /* Glass elevated surface */
+          'bg-[var(--glass-bg)]',
+          'backdrop-blur-[24px]',
+          'border border-[var(--glass-border)]',
+          'shadow-[var(--shadow-lg),inset_0_1px_0_rgba(255,255,255,0.1)]',
+          'rounded-[var(--radius-xl)]',
+          'overflow-hidden',
+          /* Scale-in animation — from 0.95 per Emil's principle */
+          'animate-[scaleIn_200ms_cubic-bezier(0.25,1,0.5,1)]',
+          'origin-center',
+
+          /* Size variants */
+          size === 'sm' && 'w-full max-w-sm',
+          size === 'md' && 'w-full max-w-md',
+          size === 'lg' && 'w-full max-w-lg',
+
+          /* Remove focus outline on the panel itself */
+          'outline-none',
+
           className
         )}
-        style={{
-          animation: "modalIn 200ms ease-out",
-        }}
       >
-        {/* Close button */}
-        {showCloseButton && (
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 cursor-pointer rounded-full p-1.5 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text)]"
-            aria-label="Close modal"
-          >
-            <X size={20} />
-          </button>
+        {/* Header with title and close button */}
+        {(title || showClose) && (
+          <div className="flex items-center justify-between p-6 pb-0">
+            {title && (
+              <h2 className="font-[family-name:var(--font-heading)] font-semibold text-xl text-[var(--color-text)]">
+                {title}
+              </h2>
+            )}
+            {showClose && (
+              <button
+                onClick={onClose}
+                className={cn(
+                  'p-2 rounded-full',
+                  'text-[var(--color-muted)] hover:text-[var(--color-text)]',
+                  'hover:bg-[var(--color-surface)]',
+                  'transition-colors duration-150',
+                  'cursor-pointer',
+                  'min-h-[44px] min-w-[44px] flex items-center justify-center'
+                )}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
         )}
 
-        {children}
+        {/* Content */}
+        <div className="p-6">{children}</div>
       </div>
-
-      {/* Inline keyframe for modal entrance */}
-      <style jsx>{`
-        @keyframes modalIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
     </div>
   );
 }

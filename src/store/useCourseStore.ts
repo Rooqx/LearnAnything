@@ -1,163 +1,274 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { Course, CourseSummary, LearningMode } from "@/types";
-
 /* ============================================================
    Course Store
-   Manages active course state, course list, learning mode,
-   current page/module index, and loading/error states.
-   Persisted so users can resume where they left off.
+   Manages the active course state, page navigation,
+   loading/error states for course generation, and
+   the list of all user courses.
    ============================================================ */
 
-interface CourseStoreState {
-  /** The currently active course being learned */
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { Course, LearningMode } from '@/types';
+
+interface CourseState {
+  /** All courses created by the user */
+  courses: Course[];
+
+  /** Currently active course being learned */
   activeCourse: Course | null;
-  /** List of all user's courses (summaries for list views) */
-  courseList: CourseSummary[];
+
+  /** Current page index within the active course (flat across all modules) */
+  currentPageIndex: number;
+
+  /** Current module index within the active course */
+  currentModuleIndex: number;
+
   /** Selected learning mode for course generation */
   selectedMode: LearningMode | null;
-  /** Topic entered by the user in chat */
+
+  /** Whether a course is currently being generated */
+  isLoading: boolean;
+
+  /** Error message from failed course generation */
+  error: string | null;
+
+  /** Topic entered in the chat input */
   currentTopic: string;
-  /** Loading state during course generation */
-  isGenerating: boolean;
-  /** Error message from course generation */
-  generationError: string | null;
-}
 
-interface CourseStoreActions {
-  /** Set the active course for learning */
-  setActiveCourse: (course: Course) => void;
-
-  /** Clear the active course (e.g. when navigating away) */
-  clearActiveCourse: () => void;
-
-  /** Update the active course's progress (module/page index) */
-  updateProgress: (moduleIndex: number, pageIndex: number) => void;
-
-  /** Mark the active course as completed */
-  completeCourse: () => void;
+  /** Set the topic from chat input */
+  setTopic: (topic: string) => void;
 
   /** Set the selected learning mode */
-  setSelectedMode: (mode: LearningMode | null) => void;
+  setMode: (mode: LearningMode) => void;
 
-  /** Set the current topic */
-  setCurrentTopic: (topic: string) => void;
+  /** Set loading state for course generation */
+  setLoading: (loading: boolean) => void;
 
-  /** Set generating state */
-  setIsGenerating: (isGenerating: boolean) => void;
+  /** Set error state for course generation */
+  setError: (error: string | null) => void;
 
-  /** Set generation error */
-  setGenerationError: (error: string | null) => void;
+  /** Add a newly generated course and set it as active */
+  addCourse: (course: Course) => void;
 
-  /** Add a course to the list */
-  addCourseToList: (summary: CourseSummary) => void;
+  /** Set a course as the active course for learning */
+  setActiveCourse: (courseId: string) => void;
 
-  /** Update a course in the list */
-  updateCourseInList: (id: string, updates: Partial<CourseSummary>) => void;
+  /** Navigate to the next page within the active course */
+  nextPage: () => void;
 
-  /** Reset chat state for a new course generation */
-  resetChatState: () => void;
+  /** Navigate to the previous page within the active course */
+  prevPage: () => void;
+
+  /** Jump to a specific page index */
+  goToPage: (pageIndex: number) => void;
+
+  /** Mark a page as completed and update course progress */
+  completePage: () => void;
+
+  /** Mark the entire course as completed */
+  completeCourse: (courseId: string) => void;
+
+  /** Update last accessed timestamp */
+  touchCourse: (courseId: string) => void;
+
+  /** Clear the active course (exit learning interface) */
+  clearActiveCourse: () => void;
+
+  /** Reset generation state (topic, mode, loading, error) */
+  resetGeneration: () => void;
 }
 
-export const useCourseStore = create<CourseStoreState & CourseStoreActions>()(
+/**
+ * Calculate the flat page index from module and page indices.
+ * Used to determine overall progress across the course.
+ */
+function getFlatPageIndex(course: Course, moduleIndex: number, pageIndex: number): number {
+  let index = 0;
+  for (let i = 0; i < moduleIndex; i++) {
+    index += course.modules[i].pages.length;
+  }
+  return index + pageIndex;
+}
+
+/**
+ * Calculate module and page indices from a flat page index.
+ * Used when navigating to a specific page.
+ */
+function getModuleAndPageIndex(
+  course: Course,
+  flatIndex: number
+): { moduleIndex: number; pageIndex: number } {
+  let remaining = flatIndex;
+  for (let i = 0; i < course.modules.length; i++) {
+    if (remaining < course.modules[i].pages.length) {
+      return { moduleIndex: i, pageIndex: remaining };
+    }
+    remaining -= course.modules[i].pages.length;
+  }
+  /* Fallback to last page if index is out of bounds */
+  const lastModule = course.modules.length - 1;
+  return {
+    moduleIndex: lastModule,
+    pageIndex: course.modules[lastModule].pages.length - 1,
+  };
+}
+
+export const useCourseStore = create<CourseState>()(
   persist(
     (set, get) => ({
-      /* ---------- Default State ---------- */
+      courses: [],
       activeCourse: null,
-      courseList: [],
+      currentPageIndex: 0,
+      currentModuleIndex: 0,
       selectedMode: null,
-      currentTopic: "",
-      isGenerating: false,
-      generationError: null,
+      isLoading: false,
+      error: null,
+      currentTopic: '',
 
-      /* ---------- Actions ---------- */
+      setTopic: (topic) => set({ currentTopic: topic }),
 
-      setActiveCourse: (course) => set({ activeCourse: course }),
+      setMode: (mode) => set({ selectedMode: mode }),
 
-      clearActiveCourse: () => set({ activeCourse: null }),
+      setLoading: (loading) => set({ isLoading: loading }),
 
-      updateProgress: (moduleIndex, pageIndex) => {
-        const course = get().activeCourse;
-        if (!course) return;
+      setError: (error) => set({ error }),
 
-        /* Calculate overall progress percentage based on module and page position */
-        const totalPages = course.modules.reduce(
-          (sum, mod) => sum + mod.pages.length,
-          0
-        );
-        const pagesCompleted =
-          course.modules
-            .slice(0, moduleIndex)
-            .reduce((sum, mod) => sum + mod.pages.length, 0) + pageIndex;
-        const progress = Math.round((pagesCompleted / totalPages) * 100);
-
-        set({
-          activeCourse: {
-            ...course,
-            currentModuleIndex: moduleIndex,
-            currentPageIndex: pageIndex,
-            progress,
-            lastAccessedAt: new Date().toISOString(),
-          },
-        });
-
-        /* Also update the course list entry */
-        get().updateCourseInList(course.id, { progress });
-      },
-
-      completeCourse: () => {
-        const course = get().activeCourse;
-        if (!course) return;
-
-        set({
-          activeCourse: {
-            ...course,
-            isCompleted: true,
-            progress: 100,
-          },
-        });
-
-        get().updateCourseInList(course.id, {
-          isCompleted: true,
-          progress: 100,
-        });
-      },
-
-      setSelectedMode: (mode) => set({ selectedMode: mode }),
-
-      setCurrentTopic: (topic) => set({ currentTopic: topic }),
-
-      setIsGenerating: (isGenerating) => set({ isGenerating }),
-
-      setGenerationError: (error) => set({ generationError: error }),
-
-      addCourseToList: (summary) =>
+      addCourse: (course) =>
         set((state) => ({
-          courseList: [summary, ...state.courseList],
+          courses: [course, ...state.courses],
+          activeCourse: course,
+          currentPageIndex: 0,
+          currentModuleIndex: 0,
+          isLoading: false,
+          error: null,
         })),
 
-      updateCourseInList: (id, updates) =>
+      setActiveCourse: (courseId) => {
+        const state = get();
+        const course = state.courses.find((c) => c.id === courseId);
+        if (course) {
+          set({
+            activeCourse: course,
+            currentPageIndex: 0,
+            currentModuleIndex: 0,
+          });
+        }
+      },
+
+      nextPage: () => {
+        const state = get();
+        if (!state.activeCourse) return;
+
+        const { modules } = state.activeCourse;
+        const currentModule = modules[state.currentModuleIndex];
+
+        /* Calculate current page within the module */
+        let pageInModule = state.currentPageIndex;
+        for (let i = 0; i < state.currentModuleIndex; i++) {
+          pageInModule -= modules[i].pages.length;
+        }
+
+        if (pageInModule < currentModule.pages.length - 1) {
+          /* More pages in current module */
+          set({ currentPageIndex: state.currentPageIndex + 1 });
+        } else if (state.currentModuleIndex < modules.length - 1) {
+          /* Move to next module */
+          set({
+            currentPageIndex: state.currentPageIndex + 1,
+            currentModuleIndex: state.currentModuleIndex + 1,
+          });
+        }
+        /* If at the last page of the last module, do nothing */
+      },
+
+      prevPage: () => {
+        const state = get();
+        if (!state.activeCourse || state.currentPageIndex <= 0) return;
+
+        const { modules } = state.activeCourse;
+        const newPageIndex = state.currentPageIndex - 1;
+
+        /* Determine which module the new page index falls in */
+        const { moduleIndex } = getModuleAndPageIndex(state.activeCourse, newPageIndex);
+
+        set({
+          currentPageIndex: newPageIndex,
+          currentModuleIndex: moduleIndex,
+        });
+      },
+
+      goToPage: (pageIndex) => {
+        const state = get();
+        if (!state.activeCourse) return;
+
+        const { moduleIndex } = getModuleAndPageIndex(state.activeCourse, pageIndex);
+
+        set({
+          currentPageIndex: pageIndex,
+          currentModuleIndex: moduleIndex,
+        });
+      },
+
+      completePage: () =>
+        set((state) => {
+          if (!state.activeCourse) return state;
+
+          const updatedCourse = {
+            ...state.activeCourse,
+            completedPages: Math.min(
+              state.activeCourse.completedPages + 1,
+              state.activeCourse.totalPages
+            ),
+            lastAccessedAt: new Date().toISOString(),
+          };
+
+          return {
+            activeCourse: updatedCourse,
+            courses: state.courses.map((c) =>
+              c.id === updatedCourse.id ? updatedCourse : c
+            ),
+          };
+        }),
+
+      completeCourse: (courseId) =>
         set((state) => ({
-          courseList: state.courseList.map((course) =>
-            course.id === id ? { ...course, ...updates } : course
+          courses: state.courses.map((c) =>
+            c.id === courseId
+              ? {
+                  ...c,
+                  status: 'completed' as const,
+                  completedPages: c.totalPages,
+                  lastAccessedAt: new Date().toISOString(),
+                }
+              : c
           ),
         })),
 
-      resetChatState: () =>
+      touchCourse: (courseId) =>
+        set((state) => ({
+          courses: state.courses.map((c) =>
+            c.id === courseId
+              ? { ...c, lastAccessedAt: new Date().toISOString() }
+              : c
+          ),
+        })),
+
+      clearActiveCourse: () =>
         set({
+          activeCourse: null,
+          currentPageIndex: 0,
+          currentModuleIndex: 0,
+        }),
+
+      resetGeneration: () =>
+        set({
+          currentTopic: '',
           selectedMode: null,
-          currentTopic: "",
-          isGenerating: false,
-          generationError: null,
+          isLoading: false,
+          error: null,
         }),
     }),
     {
-      name: "la-course",
-      /* Only persist course list and active course, not transient chat state */
-      partialize: (state) => ({
-        activeCourse: state.activeCourse,
-        courseList: state.courseList,
-      }),
+      name: 'learn-anything-courses',
     }
   )
 );

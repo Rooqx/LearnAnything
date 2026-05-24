@@ -1,14 +1,18 @@
-"use client";
+/* ============================================================
+   Main Layout
+   Shared layout for all authenticated pages.
+   Header + BottomNav (mobile) + content area.
+   ============================================================ */
 
-import { Header } from "@/components/layout/Header";
-import { BottomNav } from "@/components/layout/BottomNav";
+import type { ReactNode } from 'react';
+import { Header } from '@/components/layout/Header';
+import { BottomNav } from '@/components/layout/BottomNav';
 
-/** Main app layout — Header + BottomNav (mobile). Wraps all (main) route group pages. */
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default function MainLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="min-h-dvh bg-[var(--color-bg)]">
       <Header />
-      <div className="flex-1 pb-20 md:pb-0">{children}</div>
+      <div className="flex-1">{children}</div>
       <BottomNav />
     </div>
   );

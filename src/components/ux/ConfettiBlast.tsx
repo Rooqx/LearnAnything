@@ -1,30 +1,55 @@
-"use client";
+/* ============================================================
+   ConfettiBlast — canvas-confetti burst with brand colors
+   Used on course completion celebration screen.
+   ============================================================ */
 
-import { useEffect, useCallback } from "react";
-import confetti from "canvas-confetti";
-import { useAnimationMode } from "@/hooks/useAnimationMode";
+'use client';
 
-/** Canvas-confetti full screen burst for course completion. Uses brand colors. */
-export function ConfettiBlast({ trigger }: { trigger: boolean }) {
-  const mode = useAnimationMode();
+import { useEffect, useCallback } from 'react';
+import confetti from 'canvas-confetti';
+import { useAnimationMode } from '@/hooks/useAnimationMode';
 
-  const fire = useCallback(() => {
-    if (mode === "lite") return;
+export interface ConfettiBlastProps {
+  /** Whether to trigger the confetti burst */
+  trigger?: boolean;
+}
 
-    const brandColors = ["#6C3CE1", "#C8F135", "#F7C948", "#2DD4BF"];
-    const count = 200;
-    const defaults = { origin: { y: 0.7 }, colors: brandColors };
+/**
+ * Fires a canvas-confetti burst using Molten brand colors.
+ * Only fires in FULL animation mode.
+ * Fires once on mount when trigger is true.
+ */
+export function ConfettiBlast({ trigger = true }: ConfettiBlastProps) {
+  const { isLite } = useAnimationMode();
 
-    confetti({ ...defaults, particleCount: Math.floor(count * 0.25), spread: 26, startVelocity: 55 });
-    confetti({ ...defaults, particleCount: Math.floor(count * 0.2), spread: 60 });
-    confetti({ ...defaults, particleCount: Math.floor(count * 0.35), spread: 100, decay: 0.91, scalar: 0.8 });
-    confetti({ ...defaults, particleCount: Math.floor(count * 0.1), spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-    confetti({ ...defaults, particleCount: Math.floor(count * 0.1), spread: 120, startVelocity: 45 });
-  }, [mode]);
+  const fireConfetti = useCallback(() => {
+    if (isLite) return;
+
+    /* Brand colors for confetti particles */
+    const colors = ['#FF3008', '#FFE500', '#FF8C00', '#00F593'];
+
+    /* Fire from two sides for a satisfying spread */
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { x: 0.3, y: 0.6 },
+      colors,
+      disableForReducedMotion: true,
+    });
+
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { x: 0.7, y: 0.6 },
+      colors,
+      disableForReducedMotion: true,
+    });
+  }, [isLite]);
 
   useEffect(() => {
-    if (trigger) fire();
-  }, [trigger, fire]);
+    if (trigger) fireConfetti();
+  }, [trigger, fireConfetti]);
 
+  /* This component renders nothing — confetti is a canvas overlay */
   return null;
 }

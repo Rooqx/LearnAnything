@@ -1,51 +1,157 @@
-"use client";
+/* ============================================================
+   Drawer Component
+   Bottom sheet (mobile) / side panel (desktop) with slide-in
+   animation. Glass surface with backdrop blur.
 
-import { useEffect, useCallback } from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+   Used by: ChatHistory, AIHelpDrawer, mobile navigation.
 
-type DrawerPosition = "left" | "right" | "bottom";
+   Animation: slide from bottom on mobile (ease-drawer curve),
+              slide from right on desktop.
+   ============================================================ */
 
-interface DrawerProps {
+'use client';
+
+import { useEffect, useRef, useCallback, type ReactNode } from 'react';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export interface DrawerProps {
+  /** Whether the drawer is currently visible */
   isOpen: boolean;
+  /** Callback to close the drawer */
   onClose: () => void;
-  children: React.ReactNode;
-  position?: DrawerPosition;
+  /** Drawer title */
   title?: string;
+  /** Drawer content */
+  children: ReactNode;
+  /** Slide direction — auto-detects based on breakpoint if not set */
+  direction?: 'bottom' | 'right';
+  /** Width for side drawer (desktop) */
+  width?: string;
+  /** Additional CSS classes */
   className?: string;
 }
 
-const positionConfig: Record<DrawerPosition, { panel: string; closed: string }> = {
-  left: { panel: "left-0 top-0 h-full w-[280px] border-r", closed: "-translate-x-full" },
-  right: { panel: "right-0 top-0 h-full w-[320px] border-l", closed: "translate-x-full" },
-  bottom: { panel: "bottom-0 left-0 w-full max-h-[85vh] rounded-t-2xl border-t", closed: "translate-y-full" },
-};
+/**
+ * Drawer component — bottom sheet on mobile, side panel on desktop.
+ *
+ * Uses the iOS-like drawer curve (Emil's --ease-drawer)
+ * for a weighty, physical slide-in feel.
+ * Backdrop with blur effect, same focus management as Modal.
+ */
+export function Drawer({
+  isOpen,
+  onClose,
+  title,
+  children,
+  direction = 'bottom',
+  width = '320px',
+  className,
+}: DrawerProps) {
+  const drawerRef = useRef<HTMLDivElement>(null);
 
-export function Drawer({ isOpen, onClose, children, position = "left", title, className }: DrawerProps) {
-  const handleKeyDown = useCallback((e: KeyboardEvent) => { if (e.key === "Escape") onClose(); }, [onClose]);
+  /* Escape key to close */
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    },
+    [onClose]
+  );
 
+  /* Prevent body scroll when drawer is open */
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     }
-    return () => { document.removeEventListener("keydown", handleKeyDown); document.body.style.overflow = ""; };
-  }, [isOpen, handleKeyDown]);
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
-  const cfg = positionConfig[position];
+  if (!isOpen) return null;
+
+  const isBottom = direction === 'bottom';
 
   return (
-    <>
-      <div className={cn("fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300", isOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={onClose} aria-hidden="true" />
-      <div className={cn("fixed z-50 bg-[var(--color-surface)] border-[var(--color-border)] transition-transform duration-300 ease-out", cfg.panel, isOpen ? "translate-x-0 translate-y-0" : cfg.closed, className)} role="dialog" aria-modal="true">
-        {title && (
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-            <h2 className="font-heading text-lg font-semibold">{title}</h2>
-            <button onClick={onClose} className="cursor-pointer rounded-full p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text)]" aria-label="Close"><X size={20} /></button>
+    <div
+      className="fixed inset-0 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      onKeyDown={handleKeyDown}
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Drawer panel */}
+      <div
+        ref={drawerRef}
+        className={cn(
+          'absolute z-10',
+          /* Glass elevated surface */
+          'bg-[var(--glass-bg)]',
+          'backdrop-blur-[24px]',
+          'border-[var(--glass-border)]',
+          'shadow-[var(--shadow-lg),inset_0_1px_0_rgba(255,255,255,0.1)]',
+          'outline-none overflow-y-auto',
+
+          /* Bottom sheet — slides up from bottom */
+          isBottom && [
+            'inset-x-0 bottom-0',
+            'max-h-[85vh]',
+            'rounded-t-[var(--radius-xl)]',
+            'border-t border-x',
+            'animate-[slideUp_400ms_cubic-bezier(0.32,0.72,0,1)]',
+          ],
+
+          /* Right panel — slides in from right */
+          !isBottom && [
+            'top-0 right-0 bottom-0',
+            'rounded-l-[var(--radius-xl)]',
+            'border-l',
+            'animate-[slideLeft_300ms_cubic-bezier(0.32,0.72,0,1)]',
+          ],
+
+          className
+        )}
+        style={!isBottom ? { width } : undefined}
+      >
+        {/* Drag handle (bottom sheet only) */}
+        {isBottom && (
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1 rounded-full bg-[var(--color-muted)]/40" />
           </div>
         )}
-        <div className="h-full overflow-y-auto">{children}</div>
+
+        {/* Header */}
+        {title && (
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
+            <h3 className="font-[family-name:var(--font-heading)] font-semibold text-lg text-[var(--color-text)]">
+              {title}
+            </h3>
+            <button
+              onClick={onClose}
+              className={cn(
+                'p-2 rounded-full cursor-pointer',
+                'text-[var(--color-muted)] hover:text-[var(--color-text)]',
+                'hover:bg-[var(--color-surface)]',
+                'transition-colors duration-150',
+                'min-h-[44px] min-w-[44px] flex items-center justify-center'
+              )}
+              aria-label="Close drawer"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="p-6">{children}</div>
       </div>
-    </>
+    </div>
   );
 }

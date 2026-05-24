@@ -1,14 +1,18 @@
-export { Button } from "./Button";
-export type { ButtonVariant, ButtonSize } from "./Button";
-export { Card } from "./Card";
-export { Badge } from "./Badge";
-export { Avatar } from "./Avatar";
-export { Input } from "./Input";
-export { Modal } from "./Modal";
-export { Drawer } from "./Drawer";
-export { Toggle } from "./Toggle";
-export { ProgressBar } from "./ProgressBar";
-export { ProgressRing } from "./ProgressRing";
-export { Chip } from "./Chip";
-export { Tooltip } from "./Tooltip";
-export { EmptyState } from "./EmptyState";
+/* ============================================================
+   UI Component Barrel Exports
+   Single import point: import { Button, Card } from '@/components/ui'
+   ============================================================ */
+
+export { Button, type ButtonProps } from './Button';
+export { Card, type CardProps } from './Card';
+export { Badge, type BadgeProps } from './Badge';
+export { Avatar, type AvatarProps } from './Avatar';
+export { Input, type InputProps } from './Input';
+export { Modal, type ModalProps } from './Modal';
+export { Drawer, type DrawerProps } from './Drawer';
+export { Toggle, type ToggleProps } from './Toggle';
+export { ProgressBar, type ProgressBarProps } from './ProgressBar';
+export { ProgressRing, type ProgressRingProps } from './ProgressRing';
+export { Chip, type ChipProps } from './Chip';
+export { Tooltip, type TooltipProps } from './Tooltip';
+export { EmptyState, type EmptyStateProps } from './EmptyState';
