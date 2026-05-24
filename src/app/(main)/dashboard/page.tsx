@@ -12,6 +12,7 @@ import {
   BookOpen,
   Flame,
   Zap,
+  Coins,
   Trophy,
   Target,
   MessageSquare,
@@ -88,10 +89,27 @@ export default function DashboardPage() {
                   {user.displayName}
                 </h1>
               </div>
-              <LumiAnimated
-                size={56}
-                state={user.streak.todayCompleted ? 'celebrating' : 'idle'}
-              />
+              <div className="relative">
+                <button
+                  onClick={() => router.push('/chat')}
+                  className="group cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200"
+                  aria-label="Start learning a new topic"
+                >
+                  <div className="absolute right-full mr-2 md:mr-3 top-1/2 -translate-y-1/2 flex items-center">
+                    <div className="flex items-center animate-lumi-bob">
+                      <div className="bg-[var(--color-primary)] text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full whitespace-nowrap shadow-[var(--shadow-md)] animate-pulse-glow">
+                        Click to learn!
+                      </div>
+                      {/* Speech bubble tail */}
+                      <div className="w-0 h-0 border-t-[5px] sm:border-t-[6px] border-t-transparent border-b-[5px] sm:border-b-[6px] border-b-transparent border-l-[5px] sm:border-l-[6px] border-l-[var(--color-primary)]"></div>
+                    </div>
+                  </div>
+                  <LumiAnimated
+                    size={56}
+                    state={user.streak.todayCompleted ? 'celebrating' : 'idle'}
+                  />
+                </button>
+              </div>
             </div>
           </FadeIn>
 
@@ -100,9 +118,9 @@ export default function DashboardPage() {
             {/* XP Card */}
             <Card variant="glass" padding="md" gradientBorder>
               <div className="flex items-center gap-2 mb-2">
-                <Zap size={16} className="text-[var(--color-reward)]" />
+                <Coins size={16} className="text-[var(--color-reward)]" />
                 <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] uppercase tracking-wide">
-                  Total XP
+                  Total Credits
                 </span>
               </div>
               <p className="font-[family-name:var(--font-heading)] font-bold text-2xl text-[var(--color-text)]">

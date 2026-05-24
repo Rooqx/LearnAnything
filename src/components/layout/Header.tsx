@@ -9,7 +9,7 @@
 
 'use client';
 
-import { Sun, Moon, Zap } from 'lucide-react';
+import { Sun, Moon, Coins } from 'lucide-react';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useUserStore } from '@/store/useUserStore';
 import { Avatar, Badge, Tooltip } from '@/components/ui';
@@ -69,8 +69,8 @@ export function Header() {
         {user && (
           <Tooltip content={`Level ${user.xp.currentLevel}`}>
             <Badge variant="reward" size="md">
-              <Zap size={14} className="mr-1" aria-hidden="true" />
-              {formatXP(user.xp.totalXP)} XP
+              <Coins size={14} className="mr-1" aria-hidden="true" />
+              {formatXP(user.xp.totalXP)} Credits
             </Badge>
           </Tooltip>
         )}
