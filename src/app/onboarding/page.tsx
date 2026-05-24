@@ -39,6 +39,7 @@ export default function OnboardingPage() {
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [selectedGoal, setSelectedGoal] = useState<DailyGoalMinutes>(20);
   const [lumiState, setLumiState] = useState<LumiState>('idle');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleInterest = useCallback((interest: InterestCategory) => {
     setSelectedInterests((prev) =>
@@ -68,21 +69,42 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleComplete = () => {
-    setDailyGoal(selectedGoal);
+  const handleComplete = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/user/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          displayname: displayName.trim(),
+          interests: selectedInterests,
+          dailyGoal: selectedGoal,
+        }),
+      });
 
-    /* Apply device-detected animation mode silently */
-    if (isDetected) {
-      setAnimationMode(recommendedMode);
-      setDetectionComplete();
+      if (!response.ok) {
+        throw new Error('Failed to save onboarding data');
+      }
+
+      setDailyGoal(selectedGoal);
+
+      /* Apply device-detected animation mode silently */
+      if (isDetected) {
+        setAnimationMode(recommendedMode);
+        setDetectionComplete();
+      }
+
+      completeOnboarding();
+      setLumiState('celebrating');
+
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 800);
+    } catch (error) {
+      console.error('Onboarding failed:', error);
+      setIsSubmitting(false);
     }
-
-    completeOnboarding();
-    setLumiState('celebrating');
-
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 800);
   };
 
   return (
@@ -239,9 +261,10 @@ export default function OnboardingPage() {
           ) : (
             <Button
               onClick={handleComplete}
-              leftIcon={<Sparkles size={18} />}
+              disabled={isSubmitting}
+              leftIcon={!isSubmitting && <Sparkles size={18} />}
             >
-              Start learning
+              {isSubmitting ? 'Saving...' : 'Start learning'}
             </Button>
           )}
         </div>

@@ -6,12 +6,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Flame, Zap, BookOpen, Target, Trophy, Award, Settings } from 'lucide-react';
+import { Flame, Zap, BookOpen, Target, Trophy, Award, Settings, LogOut } from 'lucide-react';
 import { Card, Badge, Avatar, Button, ProgressBar } from '@/components/ui';
 import { AnimatedPage, FadeIn, StaggerChildren, LumiAnimated } from '@/components/ux';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useUserStore } from '@/store/useUserStore';
 import { formatXP, getCompletionPercentage } from '@/lib/utils';
+import { logoutAction } from '@/actions/auth';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -54,9 +55,21 @@ export default function ProfilePage() {
                   </Badge>
                 </div>
                 <ProgressBar value={xpProgress} variant="reward" size="sm" className="max-w-xs w-full" />
-                <Button variant="ghost" size="sm" onClick={() => router.push('/settings')} leftIcon={<Settings size={16} />}>
-                  Edit profile
-                </Button>
+                
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => router.push('/settings')} leftIcon={<Settings size={16} />}>
+                    Edit profile
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={async () => await logoutAction()} 
+                    leftIcon={<LogOut size={16} />} 
+                    className="text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
+                  >
+                    Sign out
+                  </Button>
+                </div>
               </div>
             </Card>
           </FadeIn>

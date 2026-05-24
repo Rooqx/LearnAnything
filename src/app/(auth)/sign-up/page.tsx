@@ -6,89 +6,78 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, Eye, EyeOff, UserRound } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 import { Button, Input, Card } from '@/components/ui';
 import { LumiAnimated, StaggerChildren } from '@/components/ux';
-import { useUserStore } from '@/store/useUserStore';
-import { INITIAL_USER_DATA } from '@/lib/constants';
-import { generateId } from '@/lib/utils';
 import Link from 'next/link';
 import type { LumiState } from '@/types';
+import { signUpSchema, type SignUpInput } from '@/validators/auth.schema';
+import axios from 'axios';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const setUser = useUserStore((state) => state.setUser);
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [lumiState, setLumiState] = useState<LumiState>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!name.trim()) newErrors.name = 'Name is required';
-    if (name.trim().length < 2) newErrors.name = 'Name must be at least 2 characters';
-    if (!email) newErrors.email = 'Email is required';
-    if (email && !/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Please enter a valid email';
-    if (!password) newErrors.password = 'Password is required';
-    if (password && password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    return newErrors;
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpInput>({
+    resolver: zodResolver(signUpSchema),
+  });
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const newErrors = validate();
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    setIsLoading(true);
+  const onSubmit = async (data: SignUpInput) => {
+    setErrorMsg('');
     setLumiState('thinking');
 
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    try {
+      // 1. Create the user
+      const response = await axios.post('/api/auth/register', data);
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error?.message || 'Registration failed');
+      }
 
-    const mockUser = {
-      ...INITIAL_USER_DATA,
-      id: generateId(),
-      displayName: name.trim(),
-      email,
-      createdAt: new Date().toISOString(),
-    };
+      // 2. Automatically sign them in
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
 
-    setUser(mockUser);
-    setLumiState('excited');
+      if (res?.error) {
+        setErrorMsg('Registered successfully, but automatic login failed. Please sign in.');
+        setLumiState('idle');
+        return;
+      }
 
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    router.push('/onboarding');
+      setLumiState('excited');
+      
+      // Brief celebration then navigate to onboarding
+      setTimeout(() => {
+        router.push('/onboarding');
+      }, 600);
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.data?.error?.message) {
+        setErrorMsg(error.response.data.error.message);
+      } else {
+        setErrorMsg(error.message || 'Something went wrong. Please try again.');
+      }
+      setLumiState('idle');
+    }
   };
 
   const handleSocialAuth = async (provider: string) => {
-    setIsLoading(true);
     setLumiState('thinking');
-
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-
-    const mockUser = {
-      ...INITIAL_USER_DATA,
-      id: generateId(),
-      displayName: provider === 'google' ? 'Alex Chen' : 'Alex',
-      email: `alex@${provider}.com`,
-      createdAt: new Date().toISOString(),
-    };
-
-    setUser(mockUser);
-    setLumiState('excited');
-
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    router.push('/onboarding');
+    await signIn(provider, { callbackUrl: '/onboarding' });
   };
 
   return (
@@ -122,26 +111,34 @@ export default function SignUpPage() {
       </div>
 
       <Card variant="glass" padding="lg">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="Display name"
-            type="text"
-            placeholder="How should we call you?"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            leftIcon={<UserRound size={18} />}
-            error={errors.name}
-            autoComplete="name"
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="flex gap-4">
+            <Input
+              label="First name"
+              type="text"
+              placeholder="First name"
+              {...register('firstname')}
+              leftIcon={<UserRound size={18} />}
+              error={errors.firstname?.message}
+              autoComplete="given-name"
+            />
+            <Input
+              label="Last name"
+              type="text"
+              placeholder="Last name"
+              {...register('lastname')}
+              error={errors.lastname?.message}
+              autoComplete="family-name"
+            />
+          </div>
 
           <Input
             label="Email"
             type="email"
             placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register('email')}
             leftIcon={<Mail size={18} />}
-            error={errors.email}
+            error={errors.email?.message}
             autoComplete="email"
           />
 
@@ -149,8 +146,7 @@ export default function SignUpPage() {
             label="Password"
             type={showPassword ? 'text' : 'password'}
             placeholder="At least 6 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register('password')}
             leftIcon={<Lock size={18} />}
             rightIcon={
               <button
@@ -162,11 +158,17 @@ export default function SignUpPage() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             }
-            error={errors.password}
+            error={errors.password?.message}
             autoComplete="new-password"
           />
 
-          <Button type="submit" fullWidth isLoading={isLoading}>
+          {errorMsg && (
+            <p className="text-[var(--color-error)] text-sm font-[family-name:var(--font-body)]" role="alert">
+              {errorMsg}
+            </p>
+          )}
+
+          <Button type="submit" fullWidth isLoading={isSubmitting}>
             Create account
           </Button>
         </form>
@@ -182,9 +184,9 @@ export default function SignUpPage() {
         <div className="flex gap-3 justify-center">
           <Button
             variant="secondary"
-            className='w-6 h-6 rounded-full'
+            className="w-6 h-6 rounded-full"
             onClick={() => handleSocialAuth('google')}
-            disabled={isLoading}
+            disabled={isSubmitting}
             leftIcon={
               <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -194,20 +196,18 @@ export default function SignUpPage() {
               </svg>
             }
           >
-            
           </Button>
           <Button
             variant="secondary"
-            className='w-6 h-6 rounded-full'
+            className="w-6 h-6 rounded-full"
             onClick={() => handleSocialAuth('apple')}
-            disabled={isLoading}
+            disabled={isSubmitting}
             leftIcon={
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
               </svg>
             }
           >
-            
           </Button>
         </div>
 
