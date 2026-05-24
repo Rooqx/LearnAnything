@@ -326,11 +326,11 @@ export const INITIAL_USER_DATA: Omit<User, 'id' | 'displayName' | 'email' | 'cre
    ============================================================ */
 
 export const CREDIT_PACKAGES = [
-  { id: 'credits-5', credits: 5, price: 4.99, courses: '5 courses' },
-  { id: 'credits-15', credits: 15, price: 12.99, courses: '15 courses', popular: true },
-  { id: 'credits-30', credits: 30, price: 22.99, courses: '30 courses' },
-  { id: 'credits-50', credits: 50, price: 34.99, courses: '50 courses' },
-  { id: 'credits-100', credits: 100, price: 59.99, courses: '100 courses', bestValue: true },
+  { id: 'credits-5', credits: 5, price: 4.99, courses: '5 courses', popular: false, bestValue: false },
+  { id: 'credits-15', credits: 15, price: 12.99, courses: '15 courses', popular: true, bestValue: false },
+  { id: 'credits-30', credits: 30, price: 22.99, courses: '30 courses', popular: false, bestValue: false },
+  { id: 'credits-50', credits: 50, price: 34.99, courses: '50 courses', popular: false, bestValue: false },
+  { id: 'credits-100', credits: 100, price: 59.99, courses: '100 courses', popular: false, bestValue: true },
 ] as const;
 
 export const SUBSCRIPTION_TIERS = [
@@ -339,6 +339,7 @@ export const SUBSCRIPTION_TIERS = [
     name: 'Free',
     tagline: 'Get started',
     price: 0,
+    popular: false,
     features: ['3 courses per month', 'Basic learning modes', 'Progress tracking'],
   },
   {
@@ -360,6 +361,7 @@ export const SUBSCRIPTION_TIERS = [
     name: 'Team',
     tagline: 'Learn together',
     price: 19.99,
+    popular: false,
     features: [
       'Everything in Pro',
       'Team leaderboard',

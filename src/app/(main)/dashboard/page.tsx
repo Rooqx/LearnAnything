@@ -218,12 +218,14 @@ export default function DashboardPage() {
           <FadeIn delay={300}>
             <div className="flex gap-3">
               <Button
+              className='text-nowrap text-sm md:text-base'
                 onClick={() => router.push('/chat')}
                 leftIcon={<MessageSquare size={18} />}
               >
                 Learn something new
               </Button>
               <Button
+                className='text-nowrap text-sm md:text-base'
                 variant="secondary"
                 onClick={() => router.push('/courses')}
                 leftIcon={<BookOpen size={18} />}

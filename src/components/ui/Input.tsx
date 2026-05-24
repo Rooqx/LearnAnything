@@ -127,7 +127,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'px-3 py-2',
               'font-[family-name:var(--font-body)] text-[var(--color-text)]',
               'placeholder:text-[var(--color-muted)]',
-              'outline-none border-none',
+              'outline-none border-none focus:outline-none focus-visible:outline-none !outline-none',
               'text-base',
               leftIcon && 'pl-1',
               rightIcon && 'pr-1',

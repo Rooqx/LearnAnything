@@ -93,7 +93,7 @@ export default function OnboardingPage() {
         <div className="absolute bottom-[20%] right-[20%] w-[350px] h-[350px] rounded-full bg-[var(--color-accent)] blur-[120px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-lg space-y-8">
+      <div className="relative z-10 w-full max-w-lg space-y-2">
         {/* Lumi */}
         <div className="flex justify-center">
           <LumiAnimated size={80} state={lumiState} />
