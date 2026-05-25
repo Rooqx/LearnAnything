@@ -1,22 +1,5 @@
 {
   "compilerOptions": {
-    // ... other compiler options (target, lib, strict, etc.) ...
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    // *** ENSURE THIS PATH ALIAS IS PRESENT AND CORRECT ***
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
     "target": "ES2017",
     "lib": [
       "dom",
@@ -25,10 +8,25 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "module": "esnext",
-    "esModuleInterop": true
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "esModuleInterop": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "next-env.d.ts",

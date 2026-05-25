@@ -1,10 +1,522 @@
-/* app/globals.css */
+/* ============================================================
+   LearnAnything — Global Styles
+   Tailwind CSS v4 — CSS-first configuration
+   ============================================================ */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 @import "tailwindcss";
 
-/* Custom CSS goes below the directives if absolutely necessary, 
-   but never use @apply for utility classes here. 
+/* ============================================================
+   THEME TOKENS — Design System Variables
+   These extend Tailwind's theme and are available as utilities
+   ============================================================ */
+
+@theme {
+/* ---------- Brand Colors ---------- */
+--color-primary: #FF3008;
+--color-primary-dark: #CC2000;
+--color-accent: #FFE500;
+--color-reward: #FF8C00;
+--color-error: #FF1744;
+--color-success: #00F593;
+
+  /* ---------- Border Radius ---------- */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-full: 9999px;
+
+  /* ---------- Shadows ---------- */
+  --shadow-sm: 0 2px 8px rgba(255, 48, 8, 0.08);
+  --shadow-md: 0 4px 24px rgba(255, 48, 8, 0.15);
+  --shadow-lg: 0 8px 48px rgba(255, 48, 8, 0.25);
+  --shadow-glow: 0 0 32px rgba(255, 48, 8, 0.4);
+
+  /* ---------- Font Families ---------- */
+  /* Actual font-family values are set by next/font/google in layout.tsx
+     These are fallback references for the CSS variable pattern */
+  --font-heading: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+
+  /* ---------- Typography Scale ---------- */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  /* ---------- Animations ---------- */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+}
+:root,
+[data-theme="dark"] {
+  --color-bg: #080400;
+  --color-surface: #1A0A00;
+  --color-surface-elevated: #2A1200;
+  --color-muted: #A08070;
+  --color-text: #FFF8F5;
+  --color-text-secondary: #D4C0B8;
+  --color-border: rgba(160, 128, 112, 0.2);
+  --glass-bg: rgba(26, 10, 0, 0.6);
+  --glass-border: rgba(255, 48, 8, 0.15);
+  --gradient-mesh: radial-gradient(ellipse at 20% 0%, rgba(255, 48, 8, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(255, 229, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, #080400 0%, #080400 100%);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --color-bg: #FFF8F5;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFF0E8;
+  --color-muted: #A08070;
+  --color-text: #080400;
+  --color-text-secondary: #4A2A1A;
+  --color-border: rgba(160, 128, 112, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 48, 8, 0.12);
+--gradient-mesh: radial-gradient(ellipse at 20% 0%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 100%, rgba(255, 48, 8, 0.10) 0%, transparent 50%),
+  radial-gradient(ellipse at 50% 50%, #FFF8F5 0%, #FFF8F5 100%);
+  color-scheme: light;
+}
+/* ============================================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================================ 
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  background-image: var(--gradient-mesh);
+  background-attachment: fixed;
+  color: var(--color-text);
+  min-height: 100dvh;
+  line-height: 1.6;
+  transition: background-color var(--duration-slow) var(--ease-smooth),
+    color var(--duration-slow) var(--ease-smooth);
+}
+
+/* Headings use Space Grotesk */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* Code blocks use JetBrains Mono */
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   GLASS CARD UTILITY
+   Reusable glass surface class for components
+   ============================================================ */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-elevated {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================================
+   CUSTOM SCROLLBAR
+   Styled to match the design system
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-muted) transparent;
+}
+
+/* ============================================================
+   FOCUS STYLES
+   Accessible, visible focus rings for keyboard navigation
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   SELECTION STYLES
+   ============================================================ */
+
+::selection {
+  background: rgba(255, 48, 8, 0.3);
+  color: var(--color-text);
+}
+
+/* ============================================================
+   ACCESSIBILITY — prefers-reduced-motion
+   Respected globally regardless of animationMode setting
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   KATEX STYLES
+   Import KaTeX CSS for math rendering
+   ============================================================ */
+
+@import "katex/dist/katex.min.css";
+
+/* ============================================================
+   UTILITY CLASSES
+   Custom utilities not available in Tailwind by default
+   ============================================================ */
+
+/* Hide scrollbar but keep scrolling functional */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Gradient text utility */
+.text-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect for primary interactive elements */
+.glow-primary {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Pulse glow animation for streak/badge elements */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(255, 48, 8, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(255, 48, 8, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float up animation for XP toast */
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 800ms ease-out forwards;
+}
+
+/* Lumi idle bob animation */
+@keyframes lumi-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-lumi-bob {
+  animation: lumi-bob 3s ease-in-out infinite;
+}
+
+/* Lumi thinking spin */
+@keyframes lumi-think {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-lumi-think {
+  animation: lumi-think 2s linear infinite;
+}
+
+/* Lumi excited bounce */
+@keyframes lumi-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-12px) scale(1.05);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+  }
+  75% {
+    transform: translateY(-8px) scale(1.03);
+  }
+}
+
+.animate-lumi-bounce {
+  animation: lumi-bounce 1s ease-in-out infinite;
+}
+
+/* Lumi celebrating sparkle */
+@keyframes lumi-celebrate {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg);
+    filter: brightness(1.3);
+  }
+  75% {
+    transform: scale(1.1) rotate(-3deg);
+    filter: brightness(1.2);
+  }
+}
+
+.animate-lumi-celebrate {
+  animation: lumi-celebrate 0.8s ease-in-out infinite;
+}
+
+/* Typing indicator dots */
+@keyframes typing-dot {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-typing-dot {
+  animation: typing-dot 1.4s ease-in-out infinite;
+}
+
+/* Flame pulse for streak */
+@keyframes flame-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.15);
+    filter: brightness(1.3);
+  }
+}
+
+.animate-flame-pulse {
+  animation: flame-pulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   COMPONENT KEYFRAMES
+   Used by Modal, Drawer, Input components
+   ============================================================ */
+
+/* Fade in — used by modal/drawer backdrops */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scale in — used by Modal panel (from 0.95 per Emil's principle) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide up — used by bottom sheet Drawer */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+/* Slide left — used by right-side Drawer */
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+/* Shake — used by Input error state */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* ============================================================
+   LUMI MASCOT KEYFRAMES
+   ============================================================ */
+
+/* Lumi idle — gentle bobbing */
+@keyframes lumiBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-lumi-bob { animation: lumiBob 2.5s ease-in-out infinite; }
+
+/* Lumi thinking — slow rotation with bob */
+@keyframes lumiThink {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(8deg); }
+}
+
+.animate-lumi-think { animation: lumiThink 2s ease-in-out infinite; }
+
+/* Lumi excited — energetic bounce */
+@keyframes lumiBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-10px) scale(1.05); }
+  50% { transform: translateY(0) scale(1); }
+  75% { transform: translateY(-6px) scale(1.02); }
+}
+
+.animate-lumi-bounce { animation: lumiBounce 0.8s ease-in-out infinite; }
+
+/* Lumi celebrating — full bounce with sparkle */
+@keyframes lumiCelebrate {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  25% { transform: translateY(-14px) scale(1.1) rotate(-5deg); }
+  50% { transform: translateY(0) scale(1) rotate(0deg); }
+  75% { transform: translateY(-8px) scale(1.05) rotate(5deg); }
+}
+
+.animate-lumi-celebrate { animation: lumiCelebrate 1s ease-in-out infinite; }
+
+/* ============================================================
+   FADE-IN DIRECTION KEYFRAMES
+   Used by FadeIn, AnimatedPage, StaggerChildren
+   ============================================================ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   FLOAT UP — XP Toast animation
+   ============================================================ */
+
+@keyframes floatUp {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-40px); }
+}
+
+.animate-float-up { animation: floatUp 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }

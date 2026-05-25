@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+/** Root page — redirect to sign-in (auth check will route to dashboard if logged in) */
 export default function HomePage() {
-  //  redirect("/signup"); WE DONT NEED THIS HERE ANYMORE THE PROXY IS HANDLES IT ALEADY
+  redirect("/sign-in");
 }

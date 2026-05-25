@@ -1,14 +1,398 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ============================================================
+// AUTH MODELS — NextAuth v5 Prisma Adapter
+// Do not modify these models — NextAuth manages them
+// ============================================================
+
+model User {
+  id            String    @id @default(cuid())
+  name String? // Required by NextAuth Prisma adapter for OAuth providers
+  firstname     String?
+  lastname      String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String? // bcryptjs hashed — never plaintext
+
+  // Extended profile fields
+  displayname String?  @map("display_name") @db.VarChar(24)
+  bio         String?  @db.Text
+  interests   String[] // Topic categories selected during onboarding
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // NextAuth required relations
+  accounts Account[]
+  sessions Session[]
+
+  // App relations
+  enrollments    Enrollment[] // User's course enrollments — replaces direct course ownership
+  chatSessions   ChatSession[] // User's chat generation sessions
+  xpTransactions XpTransaction[]
+  streak         Streak?
+  dailyGoal      DailyGoal?
+  userBadges     UserBadge[]
+  quizAttempts   QuizAttempt[]
+  creditBalance  CreditBalance?
+  creditTxns     CreditTransaction[]
+  subscription   Subscription?
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================
+// COURSE MODELS
+// Courses are shared resources — not owned by a single user.
+// Users connect to courses via Enrollment.
+// Deduplication: if two users request the same topic + mode,
+// they share one Course record — only generated once via n8n.
+// ============================================================
+
+model Course {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  topic       String   @db.VarChar(255) // Original topic request — used for display
+  topicHash   String   @unique @map("topic_hash") @db.VarChar(64)
+  // topicHash = SHA256(normalizedTopic + "_" + mode)
+  // Used for fast deduplication lookup before calling n8n
+  // If topicHash already exists — enroll user in existing course, skip n8n call
+  mode        String   @db.VarChar(20)
+  // mode values: 'beginner' | 'simplified' | 'quick'
+
+  // Relations
+  modules      Module[]
+  enrollments  Enrollment[] // All users enrolled in this course
+  chatSessions ChatSession[] // A course can be linked to the chat session that generated it
+
+  @@index([mode])
+  @@map("courses")
+}
+
+model Module {
+  id         String    @id @default(dbgenerated("gen_random_uuid()"))
+  courseId   String    @map("course_id")
+  title      String    @db.VarChar(255)
+  sortNo     Int       @map("sort_no") // Display order within course
+  youtubeUrl String?   @map("youtube_url") @db.Text
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+  // Soft delete only — never hard delete modules
+  // All module queries MUST filter: where: { deletedAt: null }
+
+  // Relations
+  course       Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  chapters     Chapter[]
+  quizAttempts QuizAttempt[]
+
+  @@index([courseId])
+  @@map("modules")
+}
+
+model Chapter {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  moduleId  String   @map("module_id")
+  title     String   @db.VarChar(255)
+  content   String?  @db.Text // Nullable — n8n may return empty content for some chapters
+  sortNo    Int      @map("sort_no") // Display order within module
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+  @@map("chapters")
+}
+
+// ============================================================
+// CHAT SESSION
+// Tracks individual n8n generation sessions for users
+// ============================================================
+
+model ChatSession {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  courseId  String?   @map("course_id")
+  status    String    @default("active") @db.VarChar(20)
+  // status values: 'active' | 'generating' | 'completed' | 'failed'
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("chat_sessions")
+}
+
+// ============================================================
+// ENROLLMENT
+// Replaces CourseProgress as the user ↔ course link.
+// Tracks both the enrollment relationship AND learning progress.
+// One record per user per course — composite unique enforces this.
+// ============================================================
+
+model Enrollment {
+  id               String    @id @default(cuid())
+  userId           String    @map("user_id")
+  courseId         String    @map("course_id")
+  status           String    @default("in_progress") @db.VarChar(20)
+  // status values: 'in_progress' | 'completed' | 'abandoned'
+  currentModuleId  String?   @map("current_module_id") // Last module user was on
+  currentChapterId String?   @map("current_chapter_id") // Last chapter user was on
+  completionPct    Int       @default(0) @map("completion_pct") // 0–100
+  enrolledAt       DateTime  @default(now()) @map("enrolled_at")
+  completedAt      DateTime? @map("completed_at")
+  lastAccessedAt   DateTime  @default(now()) @map("last_accessed_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId]) // One enrollment per user per course — no duplicates
+  @@index([userId])
+  @@index([courseId])
+  @@index([userId, status]) // Fast lookup for "show me user's in-progress courses"
+  @@map("enrollments")
+}
+
+// ============================================================
+// GAMIFICATION MODELS
+// XP, Streaks, Badges
+// ============================================================
+
+// XP transactions — never store a running total
+// Total XP is always computed as: SUM(amount) WHERE userId = ?
+// This gives a full audit trail and allows recalculation at any time
+model XpTransaction {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  amount    Int // Always positive — XP is never deducted
+  reason    String   @db.VarChar(50)
+  // reason values: 'module_complete' | 'quiz_pass' | 'course_complete' | 'streak_maintained' | 'course_created'
+  courseId  String?  @map("course_id") // Optional reference to the related course
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt]) // Weekly leaderboard queries filter by userId + date range
+  @@map("xp_transactions")
+}
+
+model Streak {
+  id          String   @id @default(cuid())
+  userId      String   @unique @map("user_id")
+  current     Int      @default(0) // Consecutive days with learning activity
+  longest     Int      @default(0) // All-time longest streak — never decreases
+  lastUpdated DateTime @map("last_updated")
+  // lastUpdated used by cron job to detect broken streaks:
+  // if DATE(lastUpdated) < DATE(yesterday) → streak is broken → reset current to 0
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+// Badge definitions — static seed data, seeded via prisma/seed.ts
+// These never change at runtime — only admins add new badge types
+model Badge {
+  id           String @id @default(cuid())
+  name         String @unique @db.VarChar(100)
+  description  String @db.Text
+  icon         String @db.VarChar(50) // lucide-react icon name e.g. "Trophy", "Flame"
+  condition    String @db.Text // Human readable: "Complete 5 courses"
+  conditionKey String @unique @map("condition_key") @db.VarChar(50)
+  // conditionKey examples: 'courses_completed_1' | 'streak_7_days' | 'xp_reached_1000'
+  // badgeService checks these keys after every qualifying user action
+
+  // Relations
+  userBadges UserBadge[]
+
+  @@map("badges")
+}
+
+// Junction table — records which user earned which badge and when
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String   @map("user_id")
+  badgeId  String   @map("badge_id")
+  earnedAt DateTime @default(now()) @map("earned_at")
+  // earnedAt used for "recently earned" sorting on profile and dashboard
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId]) // A user can only earn each badge once
+  @@index([userId])
+  @@map("user_badges")
+}
+
+// ============================================================
+// QUIZ MODELS
+// ============================================================
+
+// Full quiz attempt history — never delete attempts
+// Used for: displaying history, calculating improvement, awarding XP
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  moduleId    String   @map("module_id")
+  score       Int // 0–100 percentage
+  passed      Boolean // score >= QUIZ_PASS_THRESHOLD from src/constants/xp.ts
+  answers     Json
+  // answers shape: Array<{ questionId: string, selected: string, correct: boolean }>
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([moduleId])
+  @@map("quiz_attempts")
+}
+
+// ============================================================
+// GOALS & PROGRESS
+// ============================================================
+
+// Daily learning goal — progressMinutes reset every day via cron
+// targetMinutes set during onboarding, adjustable in settings
+model DailyGoal {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  targetMinutes   Int      @default(20) @map("target_minutes")
+  // Valid values: 10 | 20 | 30 | 60 — matches onboarding options
+  progressMinutes Int      @default(0) @map("progress_minutes")
+  date            DateTime @default(now())
+  // date tracks which day the current progressMinutes belongs to
+  // cron resets progressMinutes to 0 and updates date every midnight
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("daily_goals")
+}
+
+// ============================================================
+// PAYMENT MODELS
+// Credits and Subscriptions
+// ============================================================
+
+// Credit balance — cached snapshot for fast balance reads
+// Source of truth is always SUM(credit_transactions.amount) WHERE userId = ?
+// This balance is updated atomically with every CreditTransaction write
+// If they ever disagree — CreditTransaction sum wins
+model CreditBalance {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  balance   Int      @default(0)
+  // balance never goes negative — enforced in creditService before deduction
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("credit_balances")
+}
+
+// Full credit audit trail — every purchase and spend recorded
+// Positive amount = credits purchased
+// Negative amount = credits spent on course generation
+model CreditTransaction {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  amount      Int // Positive = purchase, Negative = spend
+  type        String   @db.VarChar(20) // 'purchase' | 'spend'
+  reference   String?  @db.VarChar(100) // Paystack payment reference or courseId
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt]) // Transaction history queries filter by date range
+  @@map("credit_transactions")
+}
+
+// One active subscription record per user
+// Updated by Paystack webhook events — never updated directly by user actions
+model Subscription {
+  id                   String   @id @default(cuid())
+  userId               String   @unique @map("user_id")
+  plan                 String   @db.VarChar(20) // 'basic' | 'pro' | 'premium'
+  status               String   @db.VarChar(20) // 'active' | 'cancelled' | 'expired'
+  paystackSubCode      String?  @map("paystack_sub_code") @db.VarChar(100)
+  paystackCustomerCode String?  @map("paystack_customer_code") @db.VarChar(100)
+  currentPeriodStart   DateTime @map("current_period_start")
+  currentPeriodEnd     DateTime @map("current_period_end")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status]) // Fast lookup for active subscription checks
+  @@map("subscriptions")
 }
