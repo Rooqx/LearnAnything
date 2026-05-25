@@ -98,9 +98,9 @@ model VerificationToken {
 // ============================================================
 
 model Course {
-  id          String   @id @default(cuid())
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   title       String   @db.VarChar(255)
   description String?  @db.Text
   topic       String   @db.VarChar(255) // Original topic request — used for display
@@ -121,13 +121,13 @@ model Course {
 }
 
 model Module {
-  id         String    @id @default(cuid())
+  id         String    @id @default(dbgenerated("gen_random_uuid()"))
   courseId   String    @map("course_id")
   title      String    @db.VarChar(255)
   sortNo     Int       @map("sort_no") // Display order within course
   youtubeUrl String?   @map("youtube_url") @db.Text
   createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
   // Soft delete only — never hard delete modules
   // All module queries MUST filter: where: { deletedAt: null }
@@ -142,13 +142,13 @@ model Module {
 }
 
 model Chapter {
-  id        String   @id @default(cuid())
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
   moduleId  String   @map("module_id")
   title     String   @db.VarChar(255)
   content   String?  @db.Text // Nullable — n8n may return empty content for some chapters
   sortNo    Int      @map("sort_no") // Display order within module
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)

@@ -26,6 +26,7 @@ import { useUserStore } from '@/store/useUserStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useAnimationStore } from '@/store/useAnimationStore';
 import { DAILY_GOAL_OPTIONS, MODE_CONFIG } from '@/lib/constants';
+import { logoutAction } from '@/actions/auth';
 import type { LearningMode, DailyGoalMinutes } from '@/types';
 
 export default function SettingsPage() {
@@ -62,9 +63,20 @@ export default function SettingsPage() {
     updateBio(bio.trim());
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    // Clear all Zustand persisted stores from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('learn-anything-user');
+      localStorage.removeItem('learn-anything-courses');
+      localStorage.removeItem('learn-anything-theme');
+      localStorage.removeItem('learn-anything-animation');
+      // Clear chat session cache
+      localStorage.removeItem('generatingSessionId');
+      localStorage.removeItem('generationStatus');
+    }
     signOut();
-    router.push('/sign-in');
+    // Destroy the NextAuth server session + redirect
+    await logoutAction();
   };
 
   return (

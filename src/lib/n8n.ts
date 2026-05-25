@@ -1,12 +1,15 @@
 import { apiClient } from '@/lib/http/axios';
 import { AppError } from '@/lib/errors';
 
+
 const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || '';
+const N8N_USERNAME = process.env.N8N_AUTH_USERNAME || '';
+const N8N_PASSWORD = process.env.N8N_AUTH_PASSWORD || '';
 
 export interface ChatMessageRequest {
-  sessionId: string;
-  message: string;
-  userId: string;
+  session_id: string;
+  message_to_ai: string;
+  teaching_style?: string;
 }
 
 /**
@@ -19,9 +22,15 @@ export async function sendMessageToN8n(request: ChatMessageRequest): Promise<any
   }
 
   try {
-    const response = await apiClient.post(N8N_WEBHOOK_URL, request);
+    const response = await apiClient.post(N8N_WEBHOOK_URL, request, {
+      auth: {
+        username: N8N_USERNAME,
+        password: N8N_PASSWORD,
+      },
+    });
+ 
     return response.data;
-  } catch (error) {
+  } catch (error) {  
     if (error instanceof AppError && error.code === 'TIMEOUT') {
       throw new AppError('n8n request timed out', 504, 'N8N_TIMEOUT');
     }

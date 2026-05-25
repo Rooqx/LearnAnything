@@ -8,6 +8,7 @@ import { chatSessionService } from '@/services/chatSession.service';
 const messageSchema = z.object({
   sessionId: z.string().min(1, 'Session ID is required'),
   message: z.string().min(1, 'Message is required'),
+  teachingStyle: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -25,7 +26,8 @@ export async function POST(req: NextRequest) {
     const result = await chatSessionService.sendMessage(
       userId,
       parsedData.sessionId,
-      parsedData.message
+      parsedData.message,
+      parsedData.teachingStyle
     );
 
     return successResponse(result);

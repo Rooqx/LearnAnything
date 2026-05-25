@@ -58,14 +58,14 @@ export const chatSessionService = {
    * Forwards a message to n8n. If n8n returns the specific starting signal,
    * it updates the session status to 'generating'.
    */
-  async sendMessage(userId: string, sessionId: string, message: string) {
+  async sendMessage(userId: string, sessionId: string, message: string, teachingStyle?: string) {
     const session = await this.getSession(sessionId);
 
     // Strict ownership check
     if (session.userId !== userId) {
       throw new AppError('Forbidden', 403, 'FORBIDDEN');
     }
-
+   
     if (session.status !== CHAT_SESSION_STATUS.ACTIVE) {
       throw new AppError(
         `Cannot send message. Session status is ${session.status}`,
@@ -73,22 +73,59 @@ export const chatSessionService = {
         'INVALID_STATE'
       );
     }
-
     const n8nResponse = await sendMessageToN8n({
-      sessionId,
-      message,
-      userId,
+      session_id : sessionId,
+      message_to_ai : message,
+      ...(teachingStyle ? { teaching_style: teachingStyle } : {}),
     });
 
-    if (n8nResponse?.message === N8N_SIGNALS.COURSE_GENERATION_STARTING) {
+    // Unwrap: if n8n returns an array, take the first item
+    let rawData: any = n8nResponse;
+    if (Array.isArray(n8nResponse)) {
+      rawData = n8nResponse[0];
+    }
+
+    // Normalize to a standard { message, quickReplies? } shape
+    let responseObj: { message?: string; status?: string; quickReplies?: string[] } = {};
+
+    if (typeof rawData === 'string') {
+      responseObj = { message: rawData };
+    } else if (rawData && typeof rawData === 'object') {
+      // Map n8n field names to our standard fields
+      const messageText =
+        rawData.message_to_user ||
+        rawData.message ||
+        rawData.output ||
+        rawData.text ||
+        rawData.response ||
+        '';
+
+      // Parse quick_replies: comma-separated string → array
+      let quickReplies: string[] | undefined;
+      if (rawData.quick_replies) {
+        if (typeof rawData.quick_replies === 'string') {
+          quickReplies = rawData.quick_replies.split(',').map((s: string) => s.trim()).filter(Boolean);
+        } else if (Array.isArray(rawData.quick_replies)) {
+          quickReplies = rawData.quick_replies;
+        }
+      }
+
+      responseObj = {
+        message: messageText,
+        ...(quickReplies && quickReplies.length > 0 ? { quickReplies } : {}),
+      };
+    }
+
+    console.log('[sendMessage] normalized:', JSON.stringify(responseObj, null, 2));
+
+    if (responseObj?.message === N8N_SIGNALS.COURSE_GENERATION_STARTING) {
       await prisma.chatSession.update({
         where: { id: sessionId },
         data: { status: CHAT_SESSION_STATUS.GENERATING },
       });
       return { status: CHAT_SESSION_STATUS.GENERATING };
     }
-
-    return n8nResponse;
+    return responseObj;
   },
 
   /**

@@ -1,6 +1,6 @@
 import crypto from "crypto"
 import { prisma } from "@/lib/db/prisma"
-import { generateCourseFromN8n } from "@/lib/n8n"
+// import { generateCourseFromN8n } from "@/lib/n8n"
 import { AppError } from "@/lib/errors"
 
 export type CourseMode = "beginner" | "simplified" | "quick"
@@ -82,13 +82,13 @@ export const courseService = {
       orderBy: { lastAccessedAt: "desc" }
     })
 
-    return enrollments.map(enrollment => {
+    return enrollments.map((enrollment: any) => {
       const course = enrollment.course
       let totalPages = 0
       let totalEstimatedMinutes = 0
       
-      const mappedModules = course.modules.map(mod => {
-        const pages = mod.chapters.map(chapter => {
+      const mappedModules = course.modules.map((mod: any) => {
+        const pages = mod.chapters.map((chapter: any) => {
           let blocks = []
           try {
             blocks = chapter.content ? JSON.parse(chapter.content) : []

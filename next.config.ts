@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   transpilePackages: [
     "@justinribeiro/lite-youtube",
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

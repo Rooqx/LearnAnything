@@ -32,8 +32,8 @@ export async function getActiveChatSession() {
   return response.data.data;
 }
 
-export async function sendChatMessage(sessionId: string, message: string) {
-  const response = await axios.post('/api/chat/message', { sessionId, message });
+export async function sendChatMessage(sessionId: string, message: string, teachingStyle?: string) {
+  const response = await axios.post('/api/chat/message', { sessionId, message, teachingStyle });
   return response.data.data;
 }
 

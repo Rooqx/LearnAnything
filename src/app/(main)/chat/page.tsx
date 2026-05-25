@@ -17,7 +17,7 @@ import {
   Timer,
   Loader2,
 } from 'lucide-react';
-import { Button, Card, Chip, Badge } from '@/components/ui';
+import { Button, Card, Chip, Badge, Input } from '@/components/ui';
 import { AnimatedPage, FadeIn, LumiAnimated } from '@/components/ux';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useCourseStore } from '@/store/useCourseStore';
@@ -45,6 +45,7 @@ interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  quickReplies?: string[];
 }
 
 export default function ChatPage() {
@@ -70,7 +71,9 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [currentTopic, setCurrentTopic] = useState('');
-  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
+  const [modeSelected, setModeSelected] = useState(false);
+  const [selectedMode, setSelectedMode] = useState<LearningMode | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string>(LOADING_MESSAGES[0]);
   const [lumiState, setLumiState] = useState<LumiState>('idle');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -157,18 +160,27 @@ export default function ChatPage() {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (args: { sid: string; msg: string }) => sendChatMessage(args.sid, args.msg),
-    onSuccess: (data, variables) => {
-      if (data.status === 'generating') {
-        setGenerating(variables.sid);
+    mutationFn: (args: { sid: string; msg: string; teachingStyle?: string }) =>
+      sendChatMessage(args.sid, args.msg, args.teachingStyle),
+    onSuccess: (data) => {
+      if (data?.status === 'generating') {
+        setGenerating(sendMessageMutation.variables!.sid);
         setLumiState('thinking');
         setShowModeSelector(false);
-      } else if (data.message) {
-        // If n8n returns standard AI response
+      } else if (data?.message) {
         setMessages((prev) => [...prev, {
           id: generateId(),
           role: 'assistant',
           content: data.message,
+          quickReplies: data.quickReplies,
+        }]);
+        setLumiState('idle');
+      } else {
+        const fallbackText = typeof data === 'string' ? data : JSON.stringify(data);
+        setMessages((prev) => [...prev, {
+          id: generateId(),
+          role: 'assistant',
+          content: fallbackText || 'Received a response but could not parse it.',
         }]);
         setLumiState('idle');
       }
@@ -183,12 +195,27 @@ export default function ChatPage() {
     }
   });
 
+  /** Handle clicking a quick reply chip */
+  const handleQuickReply = async (reply: string) => {
+    setInputValue('');
+    setLumiState('thinking');
+
+    setMessages((prev) => [...prev, {
+      id: generateId(),
+      role: 'user',
+      content: reply,
+    }]);
+
+    if (sessionId) {
+      sendMessageMutation.mutate({ sid: sessionId, msg: reply, teachingStyle: selectedMode || undefined });
+    }
+  };
+
   const handleSend = async () => {
     const trimmed = inputValue.trim();
     if (!trimmed || isLoading) return;
 
     setInputValue('');
-    setCurrentTopic(trimmed);
     setLumiState('thinking');
 
     // Optimistically add user message
@@ -205,21 +232,24 @@ export default function ChatPage() {
       if (!activeSessionId) {
         const sessionData = await createSessionMutation.mutateAsync();
         activeSessionId = sessionData.sessionId;
-        // The query above will eventually sync, but we proceed with this ID
       }
 
-      // We simulate the mode selection locally for UX before sending the final trigger to n8n
-      // If the user hasn't selected a mode yet, we pretend the AI is asking
-      // In a fully dynamic n8n flow, n8n would ask this, but to preserve the beautiful UI:
-      setTimeout(() => {
-        setMessages((prev) => [...prev, {
-          id: generateId(),
-          role: 'assistant',
-          content: `Great choice! I can create a course on "${trimmed}" for you. How would you like to learn it?`,
-        }]);
-        setShowModeSelector(true);
-        setLumiState('excited');
-      }, 800);
+      if (!modeSelected) {
+        // First message: show mode selector locally
+        setCurrentTopic(trimmed);
+        setTimeout(() => {
+          setMessages((prev) => [...prev, {
+            id: generateId(),
+            role: 'assistant',
+            content: `Great choice! I can create a course on "${trimmed}" for you. How would you like to learn it?`,
+          }]);
+          setShowModeSelector(true);
+          setLumiState('excited');
+        }, 800);
+      } else {
+        // Mode already selected — send directly to n8n
+        sendMessageMutation.mutate({ sid: activeSessionId || '', msg: trimmed, teachingStyle: selectedMode || undefined });
+      }
 
     } catch (e) {
       setLumiState('idle');
@@ -228,6 +258,8 @@ export default function ChatPage() {
 
   const handleModeSelect = async (mode: LearningMode) => {
     setShowModeSelector(false);
+    setModeSelected(true);
+    setSelectedMode(mode);
     setLumiState('thinking');
     setError(null);
 
@@ -238,12 +270,11 @@ export default function ChatPage() {
     }]);
 
     if (!sessionId) {
-      // Fallback if session somehow missing
       const sessionData = await createSessionMutation.mutateAsync();
       syncFromDB({ id: sessionData.sessionId, status: sessionData.status });
-      sendMessageMutation.mutate({ sid: sessionData.sessionId, msg: `Topic: ${currentTopic}. Mode: ${mode}` });
+      sendMessageMutation.mutate({ sid: sessionData.sessionId, msg: `Topic: ${currentTopic}. Mode: ${mode}`, teachingStyle: mode });
     } else {
-      sendMessageMutation.mutate({ sid: sessionId, msg: `Topic: ${currentTopic}. Mode: ${mode}` });
+      sendMessageMutation.mutate({ sid: sessionId, msg: `Topic: ${currentTopic}. Mode: ${mode}`, teachingStyle: mode });
     }
   };
 
@@ -303,19 +334,34 @@ export default function ChatPage() {
           {(!isEmpty || isLoading) && (
             <div className="space-y-4 py-4">
               {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+                <div key={msg.id} className="space-y-2">
                   <div
-                    className={`max-w-[80%] px-4 py-3 rounded-[var(--radius-lg)] font-[family-name:var(--font-body)] text-sm leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'bg-[var(--color-primary)] text-white rounded-br-sm'
-                        : 'bg-[var(--glass-bg)] backdrop-blur-md border border-[var(--glass-border)] text-[var(--color-text)] rounded-bl-sm'
-                    }`}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {msg.content}
+                    <div
+                      className={`max-w-[80%] px-4 py-3 rounded-[var(--radius-lg)] font-[family-name:var(--font-body)] text-sm leading-relaxed ${
+                        msg.role === 'user'
+                          ? 'bg-[var(--color-primary)] text-white rounded-br-sm'
+                          : 'bg-[var(--glass-bg)] backdrop-blur-md border border-[var(--glass-border)] text-[var(--color-text)] rounded-bl-sm'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
                   </div>
+                  {/* Quick reply chips */}
+                  {msg.quickReplies && msg.quickReplies.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pl-1">
+                      {msg.quickReplies.map((reply) => (
+                        <Chip
+                          key={reply}
+                          onClick={() => handleQuickReply(reply)}
+                          size="sm"
+                        >
+                          {reply}
+                        </Chip>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -386,18 +432,15 @@ export default function ChatPage() {
         {/* Input bar — fixed at bottom */}
         <div className="shrink-0 pt-3 pb-2 border-t border-[var(--color-border)]">
           <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-full px-4 py-2.5 focus-within:border-[var(--color-primary)] focus-within:shadow-[0_0_0_3px_rgba(255,48,8,0.15)] transition-all duration-200">
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="What do you want to learn?"
-                disabled={isLoading}
-                className="flex-1 bg-transparent text-[var(--color-text)] placeholder:text-[var(--color-muted)] font-[family-name:var(--font-body)] text-sm outline-none"
-              />
-            </div>
+            <Input
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="What do you want to learn?"
+              disabled={isLoading}
+              className="flex-1"
+            />
             <Button
               onClick={handleSend}
               disabled={!inputValue.trim() || isLoading}
