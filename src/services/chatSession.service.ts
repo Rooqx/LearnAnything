@@ -76,6 +76,7 @@ export const chatSessionService = {
     const n8nResponse = await sendMessageToN8n({
       session_id : sessionId,
       message_to_ai : message,
+      user_id : userId,
       ...(teachingStyle ? { teaching_style: teachingStyle } : {}),
     });
 
