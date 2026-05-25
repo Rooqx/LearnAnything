@@ -25,10 +25,9 @@ export async function POST(req: NextRequest) {
     // TODO: Add credit check logic here once credit system is active
     
     // Call course service to handle deduplication, ChatSession creation, and generation
-    const course = await courseService.generateCourse(
+    const course = await courseService.resolveGeneratedCourse(
       userId,
-      parsedData.topic,
-      parsedData.mode
+      new Date(parsedData.topic),
     )
 
     return successResponse({ 

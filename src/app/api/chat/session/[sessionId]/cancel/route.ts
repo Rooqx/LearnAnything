@@ -6,7 +6,7 @@ import { chatSessionService } from '@/services/chatSession.service';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { sessionId: string } }
+  props: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const session = await requireAuth();
@@ -16,7 +16,7 @@ export async function PATCH(
     }
 
     const userId = session.user.id;
-    const { sessionId } = params;
+    const { sessionId } = await props.params;
 
     await chatSessionService.cancelSession(sessionId, userId);
 

@@ -7,7 +7,7 @@ import { courseService } from '@/services/course.service';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { sessionId: string } }
+  props: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const session = await requireAuth();
@@ -17,7 +17,7 @@ export async function PATCH(
     }
 
     const userId = session.user.id;
-    const { sessionId } = params;
+    const { sessionId } = await props.params;
 
     // 1. Get the session (this also implicitly verifies ownership if properly enforced, but we do explicit check)
     const chatSession = await chatSessionService.getSession(sessionId);

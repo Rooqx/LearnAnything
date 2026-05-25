@@ -9,6 +9,7 @@ const N8N_PASSWORD = process.env.N8N_AUTH_PASSWORD || '';
 export interface ChatMessageRequest {
   session_id: string;
   message_to_ai: string;
+  user_id: string;
   teaching_style?: string;
 }
 

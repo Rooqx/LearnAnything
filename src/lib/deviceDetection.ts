@@ -37,7 +37,7 @@ export function detectDeviceCapability(): AnimationMode {
    * We access it via a type assertion to avoid TS errors while
    * still reading the value at runtime in supported browsers.
    */
-  const memory = (navigator as Record<string, unknown>).deviceMemory as number | undefined;
+  const memory = (navigator as unknown as Record<string, unknown>).deviceMemory as number | undefined;
   const ram = memory ?? 4;
 
   const isLowEnd = cores <= 4 || ram <= 4;

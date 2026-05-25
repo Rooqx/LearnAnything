@@ -7,11 +7,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import { Button, Input, Card } from '@/components/ui';
 import { LumiAnimated, StaggerChildren } from '@/components/ux';
@@ -19,7 +19,7 @@ import Link from 'next/link';
 import type { LumiState } from '@/types';
 import { signInSchema, type SignInInput } from '@/validators/auth.schema';
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
@@ -187,5 +187,19 @@ export default function SignInPage() {
         </div>
       </Card>
     </StaggerChildren>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="flex justify-center items-center p-12">
+          <Loader2 className="animate-spin text-[var(--color-primary)]" size={32} />
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }

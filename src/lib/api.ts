@@ -12,6 +12,7 @@ import type {
   Module,
   CoursePage,
   ContentBlock,
+  LeaderboardEntry,
 } from '@/types';
 import { COURSE_GENERATION_TIMEOUT } from '@/lib/constants';
 import { generateId } from '@/lib/utils';
@@ -159,15 +160,15 @@ export function generateMockQuiz(moduleId: string, topic: string) {
    Mock Leaderboard Data
    ============================================================ */
 
-export const MOCK_LEADERBOARD = [
-  { userId: '1', displayName: 'Kai Nakamura', weeklyXP: 2847, rank: 1, isCurrentUser: false },
-  { userId: '2', displayName: 'Priya Sharma', weeklyXP: 2651, rank: 2, isCurrentUser: false },
-  { userId: '3', displayName: 'Mateo Rivera', weeklyXP: 2298, rank: 3, isCurrentUser: false },
-  { userId: '4', displayName: 'Zara Okonkwo', weeklyXP: 1975, rank: 4, isCurrentUser: false },
-  { userId: '5', displayName: 'Lena Petrov', weeklyXP: 1843, rank: 5, isCurrentUser: false },
-  { userId: '6', displayName: 'Amir Hassan', weeklyXP: 1712, rank: 6, isCurrentUser: false },
-  { userId: '7', displayName: 'Yuki Tanaka', weeklyXP: 1598, rank: 7, isCurrentUser: false },
-  { userId: '8', displayName: 'Nia Williams', weeklyXP: 1456, rank: 8, isCurrentUser: false },
-  { userId: '9', displayName: 'Oscar Lindqvist', weeklyXP: 1324, rank: 9, isCurrentUser: false },
-  { userId: '10', displayName: 'Fatima Al-Rashid', weeklyXP: 1189, rank: 10, isCurrentUser: false },
+export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
+  { userId: '1', displayName: 'Kai Nakamura', avatarUrl: undefined, weeklyXP: 2847, rank: 1, isCurrentUser: false },
+  { userId: '2', displayName: 'Priya Sharma', avatarUrl: undefined, weeklyXP: 2651, rank: 2, isCurrentUser: false },
+  { userId: '3', displayName: 'Mateo Rivera', avatarUrl: undefined, weeklyXP: 2298, rank: 3, isCurrentUser: false },
+  { userId: '4', displayName: 'Zara Okonkwo', avatarUrl: undefined, weeklyXP: 1975, rank: 4, isCurrentUser: false },
+  { userId: '5', displayName: 'Lena Petrov', avatarUrl: undefined, weeklyXP: 1843, rank: 5, isCurrentUser: false },
+  { userId: '6', displayName: 'Amir Hassan', avatarUrl: undefined, weeklyXP: 1712, rank: 6, isCurrentUser: false },
+  { userId: '7', displayName: 'Yuki Tanaka', avatarUrl: undefined, weeklyXP: 1598, rank: 7, isCurrentUser: false },
+  { userId: '8', displayName: 'Nia Williams', avatarUrl: undefined, weeklyXP: 1456, rank: 8, isCurrentUser: false },
+  { userId: '9', displayName: 'Oscar Lindqvist', avatarUrl: undefined, weeklyXP: 1324, rank: 9, isCurrentUser: false },
+  { userId: '10', displayName: 'Fatima Al-Rashid', avatarUrl: undefined, weeklyXP: 1189, rank: 10, isCurrentUser: false },
 ];
