@@ -9,20 +9,27 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Send,
   Sprout,
   Zap,
   Timer,
   Loader2,
-  Sparkles,
 } from 'lucide-react';
 import { Button, Card, Chip, Badge } from '@/components/ui';
-import { AnimatedPage, FadeIn, LumiAnimated, StaggerChildren } from '@/components/ux';
+import { AnimatedPage, FadeIn, LumiAnimated } from '@/components/ux';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useCourseStore } from '@/store/useCourseStore';
 import { useUserStore } from '@/store/useUserStore';
-import { generateCourse } from '@/lib/api';
+import { useChatSessionStore } from '@/store/useChatSessionStore';
+import { 
+  getOrCreateChatSession, 
+  getActiveChatSession, 
+  sendChatMessage, 
+  checkGenerationComplete,
+  cancelChatSession
+} from '@/lib/api';
 import { SUGGESTION_CHIPS, MODE_CONFIG, LOADING_MESSAGES, LOADING_MESSAGE_INTERVAL } from '@/lib/constants';
 import { generateId } from '@/lib/utils';
 import type { LearningMode, LumiState } from '@/types';
@@ -42,31 +49,57 @@ interface ChatMessage {
 
 export default function ChatPage() {
   const router = useRouter();
+  
+  // Stores
   const addCourse = useCourseStore((state) => state.addCourse);
-  const isLoading = useCourseStore((state) => state.isLoading);
-  const setLoading = useCourseStore((state) => state.setLoading);
   const setError = useCourseStore((state) => state.setError);
-  const error = useCourseStore((state) => state.error);
   const startCourse = useUserStore((state) => state.startCourse);
   const incrementCoursesCreated = useUserStore((state) => state.incrementCoursesCreated);
-  const user = useUserStore((state) => state.user);
+  
+  const { 
+    sessionId, 
+    status, 
+    initFromStorage, 
+    setGenerating, 
+    clearSession, 
+    syncFromDB 
+  } = useChatSessionStore();
 
+  // Local State
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [selectedMode, setSelectedMode] = useState<LearningMode | null>(null);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [currentTopic, setCurrentTopic] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [lumiState, setLumiState] = useState<LumiState>('idle');
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* Auto-scroll to bottom on new messages */
+  const isLoading = status === 'generating';
+
+  /* 1. Init Storage speed cache on mount */
+  useEffect(() => {
+    initFromStorage();
+  }, [initFromStorage]);
+
+  /* 2. Source of Truth: Fetch active session from DB */
+  useQuery({
+    queryKey: ['activeChatSession'],
+    queryFn: async () => {
+      const data = await getActiveChatSession();
+      syncFromDB(data.session);
+      return data;
+    },
+    refetchOnWindowFocus: true,
+  });
+
+  /* 3. Auto-scroll */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, showModeSelector]);
+  }, [messages, showModeSelector, isLoading]);
 
-  /* Rotate loading messages */
+  /* 4. Rotate loading messages */
   useEffect(() => {
     if (!isLoading) return;
     let index = 0;
@@ -77,76 +110,140 @@ export default function ChatPage() {
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  const handleSend = useCallback(() => {
+  /* 5. Polling for generation complete */
+  useQuery({
+    queryKey: ['checkGeneration', sessionId],
+    queryFn: async () => {
+      if (!sessionId) return null;
+      try {
+        const data = await checkGenerationComplete(sessionId);
+        // Success (200) means course is ready
+        setLumiState('celebrating');
+        incrementCoursesCreated();
+        startCourse();
+        clearSession();
+        
+        // Navigate
+        setTimeout(() => {
+          router.push(`/learn/${data.courseId}/plan`);
+        }, 1000);
+        return data;
+      } catch (error: any) {
+        // If 404, it's just not ready yet, throw so React Query retries
+        if (error?.response?.status === 404) {
+          throw new Error('Not ready');
+        }
+        // For other hard errors, fail out
+        await cancelChatSession(sessionId);
+        clearSession();
+        setLumiState('idle');
+        setError('Generation failed. Please try again.');
+        setMessages((prev) => [...prev, {
+          id: generateId(),
+          role: 'assistant',
+          content: 'Something went wrong while generating the course. Please try again.',
+        }]);
+        throw error;
+      }
+    },
+    enabled: isLoading && !!sessionId,
+    refetchInterval: (query) => (query.state.status === 'error' ? false : 5000),
+    retry: true,
+  });
+
+  /* 6. Mutations for Chat */
+  const createSessionMutation = useMutation({
+    mutationFn: getOrCreateChatSession,
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: (args: { sid: string; msg: string }) => sendChatMessage(args.sid, args.msg),
+    onSuccess: (data, variables) => {
+      if (data.status === 'generating') {
+        setGenerating(variables.sid);
+        setLumiState('thinking');
+        setShowModeSelector(false);
+      } else if (data.message) {
+        // If n8n returns standard AI response
+        setMessages((prev) => [...prev, {
+          id: generateId(),
+          role: 'assistant',
+          content: data.message,
+        }]);
+        setLumiState('idle');
+      }
+    },
+    onError: () => {
+      setLumiState('idle');
+      setMessages((prev) => [...prev, {
+        id: generateId(),
+        role: 'assistant',
+        content: 'Failed to communicate with AI. Please try again.',
+      }]);
+    }
+  });
+
+  const handleSend = async () => {
     const trimmed = inputValue.trim();
     if (!trimmed || isLoading) return;
 
-    const userMessage: ChatMessage = {
+    setInputValue('');
+    setCurrentTopic(trimmed);
+    setLumiState('thinking');
+
+    // Optimistically add user message
+    setMessages((prev) => [...prev, {
       id: generateId(),
       role: 'user',
       content: trimmed,
-    };
+    }]);
 
-    setMessages((prev) => [...prev, userMessage]);
-    setCurrentTopic(trimmed);
-    setInputValue('');
-    setLumiState('thinking');
+    try {
+      let activeSessionId = sessionId;
+      
+      // Ensure we have a session
+      if (!activeSessionId) {
+        const sessionData = await createSessionMutation.mutateAsync();
+        activeSessionId = sessionData.sessionId;
+        // The query above will eventually sync, but we proceed with this ID
+      }
 
-    /* Show assistant response and mode selector */
-    setTimeout(() => {
-      const assistantMessage: ChatMessage = {
-        id: generateId(),
-        role: 'assistant',
-        content: `Great choice! I can create a course on "${trimmed}" for you. How would you like to learn it?`,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setShowModeSelector(true);
-      setLumiState('excited');
-    }, 800);
-  }, [inputValue, isLoading]);
+      // We simulate the mode selection locally for UX before sending the final trigger to n8n
+      // If the user hasn't selected a mode yet, we pretend the AI is asking
+      // In a fully dynamic n8n flow, n8n would ask this, but to preserve the beautiful UI:
+      setTimeout(() => {
+        setMessages((prev) => [...prev, {
+          id: generateId(),
+          role: 'assistant',
+          content: `Great choice! I can create a course on "${trimmed}" for you. How would you like to learn it?`,
+        }]);
+        setShowModeSelector(true);
+        setLumiState('excited');
+      }, 800);
+
+    } catch (e) {
+      setLumiState('idle');
+    }
+  };
 
   const handleModeSelect = async (mode: LearningMode) => {
-    setSelectedMode(mode);
     setShowModeSelector(false);
     setLumiState('thinking');
-    setLoading(true);
     setError(null);
 
-    const modeMessage: ChatMessage = {
+    setMessages((prev) => [...prev, {
       id: generateId(),
       role: 'user',
       content: `${MODE_CONFIG[mode].name} mode`,
-    };
-    setMessages((prev) => [...prev, modeMessage]);
+    }]);
 
-    /* Generate course via API */
-    const result = await generateCourse({
-      topic: currentTopic,
-      mode,
-      userId: user?.id || 'anonymous',
-    });
-
-    setLoading(false);
-
-    if (result.success && result.course) {
-      setLumiState('celebrating');
-      addCourse(result.course);
-      incrementCoursesCreated();
-      startCourse();
-
-      /* Navigate to learning plan after brief celebration */
-      setTimeout(() => {
-        router.push(`/learn/${result.course!.id}/plan`);
-      }, 1000);
+    if (!sessionId) {
+      // Fallback if session somehow missing
+      const sessionData = await createSessionMutation.mutateAsync();
+      syncFromDB({ id: sessionData.sessionId, status: sessionData.status });
+      sendMessageMutation.mutate({ sid: sessionData.sessionId, msg: `Topic: ${currentTopic}. Mode: ${mode}` });
     } else {
-      setLumiState('idle');
-      setError(result.error || 'Something went wrong');
-      const errorMessage: ChatMessage = {
-        id: generateId(),
-        role: 'assistant',
-        content: result.error || 'Something went wrong. Please try again.',
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      sendMessageMutation.mutate({ sid: sessionId, msg: `Topic: ${currentTopic}. Mode: ${mode}` });
     }
   };
 
@@ -169,7 +266,7 @@ export default function ChatPage() {
       <PageWrapper maxWidth="md" className="flex flex-col h-[calc(100dvh-5rem)]">
         <div className="flex-1 overflow-y-auto pb-4">
           {/* Empty state */}
-          {isEmpty && (
+          {isEmpty && !isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-6 py-12">
               <FadeIn>
                 <LumiAnimated size={100} state="idle" />
@@ -203,7 +300,7 @@ export default function ChatPage() {
           )}
 
           {/* Messages */}
-          {!isEmpty && (
+          {(!isEmpty || isLoading) && (
             <div className="space-y-4 py-4">
               {messages.map((msg) => (
                 <div

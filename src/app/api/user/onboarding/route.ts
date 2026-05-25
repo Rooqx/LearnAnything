@@ -5,6 +5,7 @@ import { onboardingSchema } from "@/validators/onboarding.schema"
 import { AppError } from "@/lib/errors"
 import { successResponse, errorResponse } from "@/lib/http/api-response"
 import { z } from "zod"
+import { cookies } from "next/headers"
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,6 +43,10 @@ export async function POST(req: NextRequest) {
         progressMinutes: 0,
       },
     })
+
+    // 5. Set a cookie so middleware knows onboarding is complete before JWT refreshes
+    const cookieStore = await cookies()
+    cookieStore.set(`onboarding_${userId}`, 'true', { path: '/' })
 
     return successResponse({ message: "Onboarding completed successfully" })
   } catch (error) {

@@ -6,11 +6,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Award, Lock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Award, Lock, Loader2 } from 'lucide-react';
 import { Card, Badge, Modal, Button, Chip } from '@/components/ui';
 import { AnimatedPage, FadeIn, StaggerChildren } from '@/components/ux';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useUserStore } from '@/store/useUserStore';
+import { fetchAchievements } from '@/lib/api';
 import type { Badge as BadgeType, BadgeRarity } from '@/types';
 
 const RARITY_COLORS: Record<BadgeRarity, string> = {
@@ -25,15 +27,25 @@ export default function AchievementsPage() {
   const [selectedBadge, setSelectedBadge] = useState<BadgeType | null>(null);
   const [filter, setFilter] = useState<'all' | 'earned' | 'locked'>('all');
 
+  // React Query handles fetching, caching, and loading states automatically
+  const { data: dbBadges = [], isLoading } = useQuery({
+    queryKey: ['achievements'],
+    queryFn: fetchAchievements,
+    enabled: !!user, // Only fetch if user is defined
+  });
+
   if (!user) return null;
 
-  const filteredBadges = filter === 'all'
-    ? user.badges
-    : filter === 'earned'
-      ? user.badges.filter((b) => b.earned)
-      : user.badges.filter((b) => !b.earned);
+  // Use dbBadges if loaded, otherwise fallback to the mocked ones from store
+  const currentBadges: BadgeType[] = dbBadges.length > 0 ? dbBadges : user.badges;
 
-  const earnedCount = user.badges.filter((b) => b.earned).length;
+  const filteredBadges = filter === 'all'
+    ? currentBadges
+    : filter === 'earned'
+      ? currentBadges.filter((b: BadgeType) => b.earned)
+      : currentBadges.filter((b: BadgeType) => !b.earned);
+
+  const earnedCount = currentBadges.filter((b: BadgeType) => b.earned).length;
 
   return (
     <AnimatedPage>
@@ -45,7 +57,7 @@ export default function AchievementsPage() {
                 Achievements
               </h1>
               <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-muted)] mt-1">
-                {earnedCount} of {user.badges.length} badges earned
+                {earnedCount} of {currentBadges.length} badges earned
               </p>
             </div>
           </FadeIn>

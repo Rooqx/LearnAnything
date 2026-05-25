@@ -16,179 +16,64 @@ import type {
 import { COURSE_GENERATION_TIMEOUT } from '@/lib/constants';
 import { generateId } from '@/lib/utils';
 
-/**
- * The n8n webhook URL from environment variables.
- * When empty, the mock data fallback is used automatically.
- */
-const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL || '';
+import axios from 'axios';
 
 /**
- * Generate a course via the n8n webhook.
- * Falls back to mock data when WEBHOOK_URL is empty.
- *
- * Handles three states:
- * - Success: returns course data
- * - Error: returns error message
- * - Timeout: aborts after COURSE_GENERATION_TIMEOUT (30s)
+ * Chat Session Endpoints
  */
-export async function generateCourse(
-  request: CourseGenerationRequest
-): Promise<CourseGenerationResponse> {
-  /* Use mock data when no webhook URL is configured */
-  if (!WEBHOOK_URL) {
-    return generateMockCourse(request);
-  }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), COURSE_GENERATION_TIMEOUT);
+export async function getOrCreateChatSession() {
+  const response = await axios.post('/api/chat/session');
+  return response.data.data;
+}
 
+export async function getActiveChatSession() {
+  const response = await axios.get('/api/chat/session/active');
+  return response.data.data;
+}
+
+export async function sendChatMessage(sessionId: string, message: string) {
+  const response = await axios.post('/api/chat/message', { sessionId, message });
+  return response.data.data;
+}
+
+export async function checkGenerationComplete(sessionId: string) {
+  const response = await axios.patch(`/api/chat/session/${sessionId}/complete`);
+  return response.data.data;
+}
+
+export async function cancelChatSession(sessionId: string) {
+  const response = await axios.patch(`/api/chat/session/${sessionId}/cancel`);
+  return response.data.data;
+}
+
+/**
+ * Fetch all courses for the current user from the database.
+ */
+export async function fetchCourses(): Promise<Course[]> {
   try {
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: `Course generation failed (${response.status}). Please try again.`,
-      };
-    }
-
-    const data = await response.json();
-    return { success: true, course: data.course || data };
+    const response = await axios.get('/api/courses');
+    return response.data.data.courses || [];
   } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      return {
-        success: false,
-        error: 'Course generation timed out. Please try again.',
-      };
-    }
-
-    return {
-      success: false,
-      error: 'Something went wrong. Please check your connection and try again.',
-    };
+    console.error('Failed to fetch courses:', error);
+    return [];
   }
 }
 
-/* ============================================================
-   Mock Data Generator
-   Produces realistic course structures for development.
-   Simulates a 2–4 second generation delay.
-   ============================================================ */
-
-async function generateMockCourse(
-  request: CourseGenerationRequest
-): Promise<CourseGenerationResponse> {
-  /* Simulate API delay — 2 to 4 seconds for realism */
-  const mockDelay = 2000 + Math.random() * 2000;
-  await new Promise((resolve) => setTimeout(resolve, mockDelay));
-
-  const courseId = generateId();
-  const moduleCount = request.mode === 'quick' ? 3 : request.mode === 'simplified' ? 4 : 5;
-
-  const modules: Module[] = Array.from({ length: moduleCount }, (_, moduleIndex) => {
-    const pageCount = request.mode === 'quick' ? 2 : request.mode === 'simplified' ? 3 : 4;
-
-    const pages: CoursePage[] = Array.from({ length: pageCount }, (_, pageIndex) => {
-      const blocks: ContentBlock[] = [
-        {
-          id: generateId(),
-          type: 'text',
-          content: `## ${getMockSectionTitle(request.topic, moduleIndex, pageIndex)}\n\nThis section covers the foundational concepts you need to understand. Let's break this down into digestible pieces that build on each other.\n\nThe key insight here is that ${request.topic.toLowerCase()} works by connecting multiple concepts together. Each piece reinforces the others, creating a comprehensive understanding.`,
-        },
-        {
-          id: generateId(),
-          type: 'bullet_list',
-          content:
-            '- Understanding the core principles and how they interact\n- Recognizing patterns that appear across different contexts\n- Building mental models that help you reason about new problems\n- Connecting theory to practical real-world applications',
-        },
-      ];
-
-      /* Add a code block for technology/programming topics */
-      if (
-        request.topic.toLowerCase().includes('python') ||
-        request.topic.toLowerCase().includes('code') ||
-        request.topic.toLowerCase().includes('programming') ||
-        request.topic.toLowerCase().includes('machine learning') ||
-        moduleIndex % 2 === 0
-      ) {
-        blocks.push({
-          id: generateId(),
-          type: 'code',
-          content: `# Example: ${request.topic}\ndef demonstrate_concept(data):\n    \"\"\"\n    This function shows how the concept works\n    in practice with real data.\n    \"\"\"\n    result = process(data)\n    return analyze(result)\n\n# Run the demonstration\noutput = demonstrate_concept(sample_data)\nprint(f"Result: {output}")`,
-          meta: { language: 'python' },
-        });
-      }
-
-      /* Add a math block for science/math topics */
-      if (
-        request.topic.toLowerCase().includes('physics') ||
-        request.topic.toLowerCase().includes('math') ||
-        request.topic.toLowerCase().includes('quantum') ||
-        pageIndex === 1
-      ) {
-        blocks.push({
-          id: generateId(),
-          type: 'math',
-          content: 'E = mc^2 \\quad \\text{where } m \\text{ is mass and } c \\text{ is the speed of light}',
-        });
-      }
-
-      /* Add closing text */
-      blocks.push({
-        id: generateId(),
-        type: 'text',
-        content: `Understanding this concept is crucial because it forms the foundation for everything that follows. Take a moment to review the key points before moving on.`,
-      });
-
-      return {
-        id: generateId(),
-        title: getMockPageTitle(request.topic, moduleIndex, pageIndex),
-        blocks,
-        estimatedMinutes: request.mode === 'quick' ? 3 : request.mode === 'simplified' ? 5 : 7,
-      };
-    });
-
-    return {
-      id: generateId(),
-      title: getMockModuleTitle(request.topic, moduleIndex),
-      description: `Explore the ${getOrdinal(moduleIndex + 1)} major area of ${request.topic.toLowerCase()}.`,
-      pages,
-      estimatedMinutes: pages.reduce((sum, p) => sum + p.estimatedMinutes, 0),
-      contentTypes: ['text', 'bullet_list', 'code'],
-      hasQuiz: request.mode === 'beginner' || (request.mode === 'simplified' && moduleIndex % 2 === 0),
-    };
-  });
-
-  const totalPages = modules.reduce((sum, m) => sum + m.pages.length, 0);
-  const totalMinutes = modules.reduce((sum, m) => sum + m.estimatedMinutes, 0);
-
-  const course: Course = {
-    id: courseId,
-    topic: request.topic,
-    title: `Mastering ${request.topic}`,
-    description: `A comprehensive ${request.mode} course on ${request.topic}, tailored to your learning style.`,
-    mode: request.mode,
-    status: 'ready',
-    modules,
-    totalEstimatedMinutes: totalMinutes,
-    totalPages,
-    createdAt: new Date().toISOString(),
-    lastAccessedAt: new Date().toISOString(),
-    completedPages: 0,
-    xpEarned: 0,
-  };
-
-  return { success: true, course };
+/**
+ * Fetch all static badges and the user's earned status.
+ */
+export async function fetchAchievements(): Promise<any[]> {
+  try {
+    const response = await axios.get('/api/achievements');
+    return response.data.data.badges || [];
+  } catch (error) {
+    console.error('Failed to fetch achievements:', error);
+    return [];
+  }
 }
+
+
 
 /* ============================================================
    Mock Content Helpers

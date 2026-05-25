@@ -7,7 +7,9 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
   BookOpen,
   Flame,
@@ -31,6 +33,7 @@ import { AnimatedPage, FadeIn, StaggerChildren, LumiAnimated } from '@/component
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useUserStore } from '@/store/useUserStore';
 import { useCourseStore } from '@/store/useCourseStore';
+import { fetchCourses } from '@/lib/api';
 import {
   getTimeOfDayGreeting,
   formatXP,
@@ -43,6 +46,23 @@ export default function DashboardPage() {
   const router = useRouter();
   const user = useUserStore((state) => state.user);
   const courses = useCourseStore((state) => state.courses);
+  const setCourses = useCourseStore((state) => state.setCourses);
+
+  // 1. Fetching logic is now managed safely by React Query
+  // This automatically handles deduplication, caching, and loading states
+  const { data: fetchedCourses, isLoading } = useQuery({
+    queryKey: ['courses'],
+    queryFn: fetchCourses,
+    enabled: !!user, // Only fetch when user is available
+  });
+
+  // 2. We keep a minimal useEffect solely to sync the server state (React Query) 
+  // into the global client state (Zustand), since other components rely on it.
+  useEffect(() => {
+    if (fetchedCourses) {
+      setCourses(fetchedCourses);
+    }
+  }, [fetchedCourses, setCourses]);
 
   /* Redirect to auth if no user */
   if (!user) {

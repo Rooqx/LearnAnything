@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Space_Grotesk, DM_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 /* ============================================================
    Font Configuration
@@ -71,9 +72,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider>
-          <main className="min-h-dvh">{children}</main>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <main className="min-h-dvh">{children}</main>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

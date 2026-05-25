@@ -77,7 +77,7 @@ export default function SignUpPage() {
 
   const handleSocialAuth = async (provider: string) => {
     setLumiState('thinking');
-    await signIn(provider, { callbackUrl: '/onboarding' });
+    await signIn(provider, { callbackUrl: '/dashboard' });
   };
 
   return (

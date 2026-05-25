@@ -75,6 +75,9 @@ interface CourseState {
 
   /** Reset generation state (topic, mode, loading, error) */
   resetGeneration: () => void;
+
+  /** Set the entire list of courses (e.g. from DB) */
+  setCourses: (courses: Course[]) => void;
 }
 
 /**
@@ -141,6 +144,8 @@ export const useCourseStore = create<CourseState>()(
           isLoading: false,
           error: null,
         })),
+
+      setCourses: (courses) => set({ courses }),
 
       setActiveCourse: (courseId) => {
         const state = get();
