@@ -273,7 +273,7 @@ export const useCourseStore = create<CourseState>()(
         }),
     }),
     {
-      name: 'learn-anything-courses',
+      name: 'lore-courses',
     }
   )
 );

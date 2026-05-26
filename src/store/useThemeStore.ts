@@ -35,7 +35,7 @@ export const useThemeStore = create<ThemeState>()(
       setTheme: (theme) => set({ theme }),
     }),
     {
-      name: 'learn-anything-theme',
+      name: 'lore-theme',
     }
   )
 );

@@ -1,4 +1,4 @@
-# LearnAnything — Backend Context File
+# Lore — Backend Context File
 > Read this file completely before writing a single line of code.
 > This is your source of truth for every backend decision.
 
@@ -6,7 +6,7 @@
 
 ## PROJECT OVERVIEW
 
-**App:** LearnAnything — AI-powered learning hub
+**App:** Lore — AI-powered learning hub
 **Type:** Full-stack Next.js application
 **Goal:** Users generate AI-powered courses via chat, consume them in
 a gamified learning interface, and are rewarded with XP, streaks, and badges.

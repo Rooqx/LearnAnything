@@ -44,7 +44,7 @@ export const useAnimationStore = create<AnimationState>()(
       setDetectionComplete: () => set({ detectionComplete: true }),
     }),
     {
-      name: 'learn-anything-animation',
+      name: 'lore-animation',
     }
   )
 );

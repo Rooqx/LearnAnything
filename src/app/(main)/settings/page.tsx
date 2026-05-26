@@ -66,10 +66,10 @@ export default function SettingsPage() {
   const handleSignOut = async () => {
     // Clear all Zustand persisted stores from localStorage
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('learn-anything-user');
-      localStorage.removeItem('learn-anything-courses');
-      localStorage.removeItem('learn-anything-theme');
-      localStorage.removeItem('learn-anything-animation');
+      localStorage.removeItem('lore-user');
+      localStorage.removeItem('lore-courses');
+      localStorage.removeItem('lore-theme');
+      localStorage.removeItem('lore-animation');
       // Clear chat session cache
       localStorage.removeItem('generatingSessionId');
       localStorage.removeItem('generationStatus');

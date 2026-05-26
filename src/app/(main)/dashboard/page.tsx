@@ -70,7 +70,7 @@ export default function DashboardPage() {
       <PageWrapper>
         <EmptyState
           icon={<LumiAnimated size={100} state="idle" />}
-          title="Welcome to LearnAnything"
+          title="Welcome to Lore"
           description="Sign in to start your learning journey"
           actionLabel="Sign in"
           onAction={() => router.push('/sign-in')}
