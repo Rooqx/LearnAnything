@@ -16,6 +16,7 @@ import { Avatar, Badge, Tooltip } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatXP } from '@/lib/utils';
 import Link from 'next/link';
+import { LumiAnimated } from '@/components/ux';
 
 /**
  * App header — sticky top bar visible on all main pages.
@@ -50,16 +51,12 @@ export function Header() {
       {/* Logo / Brand Wordmark */}
       <Link
         href="/dashboard"
-        className="flex items-center gap-2 shrink-0"
+        className="flex items-center gap-0 shrink-0"
       >
-        {/* Brand orb — represents Lumi at 24px */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-reward)] flex items-center justify-center shadow-[var(--shadow-sm)]">
-          <span className="text-white text-xs font-bold font-[family-name:var(--font-heading)]">
-            LA
-          </span>
-        </div>
+        {/* Brand orb — represents Lumi in happy state */}
+        <LumiAnimated size={54} state="excited" />
         <span className="font-[family-name:var(--font-heading)] font-bold text-lg text-[var(--color-text)] hidden sm:block">
-          LearnAnything
+          Lore
         </span>
       </Link>
 

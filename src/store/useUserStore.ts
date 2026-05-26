@@ -333,7 +333,7 @@ export const useUserStore = create<UserState>()(
       signOut: () => set({ user: null }),
     }),
     {
-      name: 'learn-anything-user',
+      name: 'lore-user',
     }
   )
 );

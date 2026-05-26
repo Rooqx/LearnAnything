@@ -36,14 +36,14 @@ const jetbrainsMono = JetBrains_Mono({
    ============================================================ */
 
 export const metadata: Metadata = {
-  title: "LearnAnything — AI-Powered Learning Hub",
+  title: "Lore — AI-Powered Learning Hub",
   description:
     "Learn anything you want with AI-generated interactive courses. Gamified learning tailored to your pace and style.",
   keywords: [
     "AI learning",
     "online courses",
     "gamified education",
-    "learn anything",
+    "lore",
     "interactive courses",
   ],
 };

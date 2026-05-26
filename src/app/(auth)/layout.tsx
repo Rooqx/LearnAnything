@@ -6,6 +6,7 @@
    ============================================================ */
 
 import type { ReactNode } from 'react';
+import { LumiAnimated } from '@/components/ux';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -23,13 +24,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="relative z-10 flex flex-col items-start justify-center px-16 py-12">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-reward)] flex items-center justify-center shadow-[var(--shadow-md)]">
-              <span className="text-white text-lg font-bold font-[family-name:var(--font-heading)]">
-                LA
-              </span>
-            </div>
-            <span className="font-[family-name:var(--font-heading)] font-bold text-2xl text-[var(--color-text)]">
-              LearnAnything
+            <LumiAnimated size={80} state="excited" />
+            <span className="w-[800px] font-[family-name:var(--font-heading)] font-bold text-2xl text-[var(--color-text)]">
+              Lore
             </span>
           </div>
 
