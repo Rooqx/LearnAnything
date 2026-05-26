@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
     })
 
     // Create a Set of earned badge IDs for fast lookup
-    const earnedBadgeIds = new Set(userBadges.map(ub => ub.badgeId))
+    const earnedBadgeIds = new Set(userBadges.map((ub:any) => ub.badgeId))
 
     // Map Prisma Badge to frontend Badge type
-    const mappedBadges = allBadges.map(badge => {
+    const mappedBadges = allBadges.map((badge: any) => {
       // Determine rarity based on some logic, or use static mapping
       // Since Badge table doesn't have rarity, we infer it or default to common
       const rarity = badge.conditionKey.includes('legendary') ? 'legendary' 
