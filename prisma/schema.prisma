@@ -187,7 +187,7 @@ model ChatSession {
 // ============================================================
 
 model Enrollment {
-  id               String    @id @default(cuid())
+id        String   @id @default(dbgenerated("gen_random_uuid()"))
   userId           String    @map("user_id")
   courseId         String    @map("course_id")
   status           String    @default("in_progress") @db.VarChar(20)
