@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, DM_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { Analytics } from "@vercel/analytics/react";
 
 /* ============================================================
    Font Configuration
@@ -75,6 +76,7 @@ export default function RootLayout({
         <QueryProvider>
           <ThemeProvider>
             <main className="min-h-dvh">{children}</main>
+            <Analytics />
           </ThemeProvider>
         </QueryProvider>
       </body>
