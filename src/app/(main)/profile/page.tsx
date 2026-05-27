@@ -6,17 +6,19 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Flame, Zap, BookOpen, Target, Trophy, Award, Settings, LogOut } from 'lucide-react';
+import { Flame, Zap, BookOpen, Target, Trophy, Award, Settings, LogOut, HelpCircle, Sparkles } from 'lucide-react';
 import { Card, Badge, Avatar, Button, ProgressBar } from '@/components/ui';
 import { AnimatedPage, FadeIn, StaggerChildren, LumiAnimated } from '@/components/ux';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useUserStore } from '@/store/useUserStore';
+import { useUIStore } from '@/store/useUIStore';
 import { formatXP, getCompletionPercentage } from '@/lib/utils';
 import { logoutAction } from '@/actions/auth';
 
 export default function ProfilePage() {
   const router = useRouter();
   const user = useUserStore((state) => state.user);
+  const openSupportModal = useUIStore((state) => state.openSupportModal);
 
   if (!user) {
     return (
@@ -56,9 +58,15 @@ export default function ProfilePage() {
                 </div>
                 <ProgressBar value={xpProgress} variant="reward" size="sm" className="max-w-xs w-full" />
                 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-center gap-2 mt-2">
+                  <Button variant="ghost" size="sm" onClick={() => router.push('/pricing')} leftIcon={<Sparkles size={16} />}>
+                    Upgrade
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={openSupportModal} leftIcon={<HelpCircle size={16} />}>
+                    Support
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => router.push('/settings')} leftIcon={<Settings size={16} />}>
-                    Edit profile
+                    Settings
                   </Button>
                   <Button 
                     variant="ghost" 

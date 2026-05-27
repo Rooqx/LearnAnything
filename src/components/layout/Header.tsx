@@ -17,6 +17,7 @@ import { Avatar, Badge, Tooltip } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatXP } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LumiAnimated } from '@/components/ux';
 
 /**
@@ -33,6 +34,7 @@ export function Header() {
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const user = useUserStore((state) => state.user);
+  const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -73,10 +75,16 @@ export function Header() {
         {/* XP Badge — shows current XP with Zap icon */}
         {user && (
           <Tooltip content={`Level ${user.xp.currentLevel}`}>
-            <Badge variant="reward" size="md">
-              <Coins size={14} className="mr-1" aria-hidden="true" />
-              {formatXP(user.xp.totalXP)} Credits
-            </Badge>
+            <button
+              onClick={() => router.push('/pricing')}
+              className="cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95 border-none bg-transparent p-0 m-0"
+              aria-label="View pricing plans"
+            >
+              <Badge variant="reward" size="md">
+                <Coins size={14} className="mr-1" aria-hidden="true" />
+                {formatXP(user.xp.totalXP)} Credits
+              </Badge>
+            </button>
           </Tooltip>
         )}
 

@@ -9,6 +9,8 @@ import { Header } from '@/components/layout/Header';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { UserHydrator } from '@/components/providers/UserHydrator';
+import { SupportModal } from '@/components/modals/SupportModal';
+import { CommunityModal } from '@/components/modals/CommunityModal';
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
@@ -20,6 +22,10 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         <main className="flex-1">{children}</main>
       </div>
       <BottomNav />
+      
+      {/* Global Modals */}
+      <SupportModal />
+      <CommunityModal />
     </div>
   );
 }

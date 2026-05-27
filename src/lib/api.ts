@@ -25,6 +25,7 @@ import axios from 'axios';
 
 export async function getOrCreateChatSession() {
   const response = await axios.post('/api/chat/session');
+  console.log(response.data, "response from server")
   return response.data.data;
 }
 

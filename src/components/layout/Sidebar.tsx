@@ -17,9 +17,11 @@ import {
   BookOpen,
   Trophy,
   User,
+  HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui';
+import { useUIStore } from '@/store/useUIStore';
 
 /** Icon mapping for each nav item */
 const ICON_MAP = {
@@ -47,6 +49,7 @@ const NAV_ITEMS = [
  */
 export function Sidebar() {
   const pathname = usePathname();
+  const openSupportModal = useUIStore((state) => state.openSupportModal);
 
   return (
     <aside
@@ -93,6 +96,29 @@ export function Sidebar() {
           </Tooltip>
         );
       })}
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      <Tooltip content="Support & Feedback" position="right">
+        <button
+          onClick={openSupportModal}
+          className={cn(
+            'flex flex-col items-center justify-center cursor-pointer',
+            'w-10 h-10 rounded-full mt-4',
+            'transition-all duration-200',
+            'hover:bg-[var(--color-surface)]',
+            'text-[var(--color-muted)] hover:text-[var(--color-primary)]'
+          )}
+          aria-label="Open support and feedback"
+        >
+          <HelpCircle
+            size={22}
+            className="transition-transform duration-200 hover:scale-110"
+            aria-hidden="true"
+          />
+        </button>
+      </Tooltip>
     </aside>
   );
 }

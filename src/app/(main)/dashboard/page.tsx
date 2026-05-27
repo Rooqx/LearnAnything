@@ -20,6 +20,7 @@ import {
   MessageSquare,
   ChevronRight,
   Clock,
+  Users,
 } from 'lucide-react';
 import {
   Card,
@@ -33,6 +34,7 @@ import { AnimatedPage, FadeIn, StaggerChildren, LumiAnimated } from '@/component
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useUserStore } from '@/store/useUserStore';
 import { useCourseStore } from '@/store/useCourseStore';
+import { useUIStore } from '@/store/useUIStore';
 import { fetchCourses } from '@/lib/api';
 import {
   getTimeOfDayGreeting,
@@ -63,6 +65,19 @@ export default function DashboardPage() {
       setCourses(fetchedCourses);
     }
   }, [fetchedCourses, setCourses]);
+
+  // 3. Community Auto-popup logic
+  const { hasSeenCommunityModal, setHasSeenCommunityModal, openCommunityModal } = useUIStore();
+
+  useEffect(() => {
+    if (user && !hasSeenCommunityModal) {
+      const timer = setTimeout(() => {
+        openCommunityModal();
+        setHasSeenCommunityModal();
+      }, 1500); // 1.5s delay for smooth entrance
+      return () => clearTimeout(timer);
+    }
+  }, [user, hasSeenCommunityModal, openCommunityModal, setHasSeenCommunityModal]);
 
   /* Redirect to auth if no user */
   if (!user) {
@@ -136,7 +151,7 @@ export default function DashboardPage() {
           {/* Stat cards grid */}
           <StaggerChildren className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {/* XP Card */}
-            <Card variant="glass" padding="md" gradientBorder>
+            <Card variant="glass" padding="md" gradientBorder interactive onClick={() => router.push('/pricing')}>
               <div className="flex items-center gap-2 mb-2">
                 <Coins size={16} className="text-[var(--color-reward)]" />
                 <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] uppercase tracking-wide">
@@ -254,7 +269,7 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <FadeIn delay={300}>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
               className='text-nowrap text-sm md:text-base'
                 onClick={() => router.push('/chat')}
@@ -269,6 +284,14 @@ export default function DashboardPage() {
                 leftIcon={<BookOpen size={18} />}
               >
                 My courses
+              </Button>
+              <Button
+                className='text-nowrap text-sm md:text-base'
+                variant="ghost"
+                onClick={openCommunityModal}
+                leftIcon={<Users size={18} />}
+              >
+                Join Community
               </Button>
             </div>
           </FadeIn>

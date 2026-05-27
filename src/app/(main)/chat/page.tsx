@@ -90,7 +90,15 @@ export default function ChatPage() {
   useQuery({
     queryKey: ['activeChatSession'],
     queryFn: async () => {
-      const data = await getActiveChatSession();
+      let data = await getActiveChatSession();
+      console.log("data from server: ", data);
+      
+      // If no active session exists, create a new one automatically
+      if (!data || !data.session) {
+        const sessionData = await getOrCreateChatSession();
+        data = { session: { id: sessionData.sessionId, status: sessionData.status } };
+      }
+      
       syncFromDB(data.session);
       return data;
     },
@@ -117,6 +125,7 @@ export default function ChatPage() {
   useQuery({
     queryKey: ['checkGeneration', sessionId],
     queryFn: async () => {
+      console.log("sessionId: ", sessionId)
       if (!sessionId) return null;
       try {
         const data = await checkGenerationComplete(sessionId);
@@ -209,6 +218,20 @@ export default function ChatPage() {
     if (sessionId) {
       sendMessageMutation.mutate({ sid: sessionId, msg: reply, teachingStyle: selectedMode || undefined });
     }
+  };
+
+  const handleCancel = async () => {
+    if (sessionId) {
+      try {
+        await cancelChatSession(sessionId);
+      } catch (error) {
+        console.error("Failed to cancel session:", error);
+      }
+    }
+    clearSession();
+    setLumiState('idle');
+    setMessages([]);
+    setError(null);
   };
 
   const handleSend = async () => {
@@ -364,7 +387,6 @@ export default function ChatPage() {
                   )}
                 </div>
               ))}
-
               {/* Mode selector */}
               {showModeSelector && !isLoading && (
                 <FadeIn>
@@ -419,6 +441,14 @@ export default function ChatPage() {
                           {loadingMessage}
                         </span>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCancel}
+                        className="mt-2 text-[var(--color-muted)] hover:text-red-500 hover:border-red-500 hover:bg-red-500/10"
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </Card>
                 </FadeIn>
