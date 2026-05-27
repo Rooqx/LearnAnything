@@ -254,10 +254,10 @@ code, pre, kbd, samp {
 /* Pulse glow animation for streak/badge elements */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 16px rgba(255, 48, 8, 0.3);
+    box-shadow: 0 0 12px color-mix(in srgb, currentColor 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 32px rgba(255, 48, 8, 0.6);
+    box-shadow: 0 0 24px color-mix(in srgb, currentColor 60%, transparent);
   }
 }
 
@@ -485,30 +485,7 @@ code, pre, kbd, samp {
 
 .animate-lumi-celebrate { animation: lumiCelebrate 1s ease-in-out infinite; }
 
-/* ============================================================
-   FADE-IN DIRECTION KEYFRAMES
-   Used by FadeIn, AnimatedPage, StaggerChildren
-   ============================================================ */
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInLeft {
-  from { opacity: 0; transform: translateX(-16px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeInRight {
-  from { opacity: 0; transform: translateX(16px); }
-  to { opacity: 1; transform: translateX(0); }
-}
 
 /* ============================================================
    FLOAT UP — XP Toast animation

@@ -1,5 +1,5 @@
 /* ============================================================
-   LumiAnimated — SVG Mascot Component
+   LumiPlaceholder Component — Mascot & Logo
    A high-end CSS-animated SVG cosmic orb placeholder for Lumi.
    Designed to be modular so it can be swapped with a real Lottie
    file in one line.
@@ -10,65 +10,77 @@
 
 'use client';
 
-import { useId } from 'react';
-import { useAnimationMode } from '@/hooks/useAnimationMode';
 import { cn } from '@/lib/utils';
-import type { LumiState } from '@/types';
+import { useId } from 'react';
 
-export interface LumiAnimatedProps {
-  /** Pixel size of the Lumi orb */
-  size?: number;
-  /** Current emotion state */
-  state?: LumiState;
-  /** Additional CSS classes */
+export interface LumiPlaceholderProps {
+  /** Size variant */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
+  /** Expressive animation state mapped to globals.css keyframes */
+  state?: 'idle' | 'thinking' | 'excited' | 'celebrating';
+  /** Additional custom class names */
   className?: string;
+  /** Unique ID for automated testing and query selection */
+  id?: string;
+  variant?: string; // Adding variant to avoid type errors from HeroSection usages
 }
 
 /**
- * Lumi mascot — SVG cosmic orb with 4 emotion states.
+ * Lumi Mascot Placeholder.
+ * Built using layered SVGs with radial gradient meshes and SVG glows.
  *
- * Built as inline SVG with CSS animations instead of Lottie
- * for instant availability. Can be swapped to Lottie later.
- *
- * LITE mode: renders static SVG without animations.
- * FULL mode: CSS animations per state (bob, spin, bounce, celebrate).
- *
- * The orb has a gradient fill from primary to reward,
- * with a face (eyes and mouth) that changes per state.
- * Soft glow effect via SVG filter.
+ * Sizing mapping (maintained touch target rules):
+ * - sm: 32px (used in navbar brand logo)
+ * - md: 64px (standard visual contexts)
+ * - lg: 120px (used in Hero sections)
+ * - xl: 180px (used in CTA full-screen sections)
  */
-export function LumiAnimated({
-  size = 80,
+export function LumiPlaceholder({
+  size = 'md',
   state = 'idle',
   className,
-}: LumiAnimatedProps) {
-  const { isLite } = useAnimationMode();
+  id = 'lumi-mascot-placeholder',
+  variant, // backwards compatibility
+}: LumiPlaceholderProps) {
   const uniqueId = useId().replace(/:/g, '');
+  const actualState = variant && !['sm','md','lg','xl'].includes(variant) ? variant as any : state;
 
-  /** Determine animation class based on state and mode */
-  const animationClass = isLite
-    ? ''
-    : state === 'idle'
-      ? 'animate-lumi-bob'
-      : state === 'thinking'
-        ? 'animate-lumi-think'
-        : state === 'excited'
-          ? 'animate-lumi-bounce'
-          : 'animate-lumi-celebrate';
+  // Map size classes
+  const sizeClasses = {
+    sm: 'w-8 h-8',
+    md: 'w-16 h-16',
+    lg: 'w-24 h-24 md:w-32 md:h-32',
+    xl: 'w-32 h-32 md:w-44 md:h-44',
+  };
+
+  // If size is a number (backwards compatibility), use inline style instead of class
+  const isNumberSize = typeof size === 'number';
+  const sizeClass = isNumberSize ? '' : sizeClasses[size as keyof typeof sizeClasses];
+  const sizeStyle = isNumberSize ? { width: size, height: size } : undefined;
+
+  // Map expressive state classes from globals.css
+  const stateClasses = {
+    idle: 'animate-lumi-bob',
+    thinking: 'animate-lumi-think',
+    excited: 'animate-lumi-bounce',
+    celebrating: 'animate-lumi-celebrate',
+  };
 
   const coreGradId = `lumiCoreGrad-${uniqueId}`;
   const ringGradId = `lumiRingGrad-${uniqueId}`;
 
   return (
     <div
+      id={id}
       className={cn(
         'relative inline-flex items-center justify-center select-none pointer-events-none',
-        animationClass,
+        sizeClass,
+        stateClasses[actualState as keyof typeof stateClasses] || stateClasses.idle,
         className
       )}
-      style={{ width: size, height: size }}
+      style={sizeStyle}
       role="img"
-      aria-label={`Lumi mascot — ${state} state`}
+      aria-label={`Lore Mascot Lumi in ${actualState} mode`}
     >
       {/* Outer Radial Glow Bezel Layer */}
       <div
@@ -112,6 +124,12 @@ export function LumiAnimated({
             <stop offset="95%" stopColor="#FFE500" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#FF3008" stopOpacity="0.8" />
           </radialGradient>
+
+          {/* SVG Glow Filter for vector lines */}
+          <filter id="vectorGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
         </defs>
 
         {/* Outer Aura Ring */}
@@ -124,8 +142,8 @@ export function LumiAnimated({
           strokeDasharray="6 4 2 4"
           className={cn(
             'origin-center animate-[spin_20s_linear_infinite]',
-            state === 'thinking' && 'animate-[spin_6s_linear_infinite]',
-            state === 'celebrating' && 'animate-[spin_4s_linear_infinite]'
+            actualState === 'thinking' && 'animate-[spin_6s_linear_infinite]',
+            actualState === 'celebrating' && 'animate-[spin_4s_linear_infinite]'
           )}
         />
 
@@ -141,7 +159,7 @@ export function LumiAnimated({
         {/* Soft Bezel Reflection Highlight */}
         <ellipse
           cx="48"
-          cy="32"
+            cy="32"
           rx="18"
           ry="10"
           fill="#FFF8F5"
@@ -209,7 +227,7 @@ export function LumiAnimated({
           />
 
           {/* Expressive Mouth Path */}
-          {state === 'idle' && (
+          {(actualState === 'idle' || actualState === 'default') && (
             /* Gentle Smile */
             <path
               d="M54 71C54 74.3137 56.6863 77 60 77C63.3137 77 66 74.3137 66 71"
@@ -219,7 +237,7 @@ export function LumiAnimated({
             />
           )}
 
-          {state === 'thinking' && (
+          {actualState === 'thinking' && (
             /* Wry/Curious line */
             <path
               d="M53 73C56.5 70.5 59.5 75.5 67 73"
@@ -229,7 +247,7 @@ export function LumiAnimated({
             />
           )}
 
-          {(state === 'excited' || state === 'celebrating') && (
+          {(actualState === 'excited' || actualState === 'celebrating') && (
             /* Big excited open mouth */
             <path
               d="M52 70Q60 84 68 70Z"

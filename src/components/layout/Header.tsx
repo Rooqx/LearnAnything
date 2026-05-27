@@ -9,6 +9,7 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Sun, Moon, Coins } from 'lucide-react';
 import { useThemeStore } from '@/store/useThemeStore';
 import { useUserStore } from '@/store/useUserStore';
@@ -32,6 +33,13 @@ export function Header() {
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const user = useUserStore((state) => state.user);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted 
+    ? (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
+    : true; // SSR fallback to dark
 
   return (
     <header
@@ -82,9 +90,15 @@ export function Header() {
             'transition-colors duration-200',
             'min-h-[44px] min-w-[44px] flex items-center justify-center'
           )}
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          aria-label="Toggle theme"
         >
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          {!mounted ? (
+            <Moon size={20} className="opacity-0" />
+          ) : isDark ? (
+            <Moon size={20} />
+          ) : (
+            <Sun size={20} />
+          )}
         </button>
 
         {/* User Avatar */}

@@ -7,6 +7,7 @@
 'use client';
 
 import { useAnimationMode } from '@/hooks/useAnimationMode';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
@@ -18,14 +19,18 @@ export interface AnimatedPageProps {
 export function AnimatedPage({ children, className }: AnimatedPageProps) {
   const { isLite } = useAnimationMode();
 
+  if (isLite) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
-    <div
-      className={cn(
-        isLite ? 'opacity-100' : 'animate-[fadeInUp_300ms_cubic-bezier(0.25,1,0.5,1)_both]',
-        className
-      )}
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

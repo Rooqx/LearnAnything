@@ -7,8 +7,9 @@
 'use client';
 
 import { Children, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import { useAnimationMode } from '@/hooks/useAnimationMode';
-import { cn } from '@/lib/utils';
+//import { cn } from '@/lib/utils';
 
 export interface StaggerChildrenProps {
   children: ReactNode;
@@ -36,23 +37,50 @@ export function StaggerChildren({
   const { isLite } = useAnimationMode();
   const childArray = Children.toArray(children);
 
+  if (isLite) {
+    return (
+      <div className={className}>
+        {childArray.map((child, index) => (
+          <div key={index}>{child}</div>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className={className}>
+    <motion.div
+      className={className}
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: staggerDelay / 1000,
+            delayChildren: baseDelay / 1000,
+          },
+        },
+      }}
+    >
       {childArray.map((child, index) => (
-        <div
+        <motion.div
           key={index}
-          className={cn(!isLite && 'opacity-0')}
-          style={
-            isLite
-              ? undefined
-              : {
-                  animation: `fadeInUp ${duration}ms cubic-bezier(0.25, 1, 0.5, 1) ${baseDelay + index * staggerDelay}ms both`,
-                }
-          }
+          variants={{
+            hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+            visible: {
+              opacity: 1,
+              y: 0,
+              filter: 'blur(0px)',
+              transition: {
+                duration: 0.8,
+                ease: [0.32, 0.72, 0, 1],
+              },
+            },
+          }}
         >
           {child}
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

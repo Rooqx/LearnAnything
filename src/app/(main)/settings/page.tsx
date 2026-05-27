@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Monitor,
   Zap,
   Sparkles,
   LogOut,
@@ -23,7 +24,7 @@ import { Card, Button, Input, Toggle, Badge } from '@/components/ui';
 import { AnimatedPage, FadeIn } from '@/components/ux';
 import { PageWrapper } from '@/components/layout/PageWrapper';
 import { useUserStore } from '@/store/useUserStore';
-import { useThemeStore } from '@/store/useThemeStore';
+import { useThemeStore, type ThemeOption } from '@/store/useThemeStore';
 import { useAnimationStore } from '@/store/useAnimationStore';
 import { DAILY_GOAL_OPTIONS, MODE_CONFIG } from '@/lib/constants';
 import { logoutAction } from '@/actions/auth';
@@ -40,7 +41,7 @@ export default function SettingsPage() {
   const signOut = useUserStore((state) => state.signOut);
 
   const theme = useThemeStore((state) => state.theme);
-  const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const setTheme = useThemeStore((state) => state.setTheme);
   const animationMode = useAnimationStore((state) => state.animationMode);
   const setAnimationMode = useAnimationStore((state) => state.setAnimationMode);
 
@@ -121,12 +122,30 @@ export default function SettingsPage() {
                 <h2 className="font-[family-name:var(--font-heading)] font-semibold text-lg text-[var(--color-text)]">Appearance</h2>
               </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {theme === 'dark' ? <Moon size={16} className="text-[var(--color-muted)]" /> : <Sun size={16} className="text-[var(--color-accent)]" />}
-                    <span className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text)]">Dark mode</span>
+                <div>
+                  <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-muted)] mb-2">Theme</p>
+                  <div className="flex gap-2">
+                    {(
+                      [
+                        { value: 'dark' as ThemeOption, label: 'Dark', icon: <Moon size={14} /> },
+                        { value: 'light' as ThemeOption, label: 'Light', icon: <Sun size={14} /> },
+                        { value: 'system' as ThemeOption, label: 'System', icon: <Monitor size={14} /> },
+                      ] as const
+                    ).map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setTheme(option.value)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] text-sm font-[family-name:var(--font-body)] font-medium transition-all cursor-pointer active:scale-[0.96] ${
+                          theme === option.value
+                            ? 'bg-[var(--color-primary)] text-white'
+                            : 'bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-text)]'
+                        }`}
+                      >
+                        {option.icon}
+                        {option.label}
+                      </button>
+                    ))}
                   </div>
-                  <Toggle isOn={theme === 'dark'} onToggle={toggleTheme} label="Dark mode toggle" />
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
