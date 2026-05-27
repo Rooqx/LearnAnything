@@ -39,7 +39,7 @@ const MOCK_MESSAGES = [
   },
   {
     sender: 'lumi' as const,
-    text: "On it. I'm building your course now — blockchain fundamentals, how transactions work, smart contracts, and more.",
+    text: "On it. I'm building your course now: blockchain fundamentals, how transactions work, smart contracts, and more.",
   },
   {
     sender: 'lumi' as const,
@@ -252,12 +252,12 @@ export function HeroSection() {
               }}
             >
               Type any topic. Lore builds you a real course with lessons,
-              videos, and quizzes — all in seconds. No more 47 open tabs.
+              videos, and quizzes in seconds. No more 47 open tabs.
             </motion.p>
           ) : (
             <p className="font-[family-name:var(--font-body)] text-lg md:text-xl text-[var(--color-text-secondary)] max-w-[55ch] leading-relaxed">
               Type any topic. Lore builds you a real course with lessons,
-              videos, and quizzes — all in seconds. No more 47 open tabs.
+              videos, and quizzes in seconds. No more 47 open tabs.
             </p>
           )}
 

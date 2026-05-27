@@ -33,14 +33,14 @@ const STEPS = [
   {
     step: 1,
     title: 'Tell Lore what you want',
-    description: 'Open the chat, type any topic — or pick from smart suggestions. Be as specific or as broad as you like.',
+    description: 'Open the chat, type any topic, or pick from smart suggestions. Be as specific or as broad as you like.',
     Icon: MessageCircle,
     iconColor: 'var(--color-primary)',
   },
   {
     step: 2,
     title: 'AI builds your course',
-    description: 'Lore generates a full structured course in seconds — modules, lessons, videos, quizzes, everything.',
+    description: 'Lore generates a full structured course in seconds with modules, lessons, videos, quizzes, and everything else.',
     Icon: Sparkles,
     iconColor: 'var(--color-accent)',
   },

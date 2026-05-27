@@ -33,8 +33,8 @@ import { cn } from '@/lib/utils';
 const FEATURES = [
   {
     id: 'learn-anything',
-    title: 'Learn anything — literally',
-    description: 'Blockchain, cooking, calculus, Japanese, guitar chords — if it exists, Lore can teach it. Any topic, any depth.',
+    title: 'Learn absolutely anything',
+    description: 'Blockchain, cooking, calculus, Japanese, guitar chords. If it exists, Lore can teach it. Any topic, any depth.',
     Icon: Target,
     iconColor: 'var(--color-primary)',
     /* Large card — spans 2 columns on desktop */
@@ -67,7 +67,7 @@ const FEATURES = [
   {
     id: 'rich-content',
     title: 'Rich content',
-    description: 'Videos, code blocks, math equations, interactive quizzes — not just walls of text.',
+    description: 'Videos, code blocks, math equations, interactive quizzes. Say goodbye to walls of text.',
     Icon: Play,
     iconColor: 'var(--color-primary)',
     span: 'large' as const,

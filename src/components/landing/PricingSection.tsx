@@ -472,7 +472,7 @@ function SubscriptionView({
       <div className="max-w-3xl mx-auto text-center">
         <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text-secondary)]">
           All plans include XP tracking, streak system, achievement badges, and
-          full leaderboard access. Cancel anytime — no questions asked.
+          full leaderboard access. Cancel anytime with zero questions asked.
         </p>
       </div>
     </div>

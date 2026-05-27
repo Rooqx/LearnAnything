@@ -26,42 +26,42 @@ const FAQ_ITEMS = [
   {
     id: 'how-generate',
     question: 'How does Lore actually generate my course?',
-    answer: 'You type a topic into the chat. Our AI analyzes it, breaks it into logical modules and chapters, finds relevant videos, generates interactive content, and builds quiz questions — all in about 30 seconds. The result is a full structured course you can start immediately.',
+    answer: 'You type a topic into the chat. Our AI analyzes it, breaks it into logical modules and chapters, finds relevant videos, generates interactive content, and builds quiz questions in under 30 seconds. The result is a full structured course you can start immediately.',
   },
   {
     id: 'what-learn',
     question: 'What can I learn on Lore?',
-    answer: "Honestly? Almost anything. Blockchain, cooking, psychology, guitar, calculus, history, coding, photography — if there's knowledge about it, Lore can teach it. Some very niche or brand-new topics might have thinner content, but we're always improving.",
+    answer: "Honestly? Almost anything. Blockchain, cooking, psychology, guitar, calculus, history, coding, photography. If there's knowledge about it, Lore can teach it. Some very niche or brand-new topics might have thinner content, but we're always improving.",
   },
   {
     id: 'modes',
     question: "What's the difference between Beginner, Simplified, and Quick?",
-    answer: 'Beginner gives you the deepest course — more modules, detailed explanations, videos, and quizzes. Simplified covers the essentials without going too deep. Quick gives you a rapid overview — perfect when you just need to understand the basics fast. Same AI, different depth.',
+    answer: 'Beginner gives you the deepest course with more modules, detailed explanations, videos, and quizzes. Simplified covers the essentials without going too deep. Quick gives you a rapid overview. Perfect when you just need to understand the basics fast. Same AI, different depth.',
   },
   {
     id: 'credits',
     question: 'How do credits work?',
-    answer: "You buy credit bundles and spend them to generate courses. Quick courses cost 1 credit, Simplified cost 2, and Beginner cost 3. Once a course is generated, it's yours forever — no extra cost to revisit it. Credits never expire.",
+    answer: "You buy credit bundles and spend them to generate courses. Quick courses cost 1 credit, Simplified cost 2, and Beginner cost 3. Once a course is generated, it's yours forever. No extra cost to revisit it. Credits never expire.",
   },
   {
     id: 'free-trial',
     question: 'Is there a free trial?',
-    answer: "You get starter credits when you sign up — enough to generate a few courses and see how it works. No credit card required. After that, you can buy more credits or grab a subscription.",
+    answer: "You get starter credits when you sign up. That's enough to generate a few courses and see how it works. No credit card required. After that, you can buy more credits or grab a subscription.",
   },
   {
     id: 'mobile',
     question: 'Can I learn on my phone?',
-    answer: "The web app is fully responsive and works great on mobile browsers. A dedicated mobile app is in the works — but the mobile web experience is solid right now.",
+    answer: "The web app is fully responsive and works great on mobile browsers. A dedicated mobile app is in the works, but the mobile web experience is solid right now.",
   },
   {
     id: 'vs-youtube',
     question: 'How is this different from YouTube or Google?',
-    answer: "YouTube gives you random videos with no structure. Google gives you articles you have to piece together yourself. Lore gives you a complete, structured course — with progression, quizzes, and tracking. It's the difference between a pile of ingredients and a meal.",
+    answer: "YouTube gives you random videos with no structure. Google gives you articles you have to piece together yourself. Lore gives you a complete, structured course complete with progression, quizzes, and tracking. It's the difference between a pile of ingredients and a meal.",
   },
   {
     id: 'mid-lesson',
     question: 'What if I want to ask a question mid-lesson?',
-    answer: "Hit the floating Lumi help button in any lesson. Ask your question and Lore explains it in context — referencing what you're currently learning. It's like having a tutor sitting next to you who actually knows the material.",
+    answer: "Hit the floating Lumi help button in any lesson. Ask your question and Lore explains it in context by referencing what you're currently learning. It's like having a tutor sitting next to you who actually knows the material.",
   },
 ] as const;
 
