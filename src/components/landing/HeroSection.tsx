@@ -68,7 +68,7 @@ const EASE_OUT_STRONG: [number, number, number, number] = [0.23, 1, 0.32, 1];
 export function HeroSection() {
   const { isFull } = useAnimationMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
 
   /** Whether to run entrance animations */
   const shouldAnimate = isFull && isInView;
@@ -139,15 +139,15 @@ export function HeroSection() {
       {/* Main content grid */}
       <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-        {/* Right: Chat mock — shown first on mobile (order-first) */}
-        <div className="lg:col-span-5 lg:order-2 order-first flex justify-center lg:justify-end">
+        {/* Right: Chat mock — shown below text on mobile (order-last) */}
+        <div className="lg:col-span-5 lg:order-2 order-last flex justify-center lg:justify-end">
           {isFull ? (
             <motion.div
-              initial={{ opacity: 0, x: 60, scale: 0.95 }}
-              animate={shouldAnimate ? { opacity: 1, x: 0, scale: 1 } : {}}
+              initial={{ opacity: 0, x: 60, scale: 0.95, filter: 'blur(12px)' }}
+              animate={shouldAnimate ? { opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' } : { opacity: 0, x: 60, scale: 0.95, filter: 'blur(12px)' }}
               transition={{
                 duration: 0.8,
-                ease: EASE_OUT_STRONG,
+                ease: [0.32, 0.72, 0, 1],
                 delay: 0.3,
               }}
               className="w-full max-w-md"
@@ -168,9 +168,9 @@ export function HeroSection() {
             <LumiPlaceholder size={48} variant="excited" />
             {isFull ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={shouldAnimate ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.4, ease: EASE_OUT_STRONG, delay: 0.1 }}
+                initial={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
+                animate={shouldAnimate ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
+                transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
               >
                 <span
                   className={cn(
@@ -208,12 +208,12 @@ export function HeroSection() {
                 <motion.span
                   key={word}
                   className="inline-block mr-[0.25em]"
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
+                  initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                  animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 40, filter: 'blur(8px)' }}
                   transition={{
-                    duration: 0.5,
-                    ease: EASE_OUT_STRONG,
-                    delay: 0.15 + index * 0.04,
+                    duration: 0.8,
+                    ease: [0.32, 0.72, 0, 1],
+                    delay: 0.15 + index * 0.06,
                   }}
                 >
                   {/* Highlight "AI" in primary color for emphasis */}
@@ -243,11 +243,11 @@ export function HeroSection() {
           {isFull ? (
             <motion.p
               className="font-[family-name:var(--font-body)] text-lg md:text-xl text-[var(--color-text-secondary)] max-w-[55ch] leading-relaxed"
-              initial={{ opacity: 0, y: 16 }}
-              animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
+              initial={{ opacity: 0, y: 32, filter: 'blur(8px)' }}
+              animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 32, filter: 'blur(8px)' }}
               transition={{
-                duration: 0.5,
-                ease: EASE_OUT_STRONG,
+                duration: 0.8,
+                ease: [0.32, 0.72, 0, 1],
                 delay: 0.45,
               }}
             >
@@ -265,11 +265,11 @@ export function HeroSection() {
           {isFull ? (
             <motion.div
               className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={shouldAnimate ? { opacity: 1, scale: 1 } : {}}
+              initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+              animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 24, filter: 'blur(8px)' }}
               transition={{
-                duration: 0.4,
-                ease: EASE_OUT_STRONG,
+                duration: 0.8,
+                ease: [0.32, 0.72, 0, 1],
                 delay: 0.6,
               }}
             >

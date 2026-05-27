@@ -57,7 +57,7 @@ export function PricingSection() {
   const [mode, setMode] = useState<PricingMode>('credits');
   const { isFull } = useAnimationMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
   const shouldAnimate = isFull && isInView;
 
   return (
@@ -76,9 +76,9 @@ export function PricingSection() {
         <div className="text-center mb-12 md:mb-16">
           {isFull ? (
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, ease: EASE_OUT_STRONG }}
+              initial={{ opacity: 0, y: 64, filter: 'blur(12px)' }}
+              animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 64, filter: 'blur(12px)' }}
+              transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
             >
               <LumiPlaceholder size={56} variant="excited" className="mx-auto mb-4" />
               <span
@@ -201,20 +201,20 @@ export function PricingSection() {
             {mode === 'credits' ? (
               <motion.div
                 key="credits"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: EASE_OUT_STRONG }}
+                initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -24, filter: 'blur(8px)' }}
+                transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
               >
                 <CreditsView shouldAnimate={shouldAnimate} isFull={isFull} />
               </motion.div>
             ) : (
               <motion.div
                 key="subscription"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3, ease: EASE_OUT_STRONG }}
+                initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -24, filter: 'blur(8px)' }}
+                transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
               >
                 <SubscriptionView shouldAnimate={shouldAnimate} isFull={isFull} />
               </motion.div>
@@ -249,32 +249,32 @@ function CreditsView({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-12">
         {CREDIT_BUNDLES.map((bundle, index) => {
           const cardContent = (
-            <Card
-              key={bundle.id}
-              variant={bundle.isBestValue ? 'elevated' : 'glass'}
-              padding="md"
-              interactive
-              className={cn(
-                'relative text-center group',
-                'hover:-translate-y-1',
-                'transition-all duration-200',
-                bundle.isBestValue && [
-                  /* Best value card gets accent glow border */
-                  'border-[var(--color-accent)]/40',
-                  'shadow-[0_0_24px_rgba(255,229,0,0.12)]',
-                ]
-              )}
-            >
+            <div className="relative h-full">
               {/* Best Value badge */}
               {bundle.isBestValue && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge variant="accent" size="sm" pulse>
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <Badge variant="reward"  size="sm" pulse>
                     Best Value
                   </Badge>
                 </div>
               )}
-
-              {/* Credit amount */}
+              <Card
+                key={bundle.id}
+                variant={bundle.isBestValue ? 'elevated' : 'glass'}
+                padding="md"
+                interactive
+                className={cn(
+                  'h-full text-center group',
+                  'hover:-translate-y-1',
+                  'transition-all duration-200',
+                  bundle.isBestValue && [
+                    /* Best value card gets accent glow border */
+                    'border-[var(--color-accent)]/40',
+                    'shadow-[0_0_24px_rgba(255,229,0,0.12)]',
+                  ]
+                )}
+              >
+                {/* Credit amount */}
               <p className="font-[family-name:var(--font-heading)] font-bold text-2xl md:text-3xl text-[var(--color-text)] mt-2">
                 {bundle.credits}
               </p>
@@ -303,18 +303,19 @@ function CreditsView({
                 </Button>
               </Link>
             </Card>
+          </div>
           );
 
           if (isFull) {
             return (
               <motion.div
                 key={bundle.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 40, filter: 'blur(8px)' }}
                 transition={{
-                  duration: 0.4,
-                  ease: EASE_OUT_STRONG,
-                  delay: index * 0.05,
+                  duration: 0.8,
+                  ease: [0.32, 0.72, 0, 1],
+                  delay: index * 0.08,
                 }}
               >
                 {cardContent}
@@ -368,31 +369,30 @@ function SubscriptionView({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 max-w-5xl mx-auto mb-12">
         {SUBSCRIPTION_PLANS.map((plan, index) => {
           const cardContent = (
-            <Card
-              key={plan.id}
-              variant={plan.isPopular ? 'elevated' : 'glass'}
-              padding="lg"
-              className={cn(
-                'relative group',
-                'transition-all duration-200',
-                'hover:-translate-y-1',
-                plan.isPopular && [
-                  /* Most popular card gets primary gradient border */
-                  'border-[var(--color-primary)]/40',
-                  'shadow-[0_0_32px_rgba(255,48,8,0.15)]',
-                ]
-              )}
-            >
+            <div className="relative h-full" key={plan.id}>
               {/* Most Popular badge */}
               {plan.isPopular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                   <Badge variant="primary" size="sm" pulse>
                     Most Popular
                   </Badge>
                 </div>
               )}
-
-              {/* Plan name */}
+              <Card
+                variant={plan.isPopular ? 'elevated' : 'glass'}
+                padding="lg"
+                className={cn(
+                  'h-full group',
+                  'transition-all duration-200',
+                  'hover:-translate-y-1',
+                  plan.isPopular && [
+                    /* Most popular card gets primary gradient border */
+                    'border-[var(--color-primary)]/40',
+                    'shadow-[0_0_32px_rgba(255,48,8,0.15)]',
+                  ]
+                )}
+              >
+                {/* Plan name */}
               <h3 className="font-[family-name:var(--font-heading)] font-bold text-xl text-[var(--color-text)] mt-2">
                 {plan.name}
               </h3>
@@ -444,18 +444,19 @@ function SubscriptionView({
                 </Button>
               </Link>
             </Card>
+          </div>
           );
 
           if (isFull) {
             return (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 40, filter: 'blur(8px)' }}
                 transition={{
-                  duration: 0.4,
-                  ease: EASE_OUT_STRONG,
-                  delay: index * 0.1,
+                  duration: 0.8,
+                  ease: [0.32, 0.72, 0, 1],
+                  delay: index * 0.15,
                 }}
               >
                 {cardContent}

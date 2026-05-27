@@ -69,7 +69,7 @@ const EASE_OUT_STRONG: [number, number, number, number] = [0.23, 1, 0.32, 1];
 export function HowItWorksSection() {
   const { isFull } = useAnimationMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
   const shouldAnimate = isFull && isInView;
 
   return (
@@ -89,17 +89,17 @@ export function HowItWorksSection() {
         <div className="text-center mb-16 md:mb-20">
           {isFull ? (
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, ease: EASE_OUT_STRONG }}
+              initial={{ opacity: 0, y: 64, filter: 'blur(12px)' }}
+              animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 64, filter: 'blur(12px)' }}
+              transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
             >
               {/* Eyebrow tag — taste-skill microscopic pill badge */}
               <span
                 className={cn(
                   'inline-flex items-center gap-1.5',
                   'px-3 py-1 mb-4 rounded-full',
-                  'bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20',
-                  'text-[var(--color-accent)]',
+                  'bg-[var(--color-reward)]/10 border border-[var(--color-reward)]/20',
+                  'text-[var(--color-reward)]',
                   'font-[family-name:var(--font-body)] text-[10px] font-medium tracking-[0.15em] uppercase'
                 )}
               >
@@ -122,8 +122,8 @@ export function HowItWorksSection() {
                 className={cn(
                   'inline-flex items-center gap-1.5',
                   'px-3 py-1 mb-4 rounded-full',
-                  'bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20',
-                  'text-[var(--color-accent)]',
+                  'bg-[var(--color-reward)]/10 border border-[var(--color-reward)]/20',
+                  'text-[var(--color-reward)]',
                   'font-[family-name:var(--font-body)] text-[10px] font-medium tracking-[0.15em] uppercase'
                 )}
               >
@@ -160,7 +160,7 @@ export function HowItWorksSection() {
           <div
             className={cn(
               'absolute md:hidden',
-              'left-8 top-[80px] bottom-[80px]',
+              'left-1/2 -translate-x-1/2 top-[10%] bottom-[10%]',
               'w-[2px]',
               'bg-gradient-to-b from-[var(--color-primary)]/40 via-[var(--color-accent)]/40 to-[var(--color-success)]/40'
             )}
@@ -182,8 +182,7 @@ export function HowItWorksSection() {
                     /* Hover lift — subtle translateY + shadow increase */
                     'hover:-translate-y-1 hover:shadow-[var(--shadow-md)]',
                     'transition-all duration-200',
-                    /* Mobile: add left padding for the vertical line visual */
-                    'md:text-center'
+                    'text-center'
                   )}
                 >
                   {/* Step number — large, top-left (desktop: centered) */}
@@ -206,7 +205,7 @@ export function HowItWorksSection() {
                       'flex items-center justify-center',
                       'bg-[var(--color-surface-elevated)]',
                       'border border-[var(--color-border)]',
-                      'md:mx-auto',
+                      'mx-auto',
                       /* Subtle glow on hover */
                       'group-hover:shadow-[0_0_20px_rgba(255,48,8,0.15)]',
                       'transition-shadow duration-300'
@@ -236,11 +235,11 @@ export function HowItWorksSection() {
                 return (
                   <motion.div
                     key={step.step}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
+                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                    animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 40, filter: 'blur(8px)' }}
                     transition={{
-                      duration: 0.5,
-                      ease: EASE_OUT_STRONG,
+                      duration: 0.8,
+                      ease: [0.32, 0.72, 0, 1],
                       delay: 0.15 + index * 0.1,
                     }}
                   >

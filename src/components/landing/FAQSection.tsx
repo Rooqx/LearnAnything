@@ -82,7 +82,7 @@ export function FAQSection() {
   const [openId, setOpenId] = useState<string | null>(null);
   const { isFull } = useAnimationMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
   const shouldAnimate = isFull && isInView;
 
   /** Toggle accordion — only one open at a time */
@@ -106,9 +106,9 @@ export function FAQSection() {
         <div className="text-center mb-12 md:mb-16">
           {isFull ? (
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, ease: EASE_OUT_STRONG }}
+              initial={{ opacity: 0, y: 64, filter: 'blur(12px)' }}
+              animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 64, filter: 'blur(12px)' }}
+              transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
             >
               <span
                 className={cn(
@@ -175,7 +175,7 @@ export function FAQSection() {
                   /* Hover: subtle background tint */
                   'hover:bg-[var(--color-surface-elevated)]/50',
                   /* Active item: primary left border */
-                  isOpen && 'border-l-2 border-l-[var(--color-primary)]'
+                  /*isOpen && 'border-l-2 border-l-[var(--color-primary)]'*/
                 )}
                 role="listitem"
               >
@@ -188,7 +188,7 @@ export function FAQSection() {
                     'text-left cursor-pointer',
                     'min-h-[44px]',
                     'active:scale-[0.99]',
-                    'transition-transform duration-150'
+                    'transition-transform duration-300'
                   )}
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${item.id}`}
@@ -210,20 +210,27 @@ export function FAQSection() {
                   />
                 </button>
 
-                {/* Answer — CSS max-height transition for smooth open/close */}
+                {/* Answer — CSS Grid transition for mathematically perfect smooth open/close */}
                 <div
                   id={`faq-answer-${item.id}`}
                   className={cn(
-                    'overflow-hidden transition-all duration-300',
-                    isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+              
+                    'grid',
+                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                   )}
-                  style={{ transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)' }}
+                  style={{ 
+                    transition: 'grid-template-rows 300ms cubic-bezier(0.32, 0.72, 0, 1), opacity 300ms cubic-bezier(0.32, 0.72, 0, 1)' 
+                  }}
                   role="region"
                   aria-hidden={!isOpen}
                 >
-                  <p className="px-5 md:px-6 pb-4 md:pb-5 font-[family-name:var(--font-body)] text-sm text-[var(--color-text-secondary)] leading-relaxed">
-                    {item.answer}
-                  </p>
+                  <div className="overflow-hidden 
+                  ">
+                    <div className="flex gap-3 px-5 md:px-6 pb-4 md:pb-5 font-[family-name:var(--font-body)] text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                      <div className="bg-[var(--color-primary)] rounded-full w-1 shrink-0 my-1" />
+                      <div>{item.answer}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
@@ -232,12 +239,12 @@ export function FAQSection() {
               return (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
+                  initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                  animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 40, filter: 'blur(8px)' }}
                   transition={{
-                    duration: 0.4,
-                    ease: EASE_OUT_STRONG,
-                    delay: 0.1 + index * 0.06,
+                    duration: 0.8,
+                    ease: [0.32, 0.72, 0, 1],
+                    delay: 0.1 + index * 0.08,
                   }}
                 >
                   {accordionContent}

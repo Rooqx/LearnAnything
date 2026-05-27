@@ -1,209 +1,276 @@
 /* ============================================================
-   LumiPlaceholder — CSS-Animated SVG Glowing Orb
-   Standalone placeholder for Lumi mascot on the landing page.
+   LumiPlaceholder Component — Mascot & Logo
+   A high-end CSS-animated SVG cosmic orb placeholder for Lumi.
+   Designed to be modular so it can be swapped with a real Lottie
+   file in one line.
 
-   When the real Lottie animation is ready, swap only the
-   internals of this component — the interface stays identical.
-
-   Features:
-   - Pure CSS keyframes for pulse glow + gentle float
-   - Two variants: 'default' (calm) and 'excited' (energetic)
-   - Uses --color-primary (#FF3008) as the glow color
-   - GPU-accelerated — only animates transform and opacity
-   - No JS animation libraries — works in FULL and LITE modes
+   Animation: bobbing, pulsing, glowing, and blinking eyes using
+   GPU-accelerated CSS keyframes only (Zero JS frame cost).
    ============================================================ */
 
+'use client';
+
 import { cn } from '@/lib/utils';
+import { useId } from 'react';
 
 export interface LumiPlaceholderProps {
-  /** Pixel size of the Lumi orb (width and height) */
-  size?: number;
-  /** Visual variant — default is calm idle, excited is energetic */
-  variant?: 'default' | 'excited';
-  /** Additional CSS classes */
+  /** Size variant */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
+  /** Expressive animation state mapped to globals.css keyframes */
+  state?: 'idle' | 'thinking' | 'excited' | 'celebrating';
+  /** Additional custom class names */
   className?: string;
+  /** Unique ID for automated testing and query selection */
+  id?: string;
+  variant?: string; // Adding variant to avoid type errors from HeroSection usages
 }
 
 /**
- * CSS-animated SVG orb placeholder for Lumi.
+ * Lumi Mascot Placeholder.
+ * Built using layered SVGs with radial gradient meshes and SVG glows.
  *
- * Structure:
- * - Outer glow ring (blurred circle in --color-primary)
- * - Main orb body (radial gradient: reward → primary → primary-dark)
- * - Light reflection highlight (ellipse)
- * - Expressive face (eyes + mouth SVG paths)
- *
- * Animations (CSS keyframes — defined inline via <style>):
- * - lumi-float: translateY bob, 3s infinite (default) / 2s (excited)
- * - lumi-pulse: scale + glow intensity pulse, 2s infinite
- *
- * Lottie swap plan:
- * Replace the <svg> element inside the wrapper div with:
- *   <DotLottieReact src="/lumi.lottie" autoplay loop />
- * The wrapper div maintains size, animation class, and aria-label.
+ * Sizing mapping (maintained touch target rules):
+ * - sm: 32px (used in navbar brand logo)
+ * - md: 64px (standard visual contexts)
+ * - lg: 120px (used in Hero sections)
+ * - xl: 180px (used in CTA full-screen sections)
  */
 export function LumiPlaceholder({
-  size = 80,
-  variant = 'default',
+  size = 'md',
+  state = 'idle',
   className,
+  id = 'lumi-mascot-placeholder',
+  variant, // backwards compatibility
 }: LumiPlaceholderProps) {
-  const isExcited = variant === 'excited';
+  const uniqueId = useId().replace(/:/g, '');
+  const actualState = variant && !['sm','md','lg','xl'].includes(variant) ? variant as any : state;
 
-  /* Unique ID suffix prevents SVG filter/gradient ID collisions
-     when multiple LumiPlaceholder instances exist on the same page */
-  const uid = `lp-${size}-${variant}`;
+  // Map size classes
+  const sizeClasses = {
+    sm: 'w-8 h-8',
+    md: 'w-16 h-16',
+    lg: 'w-24 h-24 md:w-32 md:h-32',
+    xl: 'w-32 h-32 md:w-44 md:h-44',
+  };
+
+  // If size is a number (backwards compatibility), use inline style instead of class
+  const isNumberSize = typeof size === 'number';
+  const sizeClass = isNumberSize ? '' : sizeClasses[size as keyof typeof sizeClasses];
+  const sizeStyle = isNumberSize ? { width: size, height: size } : undefined;
+
+  // Map expressive state classes from globals.css
+  const stateClasses = {
+    idle: 'animate-lumi-bob',
+    thinking: 'animate-lumi-think',
+    excited: 'animate-lumi-bounce',
+    celebrating: 'animate-lumi-celebrate',
+  };
+
+  const coreGradId = `lumiCoreGrad-${uniqueId}`;
+  const ringGradId = `lumiRingGrad-${uniqueId}`;
 
   return (
     <div
+      id={id}
       className={cn(
-        /* Float animation — GPU-accelerated via transform only */
-        isExcited ? 'animate-lumi-float-excited' : 'animate-lumi-float',
+        'relative inline-flex items-center justify-center select-none pointer-events-none',
+        sizeClass,
+        stateClasses[actualState as keyof typeof stateClasses] || stateClasses.idle,
         className
       )}
-      style={{ width: size, height: size }}
+      style={sizeStyle}
       role="img"
-      aria-label="Lumi — Lore's AI mascot"
+      aria-label={`Lore Mascot Lumi in ${actualState} mode`}
     >
-      {/* Inline keyframes scoped to this component.
-          These are lightweight CSS-only animations that run
-          on both FULL and LITE animation modes. */}
-      <style>{`
-        @keyframes lumi-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        @keyframes lumi-float-excited {
-          0%, 100% { transform: translateY(0) scale(1); }
-          25% { transform: translateY(-10px) scale(1.03); }
-          50% { transform: translateY(0) scale(1); }
-          75% { transform: translateY(-6px) scale(1.02); }
-        }
-        @keyframes lumi-glow-pulse {
-          0%, 100% { opacity: 0.15; }
-          50% { opacity: 0.35; }
-        }
-        .animate-lumi-float {
-          animation: lumi-float 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        .animate-lumi-float-excited {
-          animation: lumi-float-excited 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        .lumi-glow-ring {
-          animation: lumi-glow-pulse 2s ease-in-out infinite;
-        }
-      `}</style>
+      {/* Outer Radial Glow Bezel Layer */}
+      <div
+        className={cn(
+          'absolute inset-0 rounded-full blur-xl opacity-60 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-reward)]',
+          'transition-all duration-700 ease-out-strong'
+        )}
+      />
 
+      {/* SVG Mascot Core */}
       <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
+        viewBox="0 0 120 120"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full drop-shadow-[0_0_24px_rgba(255,48,8,0.5)]"
       >
         <defs>
-          {/* Radial gradient for the orb body — warm orange core
-              fading to deep red at the edges */}
-          <radialGradient id={`${uid}-grad`} cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="var(--color-reward)" />
-            <stop offset="50%" stopColor="var(--color-primary)" />
-            <stop offset="100%" stopColor="var(--color-primary-dark)" />
+          {/* Main Cosmic Sphere Gradient */}
+          <radialGradient
+            id={coreGradId}
+            cx="40%"
+            cy="40%"
+            r="60%"
+            fx="30%"
+            fy="30%"
+          >
+            <stop offset="0%" stopColor="#FFF8F5" />
+            <stop offset="35%" stopColor="#FF8C00" />
+            <stop offset="70%" stopColor="#FF3008" />
+            <stop offset="100%" stopColor="#CC2000" />
           </radialGradient>
 
-          {/* Soft glow filter — Gaussian blur creates the outer glow ring */}
-          <filter id={`${uid}-glow`} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation={size * 0.08} result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+          {/* Holographic Inner Ring Glow */}
+          <radialGradient
+            id={ringGradId}
+            cx="50%"
+            cy="50%"
+            r="50%"
+          >
+            <stop offset="70%" stopColor="#FFE500" stopOpacity="0" />
+            <stop offset="95%" stopColor="#FFE500" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#FF3008" stopOpacity="0.8" />
+          </radialGradient>
+
+          {/* SVG Glow Filter for vector lines */}
+          <filter id="vectorGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
 
-        {/* Outer glow ring — pulsing opacity animation */}
+        {/* Outer Aura Ring */}
         <circle
-          className="lumi-glow-ring"
-          cx={size / 2}
-          cy={size / 2}
-          r={size * 0.42}
-          fill="var(--color-primary)"
-          opacity={0.15}
-          filter={`url(#${uid}-glow)`}
+          cx="60"
+          cy="60"
+          r="54"
+          stroke={`url(#${ringGradId})`}
+          strokeWidth="3"
+          strokeDasharray="6 4 2 4"
+          className={cn(
+            'origin-center animate-[spin_20s_linear_infinite]',
+            actualState === 'thinking' && 'animate-[spin_6s_linear_infinite]',
+            actualState === 'celebrating' && 'animate-[spin_4s_linear_infinite]'
+          )}
         />
 
-        {/* Main orb body */}
+        {/* Dynamic Sphere Core */}
         <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={size * 0.32}
-          fill={`url(#${uid}-grad)`}
+          cx="60"
+          cy="60"
+          r="46"
+          fill={`url(#${coreGradId})`}
+          className="transition-transform duration-500 ease-out-strong"
         />
 
-        {/* Light reflection / specular highlight */}
+        {/* Soft Bezel Reflection Highlight */}
         <ellipse
-          cx={size * 0.42}
-          cy={size * 0.35}
-          rx={size * 0.12}
-          ry={size * 0.08}
-          fill="white"
-          opacity={0.25}
+          cx="48"
+            cy="32"
+          rx="18"
+          ry="10"
+          fill="#FFF8F5"
+          fillOpacity="0.55"
+          transform="rotate(-15 48 32)"
         />
 
-        {/* Face — eyes */}
-        {isExcited ? (
-          /* Excited: wide eyes */
-          <>
-            <circle
-              cx={size * 0.36}
-              cy={size * 0.38}
-              r={size * 0.07}
-              fill="white"
+        {/* Expressive Face Group */}
+        <g className="origin-center transition-all duration-300">
+          {/* Eyes with built-in SVG blinking animation keyframes */}
+          <g>
+            {/* Left Eye */}
+            <ellipse
+              cx="44"
+              cy="62"
+              rx="6"
+              ry="9"
+              fill="#080400"
+              className="animate-[lumiBlink_4s_ease-in-out_infinite]"
             />
+            {/* Left Eye Sparkle */}
             <circle
-              cx={size * 0.64}
-              cy={size * 0.38}
-              r={size * 0.07}
-              fill="white"
+              cx="42"
+              cy="58"
+              r="2.5"
+              fill="#FFF8F5"
+              className="animate-[lumiBlink_4s_ease-in-out_infinite]"
             />
-          </>
-        ) : (
-          /* Default: calm round eyes */
-          <>
-            <circle
-              cx={size * 0.36}
-              cy={size * 0.38}
-              r={size * 0.055}
-              fill="white"
-            />
-            <circle
-              cx={size * 0.64}
-              cy={size * 0.38}
-              r={size * 0.055}
-              fill="white"
-            />
-          </>
-        )}
 
-        {/* Face — mouth */}
-        {isExcited ? (
-          /* Excited: wide smile */
-          <path
-            d={`M ${size * 0.4} ${size * 0.52} Q ${size * 0.5} ${size * 0.6} ${size * 0.6} ${size * 0.52}`}
-            fill="none"
-            stroke="white"
-            strokeWidth={size * 0.02}
-            strokeLinecap="round"
+            {/* Right Eye */}
+            <ellipse
+              cx="76"
+              cy="62"
+              rx="6"
+              ry="9"
+              fill="#080400"
+              className="animate-[lumiBlink_4s_ease-in-out_infinite]"
+            />
+            {/* Right Eye Sparkle */}
+            <circle
+              cx="74"
+              cy="58"
+              r="2.5"
+              fill="#FFF8F5"
+              className="animate-[lumiBlink_4s_ease-in-out_infinite]"
+            />
+          </g>
+
+          {/* Cute Rosy Cheeks */}
+          <ellipse
+            cx="34"
+            cy="70"
+            rx="5.5"
+            ry="3.5"
+            fill="#FFE500"
+            fillOpacity="0.6"
           />
-        ) : (
-          /* Default: gentle smile */
-          <path
-            d={`M ${size * 0.43} ${size * 0.52} Q ${size * 0.5} ${size * 0.57} ${size * 0.57} ${size * 0.52}`}
-            fill="none"
-            stroke="white"
-            strokeWidth={size * 0.015}
-            strokeLinecap="round"
+          <ellipse
+            cx="86"
+            cy="70"
+            rx="5.5"
+            ry="3.5"
+            fill="#FFE500"
+            fillOpacity="0.6"
           />
-        )}
+
+          {/* Expressive Mouth Path */}
+          {(actualState === 'idle' || actualState === 'default') && (
+            /* Gentle Smile */
+            <path
+              d="M54 71C54 74.3137 56.6863 77 60 77C63.3137 77 66 74.3137 66 71"
+              stroke="#080400"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+          )}
+
+          {actualState === 'thinking' && (
+            /* Wry/Curious line */
+            <path
+              d="M53 73C56.5 70.5 59.5 75.5 67 73"
+              stroke="#080400"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+          )}
+
+          {(actualState === 'excited' || actualState === 'celebrating') && (
+            /* Big excited open mouth */
+            <path
+              d="M52 70Q60 84 68 70Z"
+              fill="#080400"
+              stroke="#080400"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          )}
+        </g>
       </svg>
+
+      {/* Dynamic blink keyframes defined locally to isolate CPU load */}
+      <style jsx global>{`
+        @keyframes lumiBlink {
+          0%, 90%, 100% {
+            transform: scaleY(1);
+          }
+          95% {
+            transform: scaleY(0.1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

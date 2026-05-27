@@ -40,7 +40,7 @@ const EASE_OUT_STRONG: [number, number, number, number] = [0.23, 1, 0.32, 1];
 export function CTASection() {
   const { isFull } = useAnimationMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
   const shouldAnimate = isFull && isInView;
 
   return (
@@ -71,11 +71,11 @@ export function CTASection() {
         {/* Lumi — excited, 120px */}
         {isFull ? (
           <motion.div
-            initial={{ opacity: 0, y: -30, scale: 0.9 }}
-            animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : {}}
+            initial={{ opacity: 0, y: -30, scale: 0.9, filter: 'blur(8px)' }}
+            animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' } : { opacity: 0, y: -30, scale: 0.9, filter: 'blur(8px)' }}
             transition={{
-              duration: 0.6,
-              ease: EASE_OUT_STRONG,
+              duration: 0.8,
+              ease: [0.32, 0.72, 0, 1],
             }}
             className="mb-8"
           >
@@ -90,11 +90,11 @@ export function CTASection() {
         {/* Headline */}
         {isFull ? (
           <motion.h2
-            initial={{ opacity: 0, y: 24 }}
-            animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
+            initial={{ opacity: 0, y: 64, filter: 'blur(12px)' }}
+            animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 64, filter: 'blur(12px)' }}
             transition={{
-              duration: 0.5,
-              ease: EASE_OUT_STRONG,
+              duration: 0.8,
+              ease: [0.32, 0.72, 0, 1],
               delay: 0.15,
             }}
             className="font-[family-name:var(--font-heading)] font-bold text-3xl md:text-4xl lg:text-5xl tracking-[-0.02em] text-[var(--color-text)] mb-4"

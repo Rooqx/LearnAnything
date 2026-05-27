@@ -101,7 +101,7 @@ const EASE_OUT_STRONG: [number, number, number, number] = [0.23, 1, 0.32, 1];
 export function FeaturesSection() {
   const { isFull } = useAnimationMode();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
   const shouldAnimate = isFull && isInView;
 
   return (
@@ -120,9 +120,9 @@ export function FeaturesSection() {
         <div className="mb-16 md:mb-20 max-w-2xl">
           {isFull ? (
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, ease: EASE_OUT_STRONG }}
+              initial={{ opacity: 0, y: 64, filter: 'blur(12px)' }}
+              animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 64, filter: 'blur(12px)' }}
+              transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
             >
               <span
                 className={cn(
@@ -230,12 +230,12 @@ export function FeaturesSection() {
                 <motion.div
                   key={feature.id}
                   className={gridClass}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={shouldAnimate ? { opacity: 1, y: 0 } : {}}
+                  initial={{ opacity: 0, y: 64, filter: 'blur(12px)' }}
+                  animate={shouldAnimate ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 64, filter: 'blur(12px)' }}
                   transition={{
-                    duration: 0.5,
-                    ease: EASE_OUT_STRONG,
-                    delay: 0.1 + index * 0.08,
+                    duration: 0.8,
+                    ease: [0.32, 0.72, 0, 1],
+                    delay: index * 0.1,
                   }}
                 >
                   {cardContent}
