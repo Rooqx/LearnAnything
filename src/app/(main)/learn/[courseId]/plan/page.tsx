@@ -6,8 +6,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
   ChevronDown,
   ChevronRight,
@@ -31,11 +32,30 @@ export default function LearningPlanPage() {
   const courseId = params.courseId as string;
   const courses = useCourseStore((state) => state.courses);
   const setActiveCourse = useCourseStore((state) => state.setActiveCourse);
+  const upsertCourse = useCourseStore((state) => state.upsertCourse);
   const course = courses.find((c) => c.id === courseId);
 
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
-  if (!course) {
+  const { data: fetchedCourse, isLoading: isFetching } = useQuery({
+    queryKey: ['course', courseId],
+    queryFn: async () => {
+      const res = await fetch(`/api/courses/${courseId}`);
+      const json = await res.json();
+      if (!json.success || !json.data?.course) {
+        throw new Error('Failed to fetch course');
+      }
+      return json.data.course;
+    },
+  });
+
+  useEffect(() => {
+    if (fetchedCourse) {
+      upsertCourse(fetchedCourse);
+    }
+  }, [fetchedCourse, upsertCourse]);
+
+  if (!course || isFetching) {
     return (
       <PageWrapper>
         <div className="text-center py-20">

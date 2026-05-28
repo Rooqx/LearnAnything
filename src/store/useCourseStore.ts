@@ -49,6 +49,9 @@ interface CourseState {
   /** Add a newly generated course and set it as active */
   addCourse: (course: Course) => void;
 
+  /** Upsert a course from the DB to keep the store synced and set it as active */
+  upsertCourse: (course: Course) => void;
+
   /** Set a course as the active course for learning */
   setActiveCourse: (courseId: string) => void;
 
@@ -144,6 +147,25 @@ export const useCourseStore = create<CourseState>()(
           isLoading: false,
           error: null,
         })),
+
+      upsertCourse: (course) =>
+        set((state) => {
+          const exists = state.courses.some((c) => c.id === course.id);
+          const newCourses = exists
+            ? state.courses.map((c) => (c.id === course.id ? course : c))
+            : [course, ...state.courses];
+            
+          const isActive = state.activeCourse?.id === course.id;
+          
+          return {
+            courses: newCourses,
+            activeCourse: course,
+            currentPageIndex: isActive ? state.currentPageIndex : 0,
+            currentModuleIndex: isActive ? state.currentModuleIndex : 0,
+            isLoading: false,
+            error: null,
+          };
+        }),
 
       setCourses: (courses) => set({ courses }),
 

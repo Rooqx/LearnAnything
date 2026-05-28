@@ -8,6 +8,7 @@
 
 import { useEffect, useCallback, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
   ChevronLeft,
   ChevronRight,
@@ -44,14 +45,27 @@ export default function LearningPage() {
   const [showCompletion, setShowCompletion] = useState(false);
   const [lumiState, setLumiState] = useState<LumiState>('idle');
 
-  /* Set active course if not already set */
-  useEffect(() => {
-    if (!activeCourse) {
-      setActiveCourse(courseId);
-    }
-  }, [activeCourse, courseId, setActiveCourse]);
+  const upsertCourse = useCourseStore((state) => state.upsertCourse);
 
-  if (!activeCourse) {
+  const { data: fetchedCourse, isLoading: isFetching } = useQuery({
+    queryKey: ['course', courseId],
+    queryFn: async () => {
+      const res = await fetch(`/api/courses/${courseId}`);
+      const json = await res.json();
+      if (!json.success || !json.data?.course) {
+        throw new Error('Failed to fetch course');
+      }
+      return json.data.course;
+    },
+  });
+
+  useEffect(() => {
+    if (fetchedCourse) {
+      upsertCourse(fetchedCourse);
+    }
+  }, [fetchedCourse, upsertCourse]);
+
+  if (!activeCourse || isFetching) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)]">
         <LumiAnimated size={80} state="thinking" />

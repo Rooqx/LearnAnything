@@ -80,58 +80,93 @@ export const courseService = {
         }
       },
       orderBy: { lastAccessedAt: "desc" }
-    })
+    });
 
-    return enrollments.map((enrollment: any) => {
-      const course = enrollment.course
-      let totalPages = 0
-      let totalEstimatedMinutes = 0
-      
-      const mappedModules = course.modules.map((mod: any) => {
-        const pages = mod.chapters.map((chapter: any) => {
-          let blocks = []
-          try {
-            blocks = chapter.content ? JSON.parse(chapter.content) : []
-          } catch(e) {
-            // handle parse error
-          }
-          return {
-            id: chapter.id,
-            title: chapter.title,
-            blocks,
-            estimatedMinutes: 5
-          }
-        })
-        
-        totalPages += pages.length
-        totalEstimatedMinutes += pages.length * 5
+    return enrollments.map(mapEnrollmentToCourse);
+  },
 
-        return {
-          id: mod.id,
-          title: mod.title,
-          description: "Module description",
-          pages,
-          estimatedMinutes: pages.length * 5,
-          contentTypes: ["text"],
-          hasQuiz: false
+  /**
+   * Retrieves a single course a user is enrolled in.
+   *
+   * @param userId - The authenticated user's ID
+   * @param courseId - The course ID
+   * @returns Mapped course suitable for frontend display
+   */
+  async getCourseByEnrollment(userId: string, courseId: string) {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { userId_courseId: { userId, courseId } },
+      include: {
+        course: {
+          include: {
+            modules: {
+              where: { deletedAt: null },
+              include: { chapters: true },
+              orderBy: { sortNo: "asc" }
+            }
+          }
         }
-      })
-
-      return {
-        id: course.id,
-        topic: course.topic,
-        title: course.title,
-        description: course.description || "",
-        mode: course.mode,
-        status: enrollment.status,
-        modules: mappedModules,
-        totalEstimatedMinutes,
-        totalPages,
-        createdAt: course.createdAt.toISOString(),
-        lastAccessedAt: enrollment.lastAccessedAt.toISOString(),
-        completedPages: Math.floor(totalPages * (enrollment.completionPct / 100)),
-        xpEarned: 0
       }
-    })
+    });
+
+    if (!enrollment) {
+      throw new AppError("Course not found or user not enrolled", 404, "NOT_FOUND");
+    }
+
+    return mapEnrollmentToCourse(enrollment);
   }
+};
+
+/**
+ * Helper to map Prisma enrollment+course data to the frontend Course interface.
+ */
+function mapEnrollmentToCourse(enrollment: any) {
+  const course = enrollment.course;
+  let totalPages = 0;
+  let totalEstimatedMinutes = 0;
+  
+  const mappedModules = course.modules.map((mod: any) => {
+    const pages = mod.chapters.map((chapter: any) => {
+      let blocks = [];
+      try {
+        blocks = chapter.content ? JSON.parse(chapter.content) : [];
+      } catch(e) {
+        // handle parse error
+      }
+      return {
+        id: chapter.id,
+        title: chapter.title,
+        blocks,
+        estimatedMinutes: 5
+      };
+    });
+    
+    totalPages += pages.length;
+    totalEstimatedMinutes += pages.length * 5;
+
+    return {
+      id: mod.id,
+      title: mod.title,
+      description: "Module description",
+      pages,
+      estimatedMinutes: pages.length * 5,
+      contentTypes: ["text"],
+      hasQuiz: false
+    };
+  });
+
+  return {
+    id: course.id,
+    topic: course.topic,
+    title: course.title,
+    description: course.description || "",
+    mode: course.mode,
+    status: enrollment.status,
+    modules: mappedModules,
+    totalEstimatedMinutes,
+    totalPages,
+    createdAt: course.createdAt.toISOString(),
+    lastAccessedAt: enrollment.lastAccessedAt.toISOString(),
+    completedPages: Math.floor(totalPages * (enrollment.completionPct / 100)),
+    xpEarned: 0
+  };
 }
