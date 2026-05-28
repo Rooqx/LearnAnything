@@ -65,18 +65,10 @@ export default function LearningPage() {
     }
   }, [fetchedCourse, upsertCourse]);
 
-  if (!activeCourse || isFetching) {
-    return (
-      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)]">
-        <LumiAnimated size={80} state="thinking" />
-      </div>
-    );
-  }
-
-  /* Calculate current page from flat index */
-  const allPages = activeCourse.modules.flatMap((m) => m.pages);
+  /* Calculate current page from flat index safely */
+  const allPages = activeCourse?.modules.flatMap((m) => m.pages) || [];
   const currentPage = allPages[currentPageIndex];
-  const totalPages = allPages.length;
+  const totalPages = allPages.length || 1;
   const isLastPage = currentPageIndex >= totalPages - 1;
   const isFirstPage = currentPageIndex === 0;
   const progress = getCompletionPercentage(currentPageIndex + 1, totalPages);
@@ -104,6 +96,14 @@ export default function LearningPage() {
   const handleExit = () => {
     router.push(`/learn/${courseId}/plan`);
   };
+
+  if (!activeCourse || isFetching) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)]">
+        <LumiAnimated size={80} state="thinking" />
+      </div>
+    );
+  }
 
   /* Course completion overlay */
   if (showCompletion) {

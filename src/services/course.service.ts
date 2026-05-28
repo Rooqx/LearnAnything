@@ -73,7 +73,7 @@ export const courseService = {
           include: {
             modules: {
               where: { deletedAt: null },
-              include: { chapters: true },
+              include: { chapters: { orderBy: { sortNo: "asc" } } },
               orderBy: { sortNo: "asc" }
             }
           }
@@ -100,7 +100,7 @@ export const courseService = {
           include: {
             modules: {
               where: { deletedAt: null },
-              include: { chapters: true },
+              include: { chapters: { orderBy: { sortNo: "asc" } } },
               orderBy: { sortNo: "asc" }
             }
           }
@@ -128,9 +128,19 @@ function mapEnrollmentToCourse(enrollment: any) {
     const pages = mod.chapters.map((chapter: any) => {
       let blocks = [];
       try {
-        blocks = chapter.content ? JSON.parse(chapter.content) : [];
-      } catch(e) {
-        // handle parse error
+        if (chapter.content) {
+          const parsed = JSON.parse(chapter.content);
+          if (Array.isArray(parsed)) {
+            blocks = parsed;
+          } else {
+            blocks = [{ id: `${chapter.id}-content`, type: 'text', content: chapter.content }];
+          }
+        }
+      } catch (e) {
+        // Fallback for when content is raw markdown instead of stringified JSON
+        if (chapter.content) {
+          blocks = [{ id: `${chapter.id}-content`, type: 'text', content: chapter.content }];
+        }
       }
       return {
         id: chapter.id,
