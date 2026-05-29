@@ -7,7 +7,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useNavigation } from '@/hooks/useNavigation';
 import { useQuery } from '@tanstack/react-query';
 import {
   ChevronDown,
@@ -27,7 +28,7 @@ import { MODE_CONFIG } from '@/lib/constants';
 import { formatDuration, getCompletionPercentage } from '@/lib/utils';
 
 export default function LearningPlanPage() {
-  const router = useRouter();
+  const router = useNavigation();
   const params = useParams();
   const courseId = params.courseId as string;
   const courses = useCourseStore((state) => state.courses);
@@ -55,11 +56,24 @@ export default function LearningPlanPage() {
     }
   }, [fetchedCourse, upsertCourse]);
 
-  if (!course || isFetching) {
+  if (isFetching && !course) {
     return (
       <PageWrapper>
         <div className="text-center py-20">
           <LumiAnimated size={80} state="thinking" />
+          <p className="mt-4 font-[family-name:var(--font-body)] text-[var(--color-muted)]">
+            Loading course...
+          </p>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (!course) {
+    return (
+      <PageWrapper>
+        <div className="text-center py-20">
+          <LumiAnimated size={80} state="idle" />
           <p className="mt-4 font-[family-name:var(--font-body)] text-[var(--color-muted)]">
             Course not found
           </p>

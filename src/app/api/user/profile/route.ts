@@ -26,7 +26,7 @@ export async function GET() {
         streak: true,
         dailyGoal: true,
         userBadges: { include: { badge: true } },
-        enrollments: { select: { id: true, status: true } },
+        creditBalance: true,
         xpTransactions: { select: { amount: true } },
       },
     });
@@ -42,10 +42,10 @@ export async function GET() {
     const xpInCurrentLevel = totalXP % XP_PER_LEVEL;
     const xpToNextLevel = XP_PER_LEVEL - xpInCurrentLevel;
 
-    // Count courses
-    const totalCoursesCompleted = dbUser.enrollments.filter((e: {status: string}) => e.status === 'completed').length;
-    const coursesInProgress = dbUser.enrollments.filter((e: {status: string}) => e.status === 'in_progress').length;
-    const totalCoursesCreated = dbUser.enrollments.length;
+    // Count courses using Postgres COUNT
+    const totalCoursesCompleted = await prisma.enrollment.count({ where: { userId, status: 'completed' } });
+    const coursesInProgress = await prisma.enrollment.count({ where: { userId, status: 'in_progress' } });
+    const totalCoursesCreated = await prisma.enrollment.count({ where: { userId } });
 
     // Build streak data
     const streakData = dbUser.streak
@@ -82,6 +82,7 @@ export async function GET() {
       avatarUrl: dbUser.image || undefined,
       bio: dbUser.bio || undefined,
       interests: (dbUser.interests || []) as string[],
+      credits: dbUser.creditBalance?.balance || 0,
       xp: { totalXP, currentLevel, xpToNextLevel, xpInCurrentLevel },
       streak: streakData,
       dailyGoal: dailyGoalData,

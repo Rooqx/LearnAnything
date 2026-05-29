@@ -157,6 +157,8 @@ export interface User {
   bio?: string;
   /** Selected interest categories from onboarding */
   interests: InterestCategory[];
+  /** Available credits for generating courses */
+  credits: number;
   /** XP and leveling data */
   xp: XPData;
   /** Streak tracking */

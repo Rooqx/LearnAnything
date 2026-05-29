@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/Button';
 import { LumiPlaceholder } from './LumiPlaceholder';
 import { useAnimationMode } from '@/hooks/useAnimationMode';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
+
 
 /** Custom ease-out curve */
 const EASE_OUT_STRONG: [number, number, number, number] = [0.23, 1, 0.32, 1];
@@ -141,7 +141,7 @@ export function CTASection() {
             }}
             className="flex flex-col items-center gap-4"
           >
-            <Link href="/sign-up">
+            <a href="/sign-up">
               <Button
                 variant="primary"
                 size="lg"
@@ -150,8 +150,8 @@ export function CTASection() {
               >
                 Start Learning Free
               </Button>
-            </Link>
-            <Link
+            </a>
+            <a
               href="/sign-in"
               className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-150"
             >
@@ -159,11 +159,11 @@ export function CTASection() {
               <span className="text-[var(--color-primary)] underline underline-offset-4">
                 Sign in
               </span>
-            </Link>
+            </a>
           </motion.div>
         ) : (
           <div className="flex flex-col items-center gap-4">
-            <Link href="/sign-up">
+            <a href="/sign-up">
               <Button
                 variant="primary"
                 size="lg"
@@ -172,8 +172,8 @@ export function CTASection() {
               >
                 Start Learning Free
               </Button>
-            </Link>
-            <Link
+            </a>
+            <a
               href="/sign-in"
               className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-150"
             >
@@ -181,7 +181,7 @@ export function CTASection() {
               <span className="text-[var(--color-primary)] underline underline-offset-4">
                 Sign in
               </span>
-            </Link>
+            </a>
           </div>
         )}
       </div>

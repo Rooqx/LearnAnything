@@ -293,7 +293,7 @@ function CreditsView({
               </p>
 
               {/* CTA */}
-              <Link href="/sign-up" className="block">
+              <a href="/sign-up" className="block">
                 <Button
                   variant={bundle.isBestValue ? 'primary' : 'secondary'}
                   size="sm"
@@ -301,7 +301,7 @@ function CreditsView({
                 >
                   Buy
                 </Button>
-              </Link>
+              </a>
             </Card>
           </div>
           );
@@ -434,7 +434,7 @@ function SubscriptionView({
               </ul>
 
               {/* CTA */}
-              <Link href="/sign-up" className="block">
+              <a href="/sign-up" className="block">
                 <Button
                   variant={plan.isPopular ? 'primary' : 'secondary'}
                   size="md"
@@ -442,7 +442,7 @@ function SubscriptionView({
                 >
                   Get {plan.name}
                 </Button>
-              </Link>
+              </a>
             </Card>
           </div>
           );

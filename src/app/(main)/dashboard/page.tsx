@@ -8,7 +8,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigation } from '@/hooks/useNavigation';
 import { useQuery } from '@tanstack/react-query';
 import {
   BookOpen,
@@ -45,7 +45,7 @@ import {
 } from '@/lib/utils';
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const router = useNavigation();
   const user = useUserStore((state) => state.user);
   const courses = useCourseStore((state) => state.courses);
   const setCourses = useCourseStore((state) => state.setCourses);

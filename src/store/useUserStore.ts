@@ -57,6 +57,9 @@ interface UserState {
   /** Mark onboarding as complete */
   completeOnboarding: () => void;
 
+  /** Update user credits from DB */
+  setCredits: (amount: number) => void;
+
   /**
    * Add XP to the user's total.
    * Automatically recalculates level, xpToNextLevel, and xpInCurrentLevel.
@@ -213,6 +216,12 @@ export const useUserStore = create<UserState>()(
         set((state) => {
           if (!state.user) return state;
           return { user: { ...state.user, onboardingComplete: true } };
+        }),
+
+      setCredits: (amount) =>
+        set((state) => {
+          if (!state.user) return state;
+          return { user: { ...state.user, credits: amount } };
         }),
 
       addXP: (amount) => {

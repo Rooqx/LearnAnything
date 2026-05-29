@@ -273,7 +273,7 @@ export function HeroSection() {
                 delay: 0.6,
               }}
             >
-              <Link href="/sign-up">
+              <a href="/sign-up">
                 <Button
                   variant="primary"
                   size="lg"
@@ -282,7 +282,7 @@ export function HeroSection() {
                 >
                   Start Learning Free
                 </Button>
-              </Link>
+              </a>
               <a
                 href="#how-it-works"
                 className={cn(
@@ -299,7 +299,7 @@ export function HeroSection() {
             </motion.div>
           ) : (
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Link href="/sign-up">
+              <a href="/sign-up">
                 <Button
                   variant="primary"
                   size="lg"
@@ -308,7 +308,7 @@ export function HeroSection() {
                 >
                   Start Learning Free
                 </Button>
-              </Link>
+              </a>
               <a
                 href="#how-it-works"
                 className={cn(

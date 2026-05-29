@@ -74,18 +74,16 @@ export function Header() {
       <div className="flex items-center gap-3">
         {/* XP Badge — shows current XP with Zap icon */}
         {user && (
-          <Tooltip content={`Level ${user.xp.currentLevel}`}>
-            <button
-              onClick={() => router.push('/pricing')}
-              className="cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95 border-none bg-transparent p-0 m-0"
-              aria-label="View pricing plans"
-            >
-              <Badge variant="reward" size="md">
-                <Coins size={14} className="mr-1" aria-hidden="true" />
-                {formatXP(user.xp.totalXP)} Credits
-              </Badge>
-            </button>
-          </Tooltip>
+          <button
+            onClick={() => router.push('/pricing')}
+            className="cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95 border-none bg-transparent p-0 m-0"
+            aria-label="View pricing plans"
+          >
+            <Badge variant="reward" size="md">
+              <Coins size={14} className="mr-1" aria-hidden="true" />
+              {user.credits} Credits
+            </Badge>
+          </button>
         )}
 
         {/* Theme toggle — sun/moon integrated into the header */}
