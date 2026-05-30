@@ -290,6 +290,7 @@ export const NAV_ITEMS = [
 
 export const INITIAL_USER_DATA: Omit<User, 'id' | 'displayName' | 'email' | 'createdAt'> = {
   interests: [],
+  credits: 0,
   xp: {
     totalXP: 0,
     currentLevel: 1,

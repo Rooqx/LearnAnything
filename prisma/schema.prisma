@@ -194,6 +194,8 @@ id        String   @id @default(dbgenerated("gen_random_uuid()"))
   // status values: 'in_progress' | 'completed' | 'abandoned'
   currentModuleId  String?   @map("current_module_id") // Last module user was on
   currentChapterId String?   @map("current_chapter_id") // Last chapter user was on
+  completedModuleIds  String[] @default([]) @map("completed_module_ids")
+  completedChapterIds String[] @default([]) @map("completed_chapter_ids")
   completionPct    Int       @default(0) @map("completion_pct") // 0–100
   enrolledAt       DateTime  @default(now()) @map("enrolled_at")
   completedAt      DateTime? @map("completed_at")
@@ -346,7 +348,7 @@ model DailyGoal {
 model CreditBalance {
   id        String   @id @default(cuid())
   userId    String   @unique @map("user_id")
-  balance   Int      @default(0)
+  balance   Int      @default(100)
   // balance never goes negative — enforced in creditService before deduction
   updatedAt DateTime @updatedAt @map("updated_at")
 

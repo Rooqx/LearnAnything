@@ -7,8 +7,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useNavigation } from '@/hooks/useNavigation';
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import {
   ChevronDown,
   ChevronRight,
@@ -27,7 +29,7 @@ import { MODE_CONFIG } from '@/lib/constants';
 import { formatDuration, getCompletionPercentage } from '@/lib/utils';
 
 export default function LearningPlanPage() {
-  const router = useRouter();
+  const router = useNavigation();
   const params = useParams();
   const courseId = params.courseId as string;
   const courses = useCourseStore((state) => state.courses);
@@ -40,12 +42,12 @@ export default function LearningPlanPage() {
   const { data: fetchedCourse, isLoading: isFetching } = useQuery({
     queryKey: ['course', courseId],
     queryFn: async () => {
-      const res = await fetch(`/api/courses/${courseId}`);
-      const json = await res.json();
-      if (!json.success || !json.data?.course) {
+      const res = await axios.get(`/api/courses/${courseId}`);
+      const data = res.data;
+      if (!data.success || !data.data?.course) {
         throw new Error('Failed to fetch course');
       }
-      return json.data.course;
+      return data.data.course;
     },
   });
 
@@ -55,11 +57,24 @@ export default function LearningPlanPage() {
     }
   }, [fetchedCourse, upsertCourse]);
 
-  if (!course || isFetching) {
+  if (isFetching && !course) {
     return (
       <PageWrapper>
         <div className="text-center py-20">
           <LumiAnimated size={80} state="thinking" />
+          <p className="mt-4 font-[family-name:var(--font-body)] text-[var(--color-muted)]">
+            Loading course...
+          </p>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (!course) {
+    return (
+      <PageWrapper>
+        <div className="text-center py-20">
+          <LumiAnimated size={80} state="idle" />
           <p className="mt-4 font-[family-name:var(--font-body)] text-[var(--color-muted)]">
             Course not found
           </p>
@@ -158,7 +173,9 @@ export default function LearningPlanPage() {
             {course.modules.map((module, moduleIndex) => {
               const isExpanded = expandedModules.has(module.id);
               const pagesCompleted = Math.min(module.pages.length, Math.max(0, course.completedPages - course.modules.slice(0, moduleIndex).reduce((sum, m) => sum + m.pages.length, 0)));
-              const isModuleComplete = pagesCompleted >= module.pages.length;
+              const isModuleComplete = course.completedModuleIds?.length > 0
+                ? course.completedModuleIds.includes(module.id)
+                : pagesCompleted >= module.pages.length;
 
               return (
                 <Card key={module.id} variant="glass" padding="none">
@@ -193,22 +210,28 @@ export default function LearningPlanPage() {
                         {module.description}
                       </p>
                       <div className="space-y-1.5">
-                        {module.pages.map((page, pageIndex) => (
-                          <div
-                            key={page.id}
-                            className="flex items-center gap-2 text-sm py-1.5"
-                          >
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium ${pageIndex < pagesCompleted ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]' : 'bg-[var(--color-surface-elevated)] text-[var(--color-muted)]'}`}>
-                              {pageIndex < pagesCompleted ? '✓' : pageIndex + 1}
+                        {module.pages.map((page, pageIndex) => {
+                          const isPageComplete = course.completedChapterIds?.length > 0
+                            ? course.completedChapterIds.includes(page.id)
+                            : pageIndex < pagesCompleted;
+
+                          return (
+                            <div
+                              key={page.id}
+                              className="flex items-center gap-2 text-sm py-1.5"
+                            >
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium ${isPageComplete ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]' : 'bg-[var(--color-surface-elevated)] text-[var(--color-muted)]'}`}>
+                                {isPageComplete ? '✓' : pageIndex + 1}
+                              </div>
+                              <span className={`font-[family-name:var(--font-body)] ${isPageComplete ? 'text-[var(--color-muted)] line-through' : 'text-[var(--color-text)]'}`}>
+                                {page.title}
+                              </span>
+                              <span className="ml-auto text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
+                                {page.estimatedMinutes}m
+                              </span>
                             </div>
-                            <span className={`font-[family-name:var(--font-body)] ${pageIndex < pagesCompleted ? 'text-[var(--color-muted)] line-through' : 'text-[var(--color-text)]'}`}>
-                              {page.title}
-                            </span>
-                            <span className="ml-auto text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
-                              {page.estimatedMinutes}m
-                            </span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                       {module.hasQuiz && (
                         <div className="mt-3 flex items-center gap-2 text-xs text-[var(--color-accent)] font-[family-name:var(--font-body)]">

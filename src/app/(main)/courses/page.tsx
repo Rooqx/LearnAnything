@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigation } from '@/hooks/useNavigation';
 import { BookOpen, Clock, ChevronRight, Plus } from 'lucide-react';
 import { Card, Badge, Chip, Button, ProgressBar, EmptyState } from '@/components/ui';
 import { AnimatedPage, FadeIn, StaggerChildren, LumiAnimated } from '@/components/ux';
@@ -18,7 +18,7 @@ import type { CourseStatus } from '@/types';
 type FilterOption = 'all' | CourseStatus;
 
 export default function CoursesPage() {
-  const router = useRouter();
+  const router = useNavigation();
   const courses = useCourseStore((state) => state.courses);
   const [filter, setFilter] = useState<FilterOption>('all');
 

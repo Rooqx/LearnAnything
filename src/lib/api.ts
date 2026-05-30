@@ -75,6 +75,30 @@ export async function fetchAchievements(): Promise<any[]> {
   }
 }
 
+/**
+ * Mark a course as complete in the database.
+ */
+export async function completeCourseInDB(courseId: string) {
+  const response = await axios.patch(`/api/courses/${courseId}/complete`);
+  return response.data;
+}
+
+/**
+ * Mark a specific chapter (and optionally module) as complete in the database.
+ */
+export async function markChapterCompleteInDB(courseId: string, chapterId: string, moduleId?: string) {
+  const response = await axios.patch(`/api/courses/${courseId}/chapters/${chapterId}/complete`, { moduleId });
+  return response.data;
+}
+
+/**
+ * Add an XP transaction to the database.
+ */
+export async function addXPInDB(amount: number, reason: string, courseId?: string) {
+  const response = await axios.post('/api/user/xp', { amount, reason, courseId });
+  return response.data;
+}
+
 
 
 /* ============================================================

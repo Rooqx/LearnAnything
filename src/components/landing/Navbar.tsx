@@ -158,11 +158,11 @@ export function Navbar() {
                 animation: `fadeInDown 400ms cubic-bezier(0.23, 1, 0.32, 1) ${NAV_LINKS.length * 50}ms both`,
               }}
             >
-              <Link href="/sign-up">
+              <a href="/sign-up">
                 <Button variant="primary" size="sm">
                   Get Started
                 </Button>
-              </Link>
+              </a>
             </div>
 
             {/* Mobile hamburger button */}
@@ -294,11 +294,11 @@ export function Navbar() {
               transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
             }}
           >
-            <Link href="/sign-up" onClick={handleLinkClick}>
+            <a href="/sign-up" onClick={handleLinkClick}>
               <Button variant="primary" size="lg">
                 Get Started
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </div>

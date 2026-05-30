@@ -105,6 +105,9 @@ export interface Course {
   lastAccessedAt: string;
   /** Number of completed pages (for progress tracking) */
   completedPages: number;
+  /** Arrays of exactly which chapters and modules have been completed */
+  completedChapterIds: string[];
+  completedModuleIds: string[];
   /** XP earned from this course so far */
   xpEarned: number;
 }

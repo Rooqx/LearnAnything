@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db/prisma';
 import { AppError } from '@/lib/errors';
 import { sendMessageToN8n } from '@/lib/n8n';
 import { CHAT_SESSION_STATUS, N8N_SIGNALS } from '@/constants/chat';
+import { creditService } from '@/services/credit.service';
 
 export const chatSessionService = {
   /**
@@ -73,6 +74,13 @@ export const chatSessionService = {
         'INVALID_STATE'
       );
     }
+
+    // Pre-check credits before hitting n8n
+    const availableCredits = await creditService.getAvailableCredits(userId);
+    if (availableCredits < 2) {
+      throw new AppError('Insufficient credits to generate a course', 402, 'INSUFFICIENT_CREDITS');
+    }
+
     const n8nResponse = await sendMessageToN8n({
       session_id : sessionId,
       message_to_ai : message,
@@ -120,6 +128,9 @@ export const chatSessionService = {
     console.log('[sendMessage] normalized:', JSON.stringify(responseObj, null, 2));
 
     if (responseObj?.message === N8N_SIGNALS.COURSE_GENERATION_STARTING) {
+      // Deduct 2 credits since generation is starting
+      await creditService.deductCredits(userId, 2, 'Course generation', sessionId);
+
       await prisma.chatSession.update({
         where: { id: sessionId },
         data: { status: CHAT_SESSION_STATUS.GENERATING },

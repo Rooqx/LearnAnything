@@ -176,6 +176,12 @@ export default function ChatPage() {
         setGenerating(sendMessageMutation.variables!.sid);
         setLumiState('thinking');
         setShowModeSelector(false);
+        
+        // Deduct 2 credits locally to immediately reflect in UI
+        const currentUser = useUserStore.getState().user;
+        if (currentUser) {
+          useUserStore.getState().setCredits(Math.max(0, currentUser.credits - 2));
+        }
       } else if (data?.message) {
         setMessages((prev) => [...prev, {
           id: generateId(),

@@ -32,9 +32,37 @@ export const userService = {
         firstname: input.firstname,
         lastname: input.lastname,
         password: hashedPassword,
+        creditBalance: {
+          create: {
+            balance: 100,
+          },
+        },
+        creditTxns: {
+          create: {
+            amount: 100,
+            type: 'purchase',
+            description: 'Signup bonus',
+          },
+        },
       },
     })
 
     return user
+  },
+
+  /**
+   * Adds an XP transaction for the user.
+   * Total XP is dynamically calculated from these transactions.
+   */
+  async addXPTransaction(userId: string, amount: number, reason: string, courseId?: string) {
+    const transaction = await prisma.xpTransaction.create({
+      data: {
+        userId,
+        amount,
+        reason,
+        courseId,
+      },
+    });
+    return transaction;
   },
 }

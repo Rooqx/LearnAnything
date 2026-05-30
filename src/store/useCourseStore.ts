@@ -67,6 +67,9 @@ interface CourseState {
   /** Mark a page as completed and update course progress */
   completePage: () => void;
 
+  /** Mark a specific chapter as completed */
+  completeChapter: (courseId: string, chapterId: string, moduleId?: string) => void;
+
   /** Mark the entire course as completed */
   completeCourse: (courseId: string) => void;
 
@@ -253,6 +256,34 @@ export const useCourseStore = create<CourseState>()(
             courses: state.courses.map((c) =>
               c.id === updatedCourse.id ? updatedCourse : c
             ),
+          };
+        }),
+
+      completeChapter: (courseId, chapterId, moduleId) =>
+        set((state) => {
+          const newCourses = state.courses.map((c) => {
+            if (c.id !== courseId) return c;
+            
+            const newChapterIds = c.completedChapterIds?.includes(chapterId) 
+              ? c.completedChapterIds 
+              : [...(c.completedChapterIds || []), chapterId];
+              
+            const newModuleIds = moduleId && !c.completedModuleIds?.includes(moduleId)
+              ? [...(c.completedModuleIds || []), moduleId]
+              : (c.completedModuleIds || []);
+              
+            return {
+              ...c,
+              completedChapterIds: newChapterIds,
+              completedModuleIds: newModuleIds,
+            };
+          });
+
+          return {
+            courses: newCourses,
+            activeCourse: state.activeCourse?.id === courseId 
+              ? newCourses.find(c => c.id === courseId) 
+              : state.activeCourse,
           };
         }),
 
