@@ -53,8 +53,9 @@ export function SwipeContainer({
 
   return (
     <div
+      id="swipe-scroll-container"
       className={cn(
-        'w-full overflow-hidden',
+        'w-full overflow-x-hidden',
         !isLite && 'transition-transform duration-300',
         className
       )}

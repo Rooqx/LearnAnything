@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Clock,
   Users,
+  CheckCircle,
 } from 'lucide-react';
 import {
   Card,
@@ -159,26 +160,26 @@ export default function DashboardPage() {
                 </span>
               </div>
               <p className="font-[family-name:var(--font-heading)] font-bold text-2xl text-[var(--color-text)]">
-                {formatXP(user.xp.totalXP)}
+                {user.credits}
               </p>
               <p className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] mt-1">
-                Level {user.xp.currentLevel}
+                Available to spend
               </p>
             </Card>
 
-            {/* Streak Card */}
+            {/* Completed Courses Card */}
             <Card variant="glass" padding="md">
               <div className="flex items-center gap-2 mb-2">
-                <Flame size={16} className="text-[var(--color-primary)]" />
+                <CheckCircle size={16} className="text-[var(--color-primary)]" />
                 <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] uppercase tracking-wide">
-                  Streak
+                  Completed
                 </span>
               </div>
               <p className="font-[family-name:var(--font-heading)] font-bold text-2xl text-[var(--color-text)]">
-                {user.streak.currentStreak}
+                {user.totalCoursesCompleted}
               </p>
               <p className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] mt-1">
-                {user.streak.todayCompleted ? 'On track today' : 'Learn today to keep it'}
+                Fully mastered courses
               </p>
             </Card>
 
@@ -191,7 +192,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <p className="font-[family-name:var(--font-heading)] font-bold text-2xl text-[var(--color-text)]">
-                {user.totalCoursesCompleted}
+                {user.totalCoursesCreated}
               </p>
               <p className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] mt-1">
                 {user.coursesInProgress} in progress

@@ -7,8 +7,10 @@
 'use client';
 
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useNavigation } from '@/hooks/useNavigation';
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import {
   ChevronLeft,
   ChevronRight,
@@ -29,17 +31,20 @@ import { remarkPlugins, rehypePlugins } from '@/lib/markdownConfig';
 import { getCompletionPercentage } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import type { ContentBlock, LumiState } from '@/types';
+import { completeCourseInDB, markChapterCompleteInDB } from '@/lib/api';
 
 export default function LearningPage() {
-  const router = useRouter();
+  const router = useNavigation();
   const params = useParams();
   const courseId = params.courseId as string;
 
   const activeCourse = useCourseStore((state) => state.activeCourse);
   const currentPageIndex = useCourseStore((state) => state.currentPageIndex);
+  const currentModuleIndex = useCourseStore((state) => state.currentModuleIndex);
   const nextPage = useCourseStore((state) => state.nextPage);
   const prevPage = useCourseStore((state) => state.prevPage);
   const completePage = useCourseStore((state) => state.completePage);
+  const completeChapter = useCourseStore((state) => state.completeChapter);
   const setActiveCourse = useCourseStore((state) => state.setActiveCourse);
   const completeCourse = useCourseStore((state) => state.completeCourse);
 
@@ -127,12 +132,12 @@ export default function LearningPage() {
   const { data: fetchedCourse, isLoading: isFetching } = useQuery({
     queryKey: ['course', courseId],
     queryFn: async () => {
-      const res = await fetch(`/api/courses/${courseId}`);
-      const json = await res.json();
-      if (!json.success || !json.data?.course) {
+      const res = await axios.get(`/api/courses/${courseId}`);
+      const data = res.data;
+      if (!data.success || !data.data?.course) {
         throw new Error('Failed to fetch course');
       }
-      return json.data.course;
+      return data.data.course;
     },
   });
 
@@ -141,6 +146,8 @@ export default function LearningPage() {
       upsertCourse(fetchedCourse);
     }
   }, [fetchedCourse, upsertCourse]);
+
+
 
   /* Calculate current page from flat index safely */
   const allPages = activeCourse?.modules.flatMap((m) => m.pages) || [];
@@ -151,26 +158,55 @@ export default function LearningPage() {
   const progress = getCompletionPercentage(currentPageIndex + 1, totalPages);
 
   const handleNext = useCallback(() => {
+    // Current module to track completion
+    const currentModule = activeCourse?.modules[currentModuleIndex];
+    const chapterId = currentPage?.id;
+    const moduleId = currentModule?.id;
+
+    if (chapterId && activeCourse) {
+      completeChapter(activeCourse.id, chapterId, moduleId);
+      markChapterCompleteInDB(activeCourse.id, chapterId, moduleId).catch(console.error);
+    }
+
     if (isLastPage) {
       /* Course complete */
       completeCourse(courseId);
+      completeCourseInDB(courseId).catch(console.error);
       setShowCompletion(true);
       setLumiState('celebrating');
       return;
     }
 
     completePage();
-    earnPageXP();
+    earnPageXP(courseId);
     setShowXP(true);
     setTimeout(() => setShowXP(false), 1000);
     nextPage();
-    setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
-  }, [isLastPage, completePage, earnPageXP, nextPage, courseId, completeCourse]);
+    
+    // Imperative scroll reset
+    const container = document.getElementById('swipe-scroll-container');
+    if (container) container.scrollTop = 0;
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      const el = document.getElementById('swipe-scroll-container');
+      if (el) el.scrollTop = 0;
+      window.scrollTo(0, 0);
+    }, 50);
+  }, [isLastPage, completePage, earnPageXP, nextPage, courseId, completeCourse, activeCourse, currentModuleIndex, currentPage, completeChapter]);
 
   const handlePrev = useCallback(() => {
     if (!isFirstPage) {
       prevPage();
-      setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+      
+      // Imperative scroll reset
+      const container = document.getElementById('swipe-scroll-container');
+      if (container) container.scrollTop = 0;
+      window.scrollTo(0, 0);
+      setTimeout(() => {
+        const el = document.getElementById('swipe-scroll-container');
+        if (el) el.scrollTop = 0;
+        window.scrollTo(0, 0);
+      }, 50);
     }
   }, [isFirstPage, prevPage]);
 
@@ -192,18 +228,18 @@ export default function LearningPage() {
       <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)] p-6">
         <ConfettiBlast trigger />
         <AnimatedPage>
-          <Card variant="elevated" padding="lg" className="max-w-md text-center">
-            <LumiAnimated size={100} state="celebrating" className="mx-auto mb-6" />
+          <Card variant="elevated" padding="lg" className="max-w-md w-full mx-auto flex flex-col items-center text-center">
+            <LumiAnimated size={100} state="celebrating" className="mb-6" />
             <h1 className="font-[family-name:var(--font-heading)] font-bold text-3xl text-[var(--color-text)] mb-2">
               Course complete
             </h1>
             <p className="font-[family-name:var(--font-body)] text-[var(--color-muted)] mb-6">
               You finished {activeCourse.title}
             </p>
-            <Badge variant="reward" size="md" className="mb-6">
+            <Badge variant="reward" size="md" className="mb-8">
               +{activeCourse.totalPages * 10 + 200} XP earned
             </Badge>
-            <div className="flex gap-3">
+            <div className="flex w-full gap-3">
               <Button variant="secondary" onClick={() => router.push('/dashboard')} fullWidth>
                 Dashboard
               </Button>
@@ -238,7 +274,7 @@ export default function LearningPage() {
 
       {/* Content area */}
       <SwipeContainer onNext={handleNext} onPrev={handlePrev} className="flex-1">
-        <article className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        <article key={currentPageIndex} className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-10">
           {/* Page title */}
           <h2 className="font-[family-name:var(--font-heading)] font-bold text-2xl tracking-[-0.02em] text-[var(--color-text)] mb-6">
             {currentPage.title}

@@ -18,8 +18,8 @@ export function UserHydrator() {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    // Only fetch if the store has no user and we haven't already tried
-    if (user || hasFetched.current) return;
+    // Always fetch on mount to sync localStorage with the latest database state
+    if (hasFetched.current) return;
     hasFetched.current = true;
 
     async function hydrateUser() {

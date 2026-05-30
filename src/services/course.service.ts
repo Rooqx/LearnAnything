@@ -113,6 +113,93 @@ export const courseService = {
     }
 
     return mapEnrollmentToCourse(enrollment);
+  },
+
+  /**
+   * Marks a course as completed for a specific user.
+   */
+  async markCourseComplete(userId: string, courseId: string) {
+    await prisma.enrollment.update({
+      where: { userId_courseId: { userId, courseId } },
+      data: {
+        status: 'completed',
+        completionPct: 100,
+        completedAt: new Date(),
+        lastAccessedAt: new Date(),
+      },
+    });
+  },
+
+  /**
+   * Pushes a chapter ID (and module ID if provided) to the completed arrays.
+   * Uses deduplication and calculates accurate completion percentage.
+   */
+  async markChapterComplete(userId: string, courseId: string, chapterId: string, moduleId?: string) {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { userId_courseId: { userId, courseId } },
+      include: {
+        course: {
+          include: {
+            modules: {
+              include: { chapters: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!enrollment) return;
+
+    // 1. Deduplicate chapter
+    const hasChapter = enrollment.completedChapterIds.includes(chapterId);
+    let newCompletedChapterIds = enrollment.completedChapterIds;
+    if (!hasChapter) {
+      newCompletedChapterIds = [...enrollment.completedChapterIds, chapterId];
+    }
+
+    // 2. Determine module completion
+    let hasModule = false;
+    let newCompletedModuleIds = enrollment.completedModuleIds;
+    
+    if (moduleId) {
+      hasModule = enrollment.completedModuleIds.includes(moduleId);
+      if (!hasModule) {
+        // Find the module to check if all its chapters are complete
+        const targetModule = enrollment.course?.modules.find(m => m.id === moduleId);
+        if (targetModule) {
+          const allModuleChaptersComplete = targetModule.chapters.every(ch => 
+            newCompletedChapterIds.includes(ch.id)
+          );
+          if (allModuleChaptersComplete) {
+            newCompletedModuleIds = [...enrollment.completedModuleIds, moduleId];
+          }
+        }
+      }
+    }
+
+    // 3. Calculate new completion percentage
+    let totalPages = 0;
+    enrollment.course?.modules.forEach((m) => {
+      totalPages += m.chapters.length;
+    });
+    
+    // Avoid division by zero
+    if (totalPages === 0) totalPages = 1;
+
+    // Use unique size to compute percentage
+    const uniqueChaptersCount = new Set(newCompletedChapterIds).size;
+    const completionPct = Math.min(100, Math.round((uniqueChaptersCount / totalPages) * 100));
+
+    // 4. Update the DB explicitly setting the deduplicated arrays
+    await prisma.enrollment.update({
+      where: { userId_courseId: { userId, courseId } },
+      data: {
+        completedChapterIds: { set: Array.from(new Set(newCompletedChapterIds)) },
+        completedModuleIds: { set: Array.from(new Set(newCompletedModuleIds)) },
+        completionPct,
+        lastAccessedAt: new Date(),
+      },
+    });
   }
 };
 
@@ -176,7 +263,11 @@ function mapEnrollmentToCourse(enrollment: any) {
     totalPages,
     createdAt: course.createdAt.toISOString(),
     lastAccessedAt: enrollment.lastAccessedAt.toISOString(),
-    completedPages: Math.floor(totalPages * (enrollment.completionPct / 100)),
+    completedPages: enrollment.completedChapterIds?.length > 0 
+      ? new Set(enrollment.completedChapterIds).size 
+      : Math.floor(totalPages * (enrollment.completionPct / 100)),
+    completedChapterIds: Array.from(new Set(enrollment.completedChapterIds || [])),
+    completedModuleIds: Array.from(new Set(enrollment.completedModuleIds || [])),
     xpEarned: 0
   };
 }

@@ -3,6 +3,7 @@ import { successResponse, errorResponse } from '@/lib/http/api-response';
 import { AppError } from '@/lib/errors';
 import { prisma } from '@/lib/db/prisma';
 import { BADGE_DEFINITIONS, INITIAL_USER_DATA } from '@/lib/constants';
+import { creditService } from '@/services/credit.service';
 
 /**
  * GET /api/user/profile
@@ -82,7 +83,7 @@ export async function GET() {
       avatarUrl: dbUser.image || undefined,
       bio: dbUser.bio || undefined,
       interests: (dbUser.interests || []) as string[],
-      credits: dbUser.creditBalance?.balance || 0,
+      credits: await creditService.getAvailableCredits(userId),
       xp: { totalXP, currentLevel, xpToNextLevel, xpInCurrentLevel },
       streak: streakData,
       dailyGoal: dailyGoalData,
