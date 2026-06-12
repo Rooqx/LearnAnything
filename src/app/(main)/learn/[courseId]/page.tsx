@@ -24,7 +24,7 @@ import {
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Button, Card, ProgressBar, Badge, Drawer } from '@/components/ui';
-import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast } from '@/components/ux';
+import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast, ReadAloudButton, VoiceChatButton } from '@/components/ux';
 import { useCourseStore } from '@/store/useCourseStore';
 import { useXP } from '@/hooks/useXP';
 import { remarkPlugins, rehypePlugins } from '@/lib/markdownConfig';
@@ -310,13 +310,24 @@ export default function LearningPage() {
             Back
           </Button>
 
-          <button
-            onClick={() => setShowHelp(true)}
-            className="p-2.5 rounded-full text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface)] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-            aria-label="Get AI help"
-          >
-            <HelpCircle size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            {/* Read current page content aloud */}
+            <ReadAloudButton blocks={currentPage.blocks} />
+
+            <button
+              onClick={() => setShowHelp(true)}
+              className="p-2.5 rounded-full text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface)] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Get AI help"
+            >
+              <HelpCircle size={20} />
+            </button>
+
+            {/* Voice chat with AI tutor (placeholder) */}
+            <VoiceChatButton
+              courseId={courseId}
+              currentPageContent={currentPage}
+            />
+          </div>
 
           <Button
             onClick={handleNext}

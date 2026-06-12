@@ -497,3 +497,30 @@ code, pre, kbd, samp {
 }
 
 .animate-float-up { animation: floatUp 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+/* ============================================================
+   VOICE FEATURE ANIMATIONS
+   Used by VoiceChatButton, ReadAloudButton
+   ============================================================ */
+
+/* Voice listening — pulsing ring (GPU-accelerated via box-shadow) */
+@keyframes voicePulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 48, 8, 0.5); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 48, 8, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 48, 8, 0); }
+}
+
+.animate-voice-pulse {
+  animation: voicePulse 1.5s ease-out infinite;
+}
+
+/* Sound wave bars — staggered vertical oscillation */
+@keyframes soundWave {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.animate-sound-wave {
+  animation: soundWave 0.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
