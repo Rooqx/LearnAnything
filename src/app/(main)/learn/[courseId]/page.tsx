@@ -24,7 +24,7 @@ import {
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Button, Card, ProgressBar, Badge, Drawer } from '@/components/ui';
-import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast, ReadAloudButton, VoiceChatButton } from '@/components/ux';
+import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast, ReadAloudButton, VoiceChatButton, LineChartViewer, MermaidViewer } from '@/components/ux';
 import { useCourseStore } from '@/store/useCourseStore';
 import { useXP } from '@/hooks/useXP';
 import { remarkPlugins, rehypePlugins } from '@/lib/markdownConfig';
@@ -471,14 +471,42 @@ export default function LearningPage() {
    Content Block Renderer
    Renders individual content blocks based on their type.
    ============================================================ */
-
 const markdownComponents = {
   code(props: any) {
     const { children, className, node, ...rest } = props;
     const match = /language-(\w+)/.exec(className || '');
-    
+
     // If it's a block of code (triple backticks)
     if (match) {
+      const language = match[1];
+      const codeString = String(children).replace(/\n$/, "");
+
+      if (language === "svg") {
+        return (
+          <div
+            className="my-8 flex justify-center p-6 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
+            dangerouslySetInnerHTML={{ __html: codeString }}
+          />
+        );
+      }
+
+      if (language === "chart") {
+        try {
+          const chartData = JSON.parse(codeString);
+          return <LineChartViewer payload={chartData} />;
+        } catch (e) {
+          return (
+            <div className="text-red-500 text-sm my-4 text-center bg-[var(--color-surface)] p-4 rounded-xl border border-[var(--color-border)]">
+              Failed to parse chart data.
+            </div>
+          );
+        }
+      }
+
+      if (language === "mermaid") {
+        return <MermaidViewer chart={codeString} />;
+      }
+
       return (
         <Card variant="solid" padding="none" className="overflow-hidden my-4 border border-[#222]">
           <div className="flex items-center justify-between px-4 py-2 border-b border-[#222] bg-[#111]">

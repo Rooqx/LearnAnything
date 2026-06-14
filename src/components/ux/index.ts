@@ -14,3 +14,5 @@ export { SwipeContainer, type SwipeContainerProps } from './SwipeContainer';
 export { VoiceChatButton, type VoiceChatButtonProps } from './VoiceChatButton';
 export { ReadAloudButton, type ReadAloudButtonProps } from './ReadAloudButton';
 export { VoiceSettings, type VoiceSettingsProps } from './VoiceSettings';
+export { LineChartViewer } from './LineChartViewer';
+export { MermaidViewer } from './MermaidViewer';
