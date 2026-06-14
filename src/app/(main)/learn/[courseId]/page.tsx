@@ -24,7 +24,7 @@ import {
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Button, Card, ProgressBar, Badge, Drawer } from '@/components/ui';
-import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast, ReadAloudButton, VoiceChatButton, LineChartViewer, MermaidViewer } from '@/components/ux';
+import { AnimatedPage, SwipeContainer, LumiAnimated, ConfettiBlast, ReadAloudButton, VoiceChatButton, LineChartViewer, MermaidViewer, ModuleVideoIntro, ModuleVideoButton } from '@/components/ux';
 import { useCourseStore } from '@/store/useCourseStore';
 import { useXP } from '@/hooks/useXP';
 import { remarkPlugins, rehypePlugins } from '@/lib/markdownConfig';
@@ -157,6 +157,13 @@ export default function LearningPage() {
   const isFirstPage = currentPageIndex === 0;
   const progress = getCompletionPercentage(currentPageIndex + 1, totalPages);
 
+  let pageInModule = currentPageIndex;
+  for (let i = 0; i < currentModuleIndex; i++) {
+    pageInModule -= activeCourse?.modules[i]?.pages.length || 0;
+  }
+  const isFirstPageOfModule = pageInModule === 0;
+  const currentModule = activeCourse?.modules[currentModuleIndex];
+
   const handleNext = useCallback(() => {
     // Current module to track completion
     const currentModule = activeCourse?.modules[currentModuleIndex];
@@ -266,6 +273,9 @@ export default function LearningPage() {
           <div className="flex-1">
             <ProgressBar value={progress} variant="primary" size="sm" />
           </div>
+          {currentModule?.youtubeUrl && !isFirstPageOfModule && (
+            <ModuleVideoButton youtubeUrl={currentModule.youtubeUrl} />
+          )}
           <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] shrink-0">
             {currentPageIndex + 1}/{totalPages}
           </span>
@@ -279,6 +289,10 @@ export default function LearningPage() {
           <h2 className="font-[family-name:var(--font-heading)] font-bold text-2xl tracking-[-0.02em] text-[var(--color-text)] mb-6">
             {currentPage.title}
           </h2>
+
+          {isFirstPageOfModule && currentModule?.youtubeUrl && (
+            <ModuleVideoIntro youtubeUrl={currentModule.youtubeUrl} />
+          )}
 
           {/* Content blocks */}
           <div className="space-y-6">

@@ -16,3 +16,4 @@ export { ReadAloudButton, type ReadAloudButtonProps } from './ReadAloudButton';
 export { VoiceSettings, type VoiceSettingsProps } from './VoiceSettings';
 export { LineChartViewer } from './LineChartViewer';
 export { MermaidViewer } from './MermaidViewer';
+export { ModuleVideoIntro, ModuleVideoButton } from './ModuleVideo';

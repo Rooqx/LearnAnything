@@ -74,6 +74,8 @@ export interface Module {
   contentTypes: ContentBlockType[];
   /** Whether a quiz should appear after completing this module */
   hasQuiz: boolean;
+  /** Optional YouTube video lecture URL */
+  youtubeUrl?: string;
 }
 
 /**

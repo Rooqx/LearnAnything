@@ -247,7 +247,8 @@ function mapEnrollmentToCourse(enrollment: any) {
       pages,
       estimatedMinutes: pages.length * 5,
       contentTypes: ["text"],
-      hasQuiz: false
+      hasQuiz: false,
+      youtubeUrl: mod.youtubeUrl
     };
   });
 
