@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play } from 'lucide-react';
 import { Button, Drawer } from '@/components/ui';
-import '@justinribeiro/lite-youtube';
+if (typeof window !== 'undefined') {
+  import('@justinribeiro/lite-youtube');
+}
 
 declare global {
   namespace JSX {
