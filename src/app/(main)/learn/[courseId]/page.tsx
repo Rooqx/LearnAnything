@@ -16,7 +16,6 @@ import {
   ChevronRight,
   X,
   BookOpen,
-  HelpCircle,
   MessageSquareShare,
   Send,
   Sparkles
@@ -50,7 +49,6 @@ export default function LearningPage() {
 
   const { earnPageXP, lastXPEarned } = useXP();
   const [showXP, setShowXP] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [lumiState, setLumiState] = useState<LumiState>('idle');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -72,13 +70,13 @@ export default function LearningPage() {
 
   // Idle Timer for Tooltip
   useEffect(() => {
-    if (isChatOpen || showHelp) {
+    if (isChatOpen) {
       setShowTooltip(false);
       return;
     }
     const timer = setTimeout(() => setShowTooltip(true), 60000);
     return () => clearTimeout(timer);
-  }, [isChatOpen, showHelp]);
+  }, [isChatOpen]);
 
   // Tooltip Cycling
   useEffect(() => {
@@ -328,14 +326,6 @@ export default function LearningPage() {
             {/* Read current page content aloud */}
             <ReadAloudButton blocks={currentPage.blocks} />
 
-            <button
-              onClick={() => setShowHelp(true)}
-              className="p-2.5 rounded-full text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-surface)] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Get AI help"
-            >
-              <HelpCircle size={20} />
-            </button>
-
             {/* Voice chat with AI tutor (placeholder) */}
             <VoiceChatButton
               courseId={courseId}
@@ -463,20 +453,6 @@ export default function LearningPage() {
         </AnimatePresence>
       </button>
 
-      {/* AI Help Drawer */}
-      <Drawer isOpen={showHelp} onClose={() => setShowHelp(false)} title="AI Help">
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            <LumiAnimated size={64} state="thinking" />
-          </div>
-          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-muted)] text-center">
-            AI Help will be available once the n8n webhook is configured. For now, try re-reading the current page or checking the previous pages for context.
-          </p>
-          <Button variant="secondary" fullWidth onClick={() => setShowHelp(false)}>
-            Got it
-          </Button>
-        </div>
-      </Drawer>
     </div>
   );
 }
