@@ -45,8 +45,6 @@ export function VoiceSettings({ voiceOutput, className }: VoiceSettingsProps) {
     setSelectedVoice,
     rate,
     setRate,
-    pitch,
-    setPitch,
     speak,
     stop,
     isSpeaking,
@@ -55,9 +53,8 @@ export function VoiceSettings({ voiceOutput, className }: VoiceSettingsProps) {
 
   if (!isSupported) return null;
 
-  /* Group voices by language for better UX */
-  const englishVoices = voices.filter((v) => v.lang.startsWith('en'));
-  const otherVoices = voices.filter((v) => !v.lang.startsWith('en'));
+  // Voices are hardcoded from ElevenLabs
+  const activeVoices = voices;
 
   const handleTestVoice = () => {
     if (isSpeaking) {
@@ -103,81 +100,35 @@ export function VoiceSettings({ voiceOutput, className }: VoiceSettingsProps) {
               Voice
             </label>
             <div className="max-h-48 overflow-y-auto rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
-              {englishVoices.length > 0 && (
-                <>
-                  <div className="px-3 py-1.5 text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] font-medium uppercase tracking-wider bg-[var(--color-surface-elevated)] sticky top-0">
-                    English
+              {activeVoices.map((voice) => (
+                <button
+                  key={voice.voiceId}
+                  onClick={() => setSelectedVoice(voice)}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-3 py-2.5 text-left cursor-pointer',
+                    'transition-colors duration-150',
+                    'hover:bg-[var(--color-surface-elevated)]',
+                    'min-h-[44px]',
+                    selectedVoice?.voiceId === voice.voiceId &&
+                      'bg-[var(--color-primary)]/10'
+                  )}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text)] truncate">
+                      {voice.name}
+                    </p>
+                    <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-muted)]">
+                      Premium ElevenLabs Voice
+                    </p>
                   </div>
-                  {englishVoices.map((voice) => (
-                    <button
-                      key={voice.voiceURI}
-                      onClick={() => setSelectedVoice(voice)}
-                      className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2.5 text-left cursor-pointer',
-                        'transition-colors duration-150',
-                        'hover:bg-[var(--color-surface-elevated)]',
-                        'min-h-[44px]',
-                        selectedVoice?.voiceURI === voice.voiceURI &&
-                          'bg-[var(--color-primary)]/10'
-                      )}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text)] truncate">
-                          {voice.name}
-                        </p>
-                        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-muted)]">
-                          {voice.lang}
-                          {voice.localService ? ' · Offline' : ' · Online'}
-                        </p>
-                      </div>
-                      {selectedVoice?.voiceURI === voice.voiceURI && (
-                        <Check
-                          size={16}
-                          className="text-[var(--color-primary)] shrink-0"
-                        />
-                      )}
-                    </button>
-                  ))}
-                </>
-              )}
-
-              {otherVoices.length > 0 && (
-                <>
-                  <div className="px-3 py-1.5 text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)] font-medium uppercase tracking-wider bg-[var(--color-surface-elevated)] sticky top-0">
-                    Other Languages
-                  </div>
-                  {otherVoices.map((voice) => (
-                    <button
-                      key={voice.voiceURI}
-                      onClick={() => setSelectedVoice(voice)}
-                      className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2.5 text-left cursor-pointer',
-                        'transition-colors duration-150',
-                        'hover:bg-[var(--color-surface-elevated)]',
-                        'min-h-[44px]',
-                        selectedVoice?.voiceURI === voice.voiceURI &&
-                          'bg-[var(--color-primary)]/10'
-                      )}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-text)] truncate">
-                          {voice.name}
-                        </p>
-                        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-muted)]">
-                          {voice.lang}
-                          {voice.localService ? ' · Offline' : ' · Online'}
-                        </p>
-                      </div>
-                      {selectedVoice?.voiceURI === voice.voiceURI && (
-                        <Check
-                          size={16}
-                          className="text-[var(--color-primary)] shrink-0"
-                        />
-                      )}
-                    </button>
-                  ))}
-                </>
-              )}
+                  {selectedVoice?.voiceId === voice.voiceId && (
+                    <Check
+                      size={16}
+                      className="text-[var(--color-primary)] shrink-0"
+                    />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -211,35 +162,7 @@ export function VoiceSettings({ voiceOutput, className }: VoiceSettingsProps) {
             </div>
           </div>
 
-          {/* ── Pitch slider ── */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="font-[family-name:var(--font-heading)] font-semibold text-sm text-[var(--color-text)]">
-                Pitch
-              </label>
-              <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--color-muted)]">
-                {pitch.toFixed(1)}
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0.6"
-              max="1.4"
-              step="0.1"
-              value={pitch}
-              onChange={(e) => setPitch(parseFloat(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none cursor-pointer bg-[var(--color-surface-elevated)] accent-[var(--color-primary)]"
-              aria-label="Speech pitch"
-            />
-            <div className="flex justify-between mt-1">
-              <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
-                Lower
-              </span>
-              <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-body)]">
-                Higher
-              </span>
-            </div>
-          </div>
+
 
           {/* ── Test voice button ── */}
           <Button

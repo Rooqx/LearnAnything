@@ -20,7 +20,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { Volume2, Pause, Play, Square, Settings } from 'lucide-react';
 import { Tooltip } from '@/components/ui';
 import { VoiceSettings } from '@/components/ux/VoiceSettings';
-import { useVoiceOutput, isSpeechSynthesisSupported } from '@/hooks/useVoiceOutput';
+import { useVoiceOutput } from '@/hooks/useVoiceOutput';
 import { cn } from '@/lib/utils';
 import type { ContentBlock } from '@/types';
 
